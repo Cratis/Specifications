@@ -39,6 +39,7 @@ namespace Aksio.Specifications
     /// .
     /// It will run the Establish first for the `a_specific_context` and then the `when_doing_something`
     /// class.
+    /// .
     /// </remarks>
     public class Specification : IDisposable
     {
