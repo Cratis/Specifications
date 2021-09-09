@@ -31,7 +31,7 @@ from the lowest level in the hierarchy chain and up the hierarchy (e.g. no_user_
 
 To get all this to work, all you need to do is inherit from the `Specification` type found in `Aksio.Specifications`.
 
-## Structure && naming
+## Structure and naming
 
 The general purpose of BDD and specification by example is to make it all very human readable and possible to navigate quite
 easily. New developers can come into the solution and pretty much read up on the specifications and get a glimpse of how the
