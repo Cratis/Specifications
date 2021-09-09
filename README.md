@@ -1,6 +1,6 @@
 # Specifications
 
-[![Build](https://github.com/aksio-system/Specifications/actions/workflows/build-dotnet.yml/badge.svg)](https://github.com/aksio-system/Specifications/actions/workflows/build-dotnet.yml)
+[![Build](https://github.com/aksio-system/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/aksio-system/Specifications/actions/workflows/build.yml)
 [![Nuget](https://img.shields.io/nuget/v/aksio.specifications)](http://nuget.org/packages/aksio.specifications)
 
 This project represents a way to do Specification by Example - BDD style inspired by
