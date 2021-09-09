@@ -31,7 +31,7 @@ from the lowest level in the hierarchy chain and up the hierarchy (e.g. no_user_
 
 To get all this to work, all you need to do is inherit from the `Specification` type found in `Aksio.Specifications`.
 
-## Structure && naming
+## Structure and naming
 
 The general purpose of BDD and specification by example is to make it all very human readable and possible to navigate quite
 easily. New developers can come into the solution and pretty much read up on the specifications and get a glimpse of how the
@@ -64,7 +64,7 @@ end up getting a lot of warnings. These can be turned off by adding a **NoWarn**
 | Warning | Description |
 | ------- | ----------- |
 | [CA1707](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1707) | Identifiers should not contain underscores |
-| [CA1051]((https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/CA1051) | Do not declare visible instance fields |
+| [CA1051](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/CA1051) | Do not declare visible instance fields |
 | [CS1591](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs1591)  | Missing XML comment for publicly visible type or member 'Type_or_Member' |
 | [IDE0051](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0051) | Remove unused private member |
 | [IDE1006](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/naming-rules#rule-id-ide1006-naming-rule-violation) | Naming rule violation |
