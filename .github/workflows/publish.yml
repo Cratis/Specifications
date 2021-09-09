@@ -54,7 +54,6 @@ jobs:
         if: ${{ steps.context.outputs.should-publish == 'true' }}
         uses: dolittle/github-release-action@v2
         with:
-          token: ${{  secrets.BUILD_PAT  }}
           version: ${{ steps.increment-version.outputs.next-version }}
           body: ${{ steps.context.outputs.pr-body }}      
 
