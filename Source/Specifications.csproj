@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Aksio.Specifications</AssemblyName>
+        <RootNamespace>Aksio.Specifications</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit" Version="$(xunit)" />
+    </ItemGroup>
+</Project>
