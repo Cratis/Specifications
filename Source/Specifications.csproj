@@ -2,6 +2,7 @@
     <PropertyGroup>
         <AssemblyName>Aksio.Specifications</AssemblyName>
         <RootNamespace>Aksio.Specifications</RootNamespace>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
