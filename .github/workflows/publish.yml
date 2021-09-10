@@ -26,7 +26,7 @@ jobs:
 
       - name: Release
         id: release
-        uses: aksio/release-action@v1
+        uses: aksio-system/release-action@v1
 
       - name: Remove any existing artifacts
         run: rm -rf ${{ env.NUGET_OUTPUT }}
