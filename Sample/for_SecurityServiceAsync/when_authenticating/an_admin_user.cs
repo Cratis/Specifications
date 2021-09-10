@@ -1,11 +1,17 @@
 using Aksio.Specifications;
 using Xunit;
 
-namespace Sample.for_SecurityService
+namespace Sample.for_SecurityServiceAsync
 {
     public class When_authenticating_an_admin_user : given.no_user_authenticated
     {
         UserToken user_token;
+
+        Task Establish()
+        {
+            Console.WriteLine("Establish in specification");
+            return Task.Delay(50);
+        }
 
         void Because() => user_token = subject.Authenticate("username", "password");
 

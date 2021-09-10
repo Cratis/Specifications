@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Aksio.Specifications
 {
@@ -62,23 +63,38 @@ namespace Aksio.Specifications
         /// Invoke all Establish methods.
         /// </summary>
         /// <param name="unit">Unit to invoke them on.</param>
-        public static void Establish(object unit) => InvokeMethods(_establish, unit);
+        public static Task Establish(object unit) => InvokeMethods(_establish, unit);
 
         /// <summary>
         /// Invoke all Destroy methods.
         /// </summary>
         /// <param name="unit">Unit to invoke them on.</param>
-        public static void Destroy(object unit) => InvokeMethods(_destroy, unit);
+        public static Task Destroy(object unit) => InvokeMethods(_destroy, unit);
 
         /// <summary>
         /// Invoke all Because methods.
         /// </summary>
         /// <param name="unit">Unit to invoke them on.</param>
-        public static void Because(object unit) => InvokeMethods(_because, unit);
+        public static Task Because(object unit) => InvokeMethods(_because, unit);
 
-        static void InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
+        static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
         {
-            foreach (var method in methods) method.Invoke(unit, Array.Empty<object>());
+            var tasks = new List<Task>();
+
+            foreach (var method in methods)
+            {
+                var result = method.Invoke(unit, Array.Empty<object>());
+                if (result is Task)
+                {
+                    tasks.Add(result as Task);
+                }
+                else
+                {
+                    tasks.Add(Task.CompletedTask);
+                }
+            }
+
+            await Task.WhenAll(tasks.ToArray());
         }
     }
 }

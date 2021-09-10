@@ -1,7 +1,7 @@
 using Aksio.Specifications;
 using Xunit;
 
-namespace Sample.for_Authentication
+namespace Sample.for_SecurityService
 {
     public class When_authenticating_a_null_user : given.no_user_authenticated
     {

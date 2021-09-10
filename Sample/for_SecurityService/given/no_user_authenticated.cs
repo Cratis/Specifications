@@ -1,6 +1,6 @@
 using Aksio.Specifications;
 
-namespace Sample.for_Authentication.given
+namespace Sample.for_SecurityService.given
 {
     public class no_user_authenticated : Specification
     {

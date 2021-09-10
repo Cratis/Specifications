@@ -1,5 +1,6 @@
-using System;
 using System.Reflection;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Aksio.Specifications
 {
@@ -40,42 +41,51 @@ namespace Aksio.Specifications
     /// It will run the Establish first for the `a_specific_context` and then the `when_doing_something`
     /// class.
     /// </remarks>
-    public class Specification : IDisposable
+    public class Specification : IAsyncLifetime
     {
         /// <summary>
         /// Initializes a new instance of <see cref="Specification"/>.
         /// </summary>
         public Specification()
         {
-            OnEstablish();
-            OnBecause();
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            OnDestroy();
-            GC.SuppressFinalize(this);
         }
 
-        void OnEstablish()
+        Task OnEstablish()
         {
-            InvokeMethod("Establish");
+            return InvokeMethod("Establish");
         }
 
-        void OnBecause()
+        Task OnBecause()
         {
-            InvokeMethod("Because");
+            return InvokeMethod("Because");
         }
 
-        void OnDestroy()
+        Task OnDestroy()
         {
-            InvokeMethod("Destroy");
+            return InvokeMethod("Destroy");
         }
 
-        void InvokeMethod(string name)
+        Task InvokeMethod(string name)
         {
-            typeof(SpecificationMethods<>).MakeGenericType(GetType()).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { this });
+            return typeof(SpecificationMethods<>).MakeGenericType(GetType()).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { this }) as Task;
+        }
+
+        /// <inheritdoc/>
+        public async Task InitializeAsync()
+        {
+            await OnEstablish();
+            await OnBecause();
+        }
+
+        /// <inheritdoc/>
+        public async Task DisposeAsync()
+        {
+            await OnDestroy();
         }
     }
 }
