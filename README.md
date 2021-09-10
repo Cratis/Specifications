@@ -26,6 +26,14 @@ to override, just match the expected signatures:
 | void Because() | Triggers the behavior being specified - **when** / **act** |
 | void Destroy() | Tears down the context |
 
+If your specification requires to run in an async context, it also supports the following:
+
+| Signature | Purpose |
+| --------- | ------- |
+| Task Establish() | Establishes the current context - **given** / **arrange** |
+| Task Because() | Triggers the behavior being specified - **when** / **act** |
+| Task Destroy() | Tears down the context |
+
 All lifecycle methods are optional and will be ignored if not there.
 Multiple levels of inheritance recursively is supported, meaning that specifications will run all the lifecycle methods
 from the lowest level in the hierarchy chain and up the hierarchy (e.g. no_user_authenticated -> when_authenticating_a_null_user).
