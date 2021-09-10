@@ -12,16 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      # - name: Setup .Net
-      #   uses: actions/setup-dotnet@v1
-      #   with:
-      #     dotnet-version: "6.0.100-preview.7.21379.14"
-      # - name: Build .NET
-      #   run: dotnet build --configuration Release
-
-      - name: Release
-        id: release
-        uses: aksio-system/release-action@v1
+      - name: Setup .Net
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "6.0.100-preview.7.21379.14"
+      - name: Build .NET
+        run: dotnet build --configuration Release
