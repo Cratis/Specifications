@@ -1,5 +1,7 @@
 # [v1.1.0] - 2021-9-10 [PR: #9](https://api.github.com/repos/aksio-system/Specifications/pulls/9)
-Yet another test.# [1.0.2] - 2021-9-9 [PR: #5](https://github.com/aksio-system/Specifications/pull/5)
+Yet another test.
+
+# [1.0.2] - 2021-9-9 [PR: #5](https://github.com/aksio-system/Specifications/pull/5)
 Initial release.
 
 
