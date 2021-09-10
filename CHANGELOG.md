@@ -1,12 +1,12 @@
-# [v1.4.1] - 2021-9-10 [PR: #11](https://api.github.com/repos/aksio-system/Specifications/pulls/11)
+# [v1.4.1] - 2021-9-10 [PR: #11](https://github.com/aksio-system/Specifications/pull/11)
 
 Testing out the entire pipeline
 
-# [v1.3.0] - 2021-9-10 [PR: #10](https://api.github.com/repos/aksio-system/Specifications/pulls/10)
+# [v1.3.0] - 2021-9-10 [PR: #10](https://github.com/aksio-system/Specifications/pull/10)
 
 Testing
 
-# [v1.1.0] - 2021-9-10 [PR: #9](https://api.github.com/repos/aksio-system/Specifications/pulls/9)
+# [v1.1.0] - 2021-9-10 [PR: #9](https://github.com/aksio-system/Specifications/pull/9)
 
 Yet another test.
 
