@@ -8,7 +8,7 @@ on:
     types: [closed]  
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.100-preview.7.21379.14'
-      - name: Build .NET
+      - name: Build
         run: dotnet build --configuration Release
 
       - name: Release
@@ -34,7 +34,7 @@ jobs:
 
       - name: Create NuGet packages
         if: ${{ steps.release.outputs.should-publish == 'true' }}
-        run: dotnet pack --no-build --configuration Release -o ${{ env.NUGET_OUTPUT }} -p:PackageVersion=${{ steps.release.outputs.version }} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+        run: dotnet pack --no-build --configuration Release -o ${{ env.NUGET_OUTPUT }} -p:PackageVersion=${{ steps.release.outputs.version }}
 
       - name: Push NuGet packages
         if: ${{ steps.release.outputs.should-publish == 'true' }}

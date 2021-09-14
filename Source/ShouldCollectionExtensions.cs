@@ -129,7 +129,7 @@ namespace Aksio.Specifications
         /// </summary>
         /// <param name="collection">Collection to assert.</param>
         /// <param name="expected">Expected element.</param>
-        /// <typeparam name="T">Type of element</typeparam>
+        /// <typeparam name="T">Type of element.</typeparam>
         public static void ShouldContain<T>(this IEnumerable<T> collection, T expected)
         {
             Assert.Contains(expected, collection);
@@ -163,7 +163,7 @@ namespace Aksio.Specifications
         /// </summary>
         /// <param name="collection">Collection to assert.</param>
         /// <param name="expected">Expected element.</param>
-        /// <typeparam name="T">Type of element</typeparam>
+        /// <typeparam name="T">Type of element.</typeparam>
         public static void ShouldNotContain<T>(this IEnumerable<T> collection, T expected)
         {
             Assert.DoesNotContain(expected, collection);

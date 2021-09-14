@@ -21,5 +21,4 @@ namespace Sample.for_SecurityServiceAsync
         [Fact]
         void should_have_a_unique_session_id() => user_token.SessionId.ShouldNotBeNull();
     }
-
 }

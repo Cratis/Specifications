@@ -33,15 +33,58 @@ namespace Aksio.Specifications
     /// </remarks>
     public static class SpecificationMethods<T>
     {
-        static IEnumerable<MethodInfo> _establish { get; }
-        static IEnumerable<MethodInfo> _because { get; }
-        static IEnumerable<MethodInfo> _destroy { get; }
-
         static SpecificationMethods()
         {
             _establish = GetMethodsFor("Establish");
             _destroy = GetMethodsFor("Destroy");
             _because = GetMethodsFor("Because");
+        }
+
+        static IEnumerable<MethodInfo> _establish { get; }
+
+        static IEnumerable<MethodInfo> _because { get; }
+
+        static IEnumerable<MethodInfo> _destroy { get; }
+
+        /// <summary>
+        /// Invoke all Establish methods.
+        /// </summary>
+        /// <param name="unit">Unit to invoke them on.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static Task Establish(object unit) => InvokeMethods(_establish, unit);
+
+        /// <summary>
+        /// Invoke all Destroy methods.
+        /// </summary>
+        /// <param name="unit">Unit to invoke them on.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static Task Destroy(object unit) => InvokeMethods(_destroy, unit);
+
+        /// <summary>
+        /// Invoke all Because methods.
+        /// </summary>
+        /// <param name="unit">Unit to invoke them on.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static Task Because(object unit) => InvokeMethods(_because, unit);
+
+        static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
+        {
+            var tasks = new List<Task>();
+
+            foreach (var method in methods)
+            {
+                var result = method.Invoke(unit, Array.Empty<object>());
+                if (result is Task taskResult)
+                {
+                    tasks.Add(taskResult);
+                }
+                else
+                {
+                    tasks.Add(Task.CompletedTask);
+                }
+            }
+
+            await Task.WhenAll(tasks.ToArray());
         }
 
         static IEnumerable<MethodInfo> GetMethodsFor(string name)
@@ -57,44 +100,6 @@ namespace Aksio.Specifications
             }
 
             return methods;
-        }
-
-        /// <summary>
-        /// Invoke all Establish methods.
-        /// </summary>
-        /// <param name="unit">Unit to invoke them on.</param>
-        public static Task Establish(object unit) => InvokeMethods(_establish, unit);
-
-        /// <summary>
-        /// Invoke all Destroy methods.
-        /// </summary>
-        /// <param name="unit">Unit to invoke them on.</param>
-        public static Task Destroy(object unit) => InvokeMethods(_destroy, unit);
-
-        /// <summary>
-        /// Invoke all Because methods.
-        /// </summary>
-        /// <param name="unit">Unit to invoke them on.</param>
-        public static Task Because(object unit) => InvokeMethods(_because, unit);
-
-        static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
-        {
-            var tasks = new List<Task>();
-
-            foreach (var method in methods)
-            {
-                var result = method.Invoke(unit, Array.Empty<object>());
-                if (result is Task)
-                {
-                    tasks.Add(result as Task);
-                }
-                else
-                {
-                    tasks.Add(Task.CompletedTask);
-                }
-            }
-
-            await Task.WhenAll(tasks.ToArray());
         }
     }
 }

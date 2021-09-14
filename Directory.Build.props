@@ -3,7 +3,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591;RCS1090;CA2252;CS8632;RCS1217</NoWarn>
+        <NoWarn>CS1591;RCS1090;CA2252;CS8632;RCS1217;SA1633</NoWarn>
         <Nullable>disable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
@@ -12,4 +12,8 @@
     <PropertyGroup>
         <xunit>2.4.1</xunit>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aksio.Defaults" Version="1.*"/>
+    </ItemGroup>
 </Project>
