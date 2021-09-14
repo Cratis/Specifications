@@ -15,5 +15,4 @@ namespace Sample.for_SecurityService
         [Fact]
         void should_have_a_unique_session_id() => user_token.SessionId.ShouldNotBeNull();
     }
-
 }

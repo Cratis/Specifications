@@ -1,5 +1,7 @@
 using System;
 
+#nullable disable
+
 namespace Aksio.Specifications
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Aksio.Specifications
         /// <param name="callback">Callback to wrap.</param>
         /// <returns>Exception that happened - if any. Null if not.</returns>
         public static T Exception<T>(Action callback)
-            where T:Exception
+            where T : Exception
         {
             try
             {

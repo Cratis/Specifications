@@ -44,15 +44,23 @@ namespace Aksio.Specifications
     public class Specification : IAsyncLifetime
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="Specification"/>.
+        /// Initializes a new instance of the <see cref="Specification"/> class.
         /// </summary>
         public Specification()
         {
         }
 
         /// <inheritdoc/>
-        public void Dispose()
+        public async Task InitializeAsync()
         {
+            await OnEstablish();
+            await OnBecause();
+        }
+
+        /// <inheritdoc/>
+        public async Task DisposeAsync()
+        {
+            await OnDestroy();
         }
 
         Task OnEstablish()
@@ -72,20 +80,8 @@ namespace Aksio.Specifications
 
         Task InvokeMethod(string name)
         {
+            #nullable disable
             return typeof(SpecificationMethods<>).MakeGenericType(GetType()).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { this }) as Task;
-        }
-
-        /// <inheritdoc/>
-        public async Task InitializeAsync()
-        {
-            await OnEstablish();
-            await OnBecause();
-        }
-
-        /// <inheritdoc/>
-        public async Task DisposeAsync()
-        {
-            await OnDestroy();
         }
     }
 }
