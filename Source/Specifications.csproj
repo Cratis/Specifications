@@ -3,7 +3,16 @@
         <AssemblyName>Aksio.Specifications</AssemblyName>
         <RootNamespace>Aksio.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
+        <NoWarn>SA1633;RCS1090</NoWarn>
+
+        <RepositoryUrl>https://github.com/aksio-system/Specifications</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/aksio-system/Specifications</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="../README.md" PackagePath="/" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="xunit" Version="$(xunit)" />
