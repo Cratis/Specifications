@@ -84,10 +84,10 @@ If you're using static code analysis and stylecop and have turned on all rules b
 | Warning | Description |
 | ------- | ----------- |
 | [SA1633](https://documentation.help/StyleCop/SA1636.html) | File header copyright text must match |
-| [SA1649](https://documentation.help/StyleCop/SA1649.html) ||
-| [SA1600](https://documentation.help/StyleCop/SA1600.html) ||
-| [SA1310](https://documentation.help/StyleCop/SA1310.html) ||
-| [SA1502](https://documentation.help/StyleCop/SA1502.html) ||
+| [SA1649](https://documentation.help/StyleCop/SA1649.html) | File name must match type name |
+| [SA1600](https://documentation.help/StyleCop/SA1600.html) | Elements must be documented |
+| [SA1310](https://documentation.help/StyleCop/SA1310.html) | Field names must not contain underscore |
+| [SA1502](https://documentation.help/StyleCop/SA1502.html) | Element must not be on a single line |
 | [SA1134](https://documentation.help/StyleCop/SA1134.html) ||
 
 Depending on your solution, you might want to consider suppressnig the following.
