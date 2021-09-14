@@ -1,3 +1,10 @@
+# [v1.4.3] - 2021-9-14 [PR: #13](https://github.com/aksio-system/Specifications/pull/13)
+
+### Fixed
+
+- Fixing package metadata for release.
+
+
 # [v1.4.2] - 2021-9-14 [PR: #12](https://github.com/aksio-system/Specifications/pull/12)
 
 ### Fixed
