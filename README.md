@@ -79,6 +79,23 @@ end up getting a lot of warnings. These can be turned off by adding a **NoWarn**
 | [IDE1006](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/naming-rules#rule-id-ide1006-naming-rule-violation) | Naming rule violation |
 | [RCS1213](https://github.com/JosefPihrt/Roslynator/blob/master/docs/analyzers/RCS1213.md) | Remove unused member declaration|
 
+If you're using static code analysis and stylecop and have turned on all rules by default, you might also encounter the following that you want to turn off:
+
+| Warning | Description |
+| ------- | ----------- |
+| [SA1633](https://documentation.help/StyleCop/SA1636.html) | File header copyright text must match |
+| [SA1649](https://documentation.help/StyleCop/SA1649.html) ||
+| [SA1600](https://documentation.help/StyleCop/SA1600.html) ||
+| [SA1310](https://documentation.help/StyleCop/SA1310.html) ||
+| [SA1502](https://documentation.help/StyleCop/SA1502.html) ||
+| [SA1134](https://documentation.help/StyleCop/SA1134.html) ||
+
+Depending on your solution, you might want to consider suppressnig the following.
+
+| Warning | Description |
+| ------- | ----------- |
+| [RCS1090](https://github.com/JosefPihrt/Roslynator/blob/master/docs/analyzers/RCS1090.md) | Add call to 'ConfigureAwait'.|
+
 ## Example
 
 In the [sample](./Sample) folder you'll find samples of using it.
