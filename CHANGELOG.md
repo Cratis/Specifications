@@ -1,3 +1,12 @@
+# [v1.4.2] - 2021-9-14 [PR: #12](https://github.com/aksio-system/Specifications/pull/12)
+
+### Fixed
+
+- Static code analysis applied - fixed code that was not adhering to it.
+- Fixing package metadata.
+
+
+
 # [v1.4.1] - 2021-9-10 [PR: #11](https://github.com/aksio-system/Specifications/pull/11)
 
 Testing out the entire pipeline
