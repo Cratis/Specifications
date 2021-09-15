@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 
 namespace Aksio.Specifications
@@ -94,6 +95,17 @@ namespace Aksio.Specifications
         public static void ShouldNotBeSimilar<T>(this T actual, T expected)
         {
             Assert.NotStrictEqual(expected, actual);
+        }
+
+        /// <summary>
+        /// Assert that an object matches - based on a callback making the decision.
+        /// </summary>
+        /// <param name="actual">Actual value.</param>
+        /// <param name="expected">Callback deciding what is expected.</param>
+        /// <typeparam name="T">Type of object.</typeparam>
+        public static void ShouldMatch<T>(this T actual, Func<T, bool> expected)
+        {
+            Assert.True(expected(actual));
         }
     }
 }

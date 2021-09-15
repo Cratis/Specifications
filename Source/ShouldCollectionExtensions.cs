@@ -159,6 +159,20 @@ namespace Aksio.Specifications
         }
 
         /// <summary>
+        /// Assert that all items in a collection are conforming based on the decision of a callback.
+        /// </summary>
+        /// <param name="collection">Collection to assert.</param>
+        /// <param name="expected">Callback that will check conformity.</param>
+        /// <typeparam name="T">Type of element.</typeparam>
+        public static void ShouldEachConformTo<T>(this IEnumerable<T> collection, Func<T, bool> expected)
+        {
+            foreach (var item in collection)
+            {
+                item.ShouldMatch(expected);
+            }
+        }
+
+        /// <summary>
         /// Assert that a collection does not contain a specific element.
         /// </summary>
         /// <param name="collection">Collection to assert.</param>
