@@ -1,3 +1,10 @@
+# [v1.4.4] - 2021-9-15 [PR: #14](https://github.com/aksio-system/Specifications/pull/14)
+
+### Fixed
+
+- Adding `PrivateAssets="All"` for the **Aksio.Defaults** package reference to avoid it bleeding its rules to consumers.
+
+
 # [v1.4.3] - 2021-9-14 [PR: #13](https://github.com/aksio-system/Specifications/pull/13)
 
 ### Fixed
