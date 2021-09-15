@@ -1,3 +1,12 @@
+# [v1.5.0] - 2021-9-15 [PR: #15](https://github.com/aksio-system/Specifications/pull/15)
+
+### Added
+
+- Should extension method for collections: `.ShouldEachConformTo<>()` - taking a callback for checking conformity.
+- Should extension method for checking if an object matches: `.ShouldMatch<>()` - taking a callback that decides what it is expecting.
+
+
+
 # [v1.4.4] - 2021-9-15 [PR: #14](https://github.com/aksio-system/Specifications/pull/14)
 
 ### Fixed
