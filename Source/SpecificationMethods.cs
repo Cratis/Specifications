@@ -67,9 +67,10 @@ namespace Aksio.Specifications
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public static Task Because(object unit) => InvokeMethods(_because, unit);
 
-        static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
+        static Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
         {
             var tasks = new List<Task>();
+            var asyncMethodsInChain = false;
 
             foreach (var method in methods)
             {
@@ -77,6 +78,7 @@ namespace Aksio.Specifications
                 if (result is Task taskResult)
                 {
                     tasks.Add(taskResult);
+                    asyncMethodsInChain = true;
                 }
                 else
                 {
@@ -84,7 +86,8 @@ namespace Aksio.Specifications
                 }
             }
 
-            await Task.WhenAll(tasks.ToArray());
+            if (!asyncMethodsInChain) return Task.CompletedTask;
+            return Task.WhenAll(tasks.ToArray());
         }
 
         static IEnumerable<MethodInfo> GetMethodsFor(string name)
