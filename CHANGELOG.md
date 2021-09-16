@@ -1,3 +1,11 @@
+# [v1.5.1] - 2021-9-15 [PR: #16](https://github.com/aksio-system/Specifications/pull/16)
+
+### Fixed
+
+- Supporting pure synchronous lifetime method chains (Establish, Because, Destroy) - meaning that it does not create an async context if all methods of a particular type are synchronous.
+
+
+
 # [v1.5.0] - 2021-9-15 [PR: #15](https://github.com/aksio-system/Specifications/pull/15)
 
 ### Added
