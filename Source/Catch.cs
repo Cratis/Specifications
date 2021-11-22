@@ -1,5 +1,3 @@
-using System;
-
 #nullable disable
 
 namespace Aksio.Specifications
@@ -42,6 +40,25 @@ namespace Aksio.Specifications
                 callback();
             }
             catch (T ex)
+            {
+                return ex;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Catch a specific exception that occurs from the wrapped async callback.
+        /// </summary>
+        /// <param name="callback">Async callback to wrap.</param>
+        /// <returns>Exception that happened - if any. Null if not.</returns>
+        public static async Task<Exception> ExceptionAsync(Func<Task> callback)
+        {
+            try
+            {
+                await callback();
+            }
+            catch (Exception ex)
             {
                 return ex;
             }
