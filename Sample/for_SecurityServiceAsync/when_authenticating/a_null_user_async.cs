@@ -13,7 +13,7 @@ namespace Sample.for_SecurityServiceAsync
             return Task.Delay(50);
         }
 
-        async Task Because() => result = await Catch.ExceptionAsync(() => subject.AuthenticateAsync(null, null));
+        async Task Because() => result = await Catch.Exception(() => subject.AuthenticateAsync(null, null));
 
         [Fact] void should_throw_user_must_be_specified_exception() => result.ShouldBeOfExactType<UserMustBeSpecified>();
     }
