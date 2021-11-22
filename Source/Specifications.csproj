@@ -3,9 +3,8 @@
         <AssemblyName>Aksio.Specifications</AssemblyName>
         <RootNamespace>Aksio.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
-        <NoWarn>RCS1090</NoWarn>
+        <NoWarn>$(NoWarn);RCS1090</NoWarn>
         
-
         <RepositoryUrl>https://github.com/aksio-system/Specifications</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aksio-system/Specifications</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
