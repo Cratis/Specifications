@@ -1,3 +1,22 @@
+# [v1.6.0] - 2021-11-22 [PR: #17](https://github.com/aksio-system/Specifications/pull/17)
+
+## Summary
+
+Introducing ability to catch exceptions from async calls in a more elegant way:
+
+```csharp
+async Task Because() => result = await Catch.ExceptionAsync(() => subject.AuthenticateAsync(null, null));
+
+[Fact] void should_throw_user_must_be_specified_exception() => result.ShouldBeOfExactType<UserMustBeSpecified>();
+
+```
+
+
+### Added
+
+- Adding `ExceptionAsync` method on the `Catch` class.
+
+
 # [v1.5.1] - 2021-9-15 [PR: #16](https://github.com/aksio-system/Specifications/pull/16)
 
 ### Fixed
