@@ -52,7 +52,7 @@ namespace Aksio.Specifications
         /// </summary>
         /// <param name="callback">Async callback to wrap.</param>
         /// <returns>Exception that happened - if any. Null if not.</returns>
-        public static async Task<Exception> ExceptionAsync(Func<Task> callback)
+        public static async Task<Exception> Exception(Func<Task> callback)
         {
             try
             {
