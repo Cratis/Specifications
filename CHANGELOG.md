@@ -1,3 +1,25 @@
+# [v2.0.0] - 2021-11-22 [PR: #18](https://github.com/aksio-system/Specifications/pull/18)
+
+
+
+## Summary
+
+For consistency, since we don't have **Async** postfixes anywhere in our API; - removing it.
+
+```csharp
+async Task Because() => result = await Catch.Exception(() => subject.AuthenticateAsync(null, null));
+
+[Fact] void should_throw_user_must_be_specified_exception() => result.ShouldBeOfExactType<UserMustBeSpecified>();
+```
+
+Summary of the PR here. The GitHub release description is created from this comment so keep it nice and descriptive.
+Remember to remove sections that you don't need or use.
+If it does not make sense to have a summary, you can take that out as well.
+
+### Changed
+
+- Removing **Async** postfix for handling async exceptions - for consistency.
+
 # [v1.6.0] - 2021-11-22 [PR: #17](https://github.com/aksio-system/Specifications/pull/17)
 
 ## Summary
