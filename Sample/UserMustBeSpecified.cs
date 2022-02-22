@@ -1,6 +1,5 @@
-namespace Sample
+namespace Sample;
+
+public class UserMustBeSpecified : Exception
 {
-    public class UserMustBeSpecified : Exception
-    {
-    }
 }

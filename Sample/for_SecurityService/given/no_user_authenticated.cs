@@ -1,11 +1,10 @@
 using Aksio.Specifications;
 
-namespace Sample.for_SecurityService.given
-{
-    public class no_user_authenticated : Specification
-    {
-        protected SecurityService subject;
+namespace Sample.for_SecurityService.given;
 
-        void Establish() => subject = new SecurityService();
-    }
+public class no_user_authenticated : Specification
+{
+    protected SecurityService subject;
+
+    void Establish() => subject = new SecurityService();
 }

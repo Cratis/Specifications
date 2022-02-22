@@ -1,14 +1,13 @@
 using Aksio.Specifications;
 using Xunit;
 
-namespace Sample
+namespace Sample;
+
+public class when_doing_something_successful
 {
-    public class when_doing_something_successful
-    {
-        void Establish() { }
+    void Establish() { }
 
-        void Because() { }
+    void Because() { }
 
-        [Fact] void should_be_true() => true.ShouldBeTrue();
-    }
+    [Fact] void should_be_true() => true.ShouldBeTrue();
 }
