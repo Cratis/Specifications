@@ -64,27 +64,16 @@ public static class SpecificationMethods<T>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public static Task Because(object unit) => InvokeMethods(_because, unit);
 
-    static Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
+    static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
     {
-        var tasks = new List<Task>();
-        var asyncMethodsInChain = false;
-
         foreach (var method in methods)
         {
             var result = method.Invoke(unit, Array.Empty<object>());
             if (result is Task taskResult)
             {
-                tasks.Add(taskResult);
-                asyncMethodsInChain = true;
-            }
-            else
-            {
-                tasks.Add(Task.CompletedTask);
+                await taskResult;
             }
         }
-
-        if (!asyncMethodsInChain) return Task.CompletedTask;
-        return Task.WhenAll(tasks.ToArray());
     }
 
     static IEnumerable<MethodInfo> GetMethodsFor(string name)
