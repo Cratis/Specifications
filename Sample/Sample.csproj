@@ -5,7 +5,7 @@
         <IsTestProject>true</IsTestProject>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>disable</Nullable>
-        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048</NoWarn>
+        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

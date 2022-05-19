@@ -1,5 +1,3 @@
-using Aksio.Specifications;
-
 namespace Sample.for_SecurityServiceAsync.given;
 
 public class no_user_authenticated : Specification

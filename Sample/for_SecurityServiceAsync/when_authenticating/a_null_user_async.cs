@@ -1,6 +1,3 @@
-using Aksio.Specifications;
-using Xunit;
-
 namespace Sample.for_SecurityServiceAsync;
 
 public class When_authenticating_a_null_user_async : given.no_user_authenticated
