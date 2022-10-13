@@ -1,3 +1,10 @@
+# [v2.0.1] - 2022-5-19 [PR: #20](https://github.com/aksio-insurtech/Specifications/pull/20)
+
+### Fixed
+
+- Async methods (Establish, Because) now run in order based on the inheritance chain - as expected. (Fixes #19).
+
+
 # [v2.0.0] - 2021-11-22 [PR: #18](https://github.com/aksio-system/Specifications/pull/18)
 
 
