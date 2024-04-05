@@ -5,6 +5,9 @@
 
 This project represents a way to do Specification by Example - BDD style inspired by
 the conciseness of [Machine.Specifications](https://github.com/machine/machine.specifications).
+
+It supports for XUnit and NUnit frameworks for testing.
+
 The motivation behind is years of work with Machine.Specifications and the wish to maintain
 the approach, structure and syntax - but get more love from tooling across different platforms
 and IDEs and editors; read more [here](https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
@@ -98,7 +101,12 @@ Depending on your solution, you might want to consider suppressnig the following
 
 ## Example
 
-In the [sample](./Sample) folder you'll find samples of using it.
+In the [sample](./Sample) folder you'll find samples of using it both for XUnit and NUnit.
+
+The difference between XUnit and NUnit is on the signature of the tests.
+Instead of `[Fact]` for XUnit, you'll have to adorn with `[Test]`, in addition to that, NUnit
+requires methods to be public to run them.
+
 Basically, building on the Machine.Specifications sample - this would become:
 
 ```csharp
