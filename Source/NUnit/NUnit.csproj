@@ -4,7 +4,6 @@
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
-
         <TargetFrameworks>net6.0;net48</TargetFrameworks>
     </PropertyGroup>
 
