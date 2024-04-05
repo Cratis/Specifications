@@ -33,7 +33,6 @@
         <Copyright>Copyright Cratis</Copyright>
         <Authors>all contributors</Authors>
         <DebugType>portable</DebugType>
-        <PackageIcon>logo.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -70,6 +69,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="$(MSBuildThisDirectory)/README.md" PackagePath="/" />
+        <Content Include="$(MSBuildThisFileDirectory)/README.md" PackagePath="/" />
     </ItemGroup>
 </Project>
