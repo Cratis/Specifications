@@ -3,19 +3,20 @@
         <AssemblyName>Cratis.Specifications.Sample</AssemblyName>
         <RootNamespace>Cratis.Specifications.Sample</RootNamespace>
         <IsTestProject>true</IsTestProject>
-        <TargetFrameworks>net6.0;net48</TargetFrameworks>
+        <TargetFrameworks>net6.0</TargetFrameworks>
         <Nullable>disable</Nullable>
         <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../Source/Specifications.csproj"/>
+        <ProjectReference Include="../../Source/Specifications/Specifications.csproj"/>
+        <ProjectReference Include="../../Source/XUnit/XUnit.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="xunit" Version="$(xunit)" />
-        <PackageReference Include="Microsoft.NET.Test.SDK" Version="16.11.0" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
+        <PackageReference Include="xunit" />
+        <PackageReference Include="Microsoft.NET.Test.SDK"/>
+        <PackageReference Include="xunit.runner.visualstudio">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

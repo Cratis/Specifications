@@ -4,14 +4,72 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);CS1591;RCS1090;CA2252;CS8632;RCS1217;SA1633;CA2007</NoWarn>
-        <Nullable>disable</Nullable>
+        <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>true</ImplicitUsings>
         <LangVersion>12.0</LangVersion>
+
+        <!-- Debuggability -->
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>True</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <IncludeSource>True</IncludeSource>
+        <!-- Debuggability - End -->
+
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+        <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>True</RunAnalyzersDuringLiveAnalysis>
+        <RunAnalyzers>True</RunAnalyzers>
+        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+        <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>True</RunAnalyzersDuringLiveAnalysis>
+        <RunAnalyzers>True</RunAnalyzers>
+        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+        <!-- Packaging -->
+        <Version>1.0.0</Version>
+        <Copyright>Copyright Cratis</Copyright>
+        <Authors>all contributors</Authors>
+        <DebugType>portable</DebugType>
+        <PackageIcon>logo.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+        <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
+        
+        <RepositoryUrl>https://github.com/cratis/Specifications</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/cratis/Specifications</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
-    <!-- Package versions -->
-    <PropertyGroup>
-        <xunit>2.4.1</xunit>
+    <PropertyGroup Condition="'$(Configuration)'==''">
+        <Configuration>Debug</Configuration>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+        <MSBuildTreatWarningsAsErrors>False</MSBuildTreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>False</CodeAnalysisTreatWarningsAsErrors>
+        <StyleCopTreatErrorsAsWarnings>True</StyleCopTreatErrorsAsWarnings>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+        <MSBuildTreatWarningsAsErrors>True</MSBuildTreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>True</CodeAnalysisTreatWarningsAsErrors>
+        <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="$(MSBuildThisDirectory)/README.md" PackagePath="/" />
+    </ItemGroup>
 </Project>

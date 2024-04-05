@@ -3,9 +3,10 @@ using System.Reflection;
 namespace Cratis.Specifications;
 
 /// <summary>
-/// Represents the lifecycle methods for a <see cref="Specification"/>.
+/// Represents the lifecycle methods for a specification.
 /// </summary>
 /// <typeparam name="T">Target type it represents.</typeparam>
+/// <typeparam name="TSpecBase">The base type used for specifications.</typeparam>
 /// <remarks>
 /// It will recursively execute lifecycle methods in the inheritance hierarchy.
 /// This enables one to encapsulate reusable contexts. The order it executes them in
@@ -28,7 +29,7 @@ namespace Cratis.Specifications;
 /// It will run the Establish first for the `a_specific_context` and then the `when_doing_something`
 /// class.
 /// </remarks>
-public static class SpecificationMethods<T>
+public static class SpecificationMethods<T, TSpecBase>
 {
     static SpecificationMethods()
     {
@@ -81,7 +82,7 @@ public static class SpecificationMethods<T>
         var type = typeof(T);
         var methods = new List<MethodInfo>();
 
-        while (type != typeof(Specification))
+        while (type != typeof(TSpecBase))
         {
             var method = type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (method != null) methods.Insert(0, method);

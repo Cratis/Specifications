@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDD", "Source\Specifications.csproj", "{13029445-7A43-4C89-AA1E-FED64A6FF21F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Specifications", "Source\Specifications\Specifications.csproj", "{13029445-7A43-4C89-AA1E-FED64A6FF21F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample", "Sample\Sample.csproj", "{81C0607D-8AFD-45C1-B180-72DBD9DB04C0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.XUnit", "Sample\XUnit\Sample.XUnit.csproj", "{81C0607D-8AFD-45C1-B180-72DBD9DB04C0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{7AA04E60-3F67-4AF9-AF0D-F67350A79B09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnit", "Source\XUnit\XUnit.csproj", "{99548DA3-DDFD-4F64-A326-CE87EBF826B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +28,12 @@ Global
 		{81C0607D-8AFD-45C1-B180-72DBD9DB04C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81C0607D-8AFD-45C1-B180-72DBD9DB04C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81C0607D-8AFD-45C1-B180-72DBD9DB04C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99548DA3-DDFD-4F64-A326-CE87EBF826B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99548DA3-DDFD-4F64-A326-CE87EBF826B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99548DA3-DDFD-4F64-A326-CE87EBF826B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99548DA3-DDFD-4F64-A326-CE87EBF826B8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{99548DA3-DDFD-4F64-A326-CE87EBF826B8} = {7AA04E60-3F67-4AF9-AF0D-F67350A79B09}
 	EndGlobalSection
 EndGlobal

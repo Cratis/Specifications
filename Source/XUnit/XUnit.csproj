@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.XUnit</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit" Version="$(xunit)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+    </ItemGroup>
+</Project>

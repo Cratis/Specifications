@@ -80,6 +80,6 @@ public class Specification : IAsyncLifetime
     Task InvokeMethod(string name)
     {
 #nullable disable
-        return typeof(SpecificationMethods<>).MakeGenericType(GetType()).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, [this]) as Task;
+        return typeof(SpecificationMethods<,>).MakeGenericType(GetType(), typeof(Specification)).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, [this]) as Task;
     }
 }

@@ -36,7 +36,7 @@ public static class ShouldCollectionExtensions
             var sourceItems = string.Join(",", collection);
             var expectedItems = string.Join(",", expected);
 
-            Assert.True(false, $"Collection '{sourceItems}' does not only contain '{expectedItems}'");
+            Assert.Fail($"Collection '{sourceItems}' does not only contain '{expectedItems}'");
         }
     }
 
@@ -106,6 +106,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="TKey">Type of key.</typeparam>
     /// <typeparam name="TValue">Type of value.</typeparam>
     public static void ShouldContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
+        where TKey : notnull
     {
         Assert.Contains(expected, actual);
     }
@@ -140,6 +141,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="TKey">Type of key.</typeparam>
     /// <typeparam name="TValue">Type of value.</typeparam>
     public static void ShouldNotContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
+        where TKey : notnull
     {
         Assert.DoesNotContain(expected, actual);
     }
