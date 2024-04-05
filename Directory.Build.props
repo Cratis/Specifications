@@ -1,6 +1,6 @@
 <Project>  
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFrameworks>netstandard2.1;net48</TargetFrameworks>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);CS1591;RCS1090;CA2252;CS8632;RCS1217;SA1633;CA2007</NoWarn>
