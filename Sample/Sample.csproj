@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <AssemblyName>Aksio.Specifications.Sample</AssemblyName>
-        <RootNamespace>Aksio.Specifications.Sample</RootNamespace>
+        <AssemblyName>Cratis.Specifications.Sample</AssemblyName>
+        <RootNamespace>Cratis.Specifications.Sample</RootNamespace>
         <IsTestProject>true</IsTestProject>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>disable</Nullable>

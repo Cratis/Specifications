@@ -1,6 +1,6 @@
 #nullable disable
 
-namespace Aksio.Specifications;
+namespace Cratis.Specifications;
 
 /// <summary>
 /// Represents a wrapper for working with exceptions.

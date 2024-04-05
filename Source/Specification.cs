@@ -1,7 +1,7 @@
 using System.Reflection;
 using Xunit;
 
-namespace Aksio.Specifications;
+namespace Cratis.Specifications;
 
 /// <summary>
 /// Represents the base class for specifications.
@@ -80,6 +80,6 @@ public class Specification : IAsyncLifetime
     Task InvokeMethod(string name)
     {
 #nullable disable
-        return typeof(SpecificationMethods<>).MakeGenericType(GetType()).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { this }) as Task;
+        return typeof(SpecificationMethods<>).MakeGenericType(GetType()).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, [this]) as Task;
     }
 }

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Aksio.Specifications;
+namespace Cratis.Specifications;
 
 /// <summary>
 /// Represents the lifecycle methods for a <see cref="Specification"/>.
@@ -68,7 +68,7 @@ public static class SpecificationMethods<T>
     {
         foreach (var method in methods)
         {
-            var result = method.Invoke(unit, Array.Empty<object>());
+            var result = method.Invoke(unit, []);
             if (result is Task taskResult)
             {
                 await taskResult;

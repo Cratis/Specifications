@@ -1,7 +1,7 @@
 using System.Collections;
 using Xunit;
 
-namespace Aksio.Specifications;
+namespace Cratis.Specifications;
 
 /// <summary>
 /// Holds extension methods for fluent "Should*" assertions related to collections.

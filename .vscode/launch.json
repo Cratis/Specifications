@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "launch",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "cwd": "${workspaceFolder}/Source",
+            "program": "${workspaceFolder}/Source/bin/net6",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "project",
+            "type": "command",
+            "command": "dotnet-build-commands.selectProjectForLaunch",
+            "args": {
+                "file": "${workspaceFolder}/.vscode/projects.json"
+            }
+        },
+        {
+            "id": "target",
+            "type": "command",
+            "command": "dotnet-build-commands.getTarget"
+        }
+    ],
+    "compounds": []
+}

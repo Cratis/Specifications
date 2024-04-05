@@ -1,2 +1,2 @@
-global using Aksio.Specifications;
+global using Cratis.Specifications;
 global using Xunit;

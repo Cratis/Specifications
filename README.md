@@ -1,7 +1,7 @@
 # Specifications
 
-[![Build](https://github.com/aksio-system/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/aksio-system/Specifications/actions/workflows/build.yml)
-[![Nuget](https://img.shields.io/nuget/v/aksio.specifications)](http://nuget.org/packages/aksio.specifications)
+[![Build](https://github.com/cratis/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/cratis-system/Specifications/actions/workflows/build.yml)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications)](http://nuget.org/packages/cratis.specifications)
 
 This project represents a way to do Specification by Example - BDD style inspired by
 the conciseness of [Machine.Specifications](https://github.com/machine/machine.specifications).
@@ -38,7 +38,7 @@ All lifecycle methods are optional and will be ignored if not there.
 Multiple levels of inheritance recursively is supported, meaning that specifications will run all the lifecycle methods
 from the lowest level in the hierarchy chain and up the hierarchy (e.g. no_user_authenticated -> when_authenticating_a_null_user).
 
-To get all this to work, all you need to do is inherit from the `Specification` type found in `Aksio.Specifications`.
+To get all this to work, all you need to do is inherit from the `Specification` type found in `Cratis.Specifications`.
 
 ## Structure and naming
 
