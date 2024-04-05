@@ -8,6 +8,11 @@ the conciseness of [Machine.Specifications](https://github.com/machine/machine.s
 
 It supports for XUnit and NUnit frameworks for testing.
 
+Packages:
+
+[XUnit](http://nuget.org/packages/cratis.specifications.xunit)
+[NUnit](http://nuget.org/packages/cratis.specifications.nunit)
+
 The motivation behind is years of work with Machine.Specifications and the wish to maintain
 the approach, structure and syntax - but get more love from tooling across different platforms
 and IDEs and editors; read more [here](https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
