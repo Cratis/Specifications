@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <AssemblyName>Cratis.Specifications.Sample.XUnit</AssemblyName>
+        <AssemblyName>Cratis.Specifications.Sample.NUnit</AssemblyName>
         <RootNamespace>Cratis.Specifications.Sample</RootNamespace>
         <IsTestProject>true</IsTestProject>
         <TargetFrameworks>net6.0</TargetFrameworks>
@@ -10,13 +10,13 @@
 
     <ItemGroup>
         <ProjectReference Include="../../Source/Specifications/Specifications.csproj"/>
-        <ProjectReference Include="../../Source/XUnit/XUnit.csproj"/>
+        <ProjectReference Include="../../Source/NUnit/NUnit.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="xunit" />
+        <PackageReference Include="nunit" />
         <PackageReference Include="Microsoft.NET.Test.SDK"/>
-        <PackageReference Include="xunit.runner.visualstudio">
+        <PackageReference Include="NUnit3TestAdapter">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

@@ -1,5 +1,5 @@
 using System.Reflection;
-using Xunit;
+using NUnit.Framework;
 
 namespace Cratis.Specifications;
 
@@ -40,23 +40,17 @@ namespace Cratis.Specifications;
 /// It will run the Establish first for the `a_specific_context` and then the `when_doing_something`
 /// class.
 /// </remarks>
-public class Specification : IAsyncLifetime
+[TestFixture]
+public class Specification
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Specification"/> class.
-    /// </summary>
-    public Specification()
-    {
-    }
-
-    /// <inheritdoc/>
+    [OneTimeSetUp]
     public async Task InitializeAsync()
     {
         await OnEstablish();
         await OnBecause();
     }
 
-    /// <inheritdoc/>
+    [OneTimeTearDown]
     public async Task DisposeAsync()
     {
         await OnDestroy();
