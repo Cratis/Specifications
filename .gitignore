@@ -286,3 +286,5 @@ dist
 *.tsbuildinfo
 
 wwwroot
+
+.mono
