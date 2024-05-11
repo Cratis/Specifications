@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup .Net
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.400"
       - name: Build
@@ -60,5 +60,4 @@ jobs:
 
       - name: Push NuGet packages
         if: ${{ steps.release.outputs.should-publish == 'true' }}
-        run: dotnet nuget push --skip-duplicate '${{ env.NUGET_OUTPUT }}/*.nupkg' --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-
+        run: dotnet nuget push --skip-duplicate '${{ env.NUGET_OUTPUT }}/*.nupkg' --timeout 900 --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
