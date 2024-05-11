@@ -1,7 +1,8 @@
 # Specifications
 
 [![Build](https://github.com/cratis/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/cratis-system/Specifications/actions/workflows/build.yml)
-[![Nuget](https://img.shields.io/nuget/v/cratis.specifications)](http://nuget.org/packages/cratis.specifications)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit)](http://nuget.org/packages/cratis.specifications.xunit)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.nunit)](http://nuget.org/packages/cratis.specifications.nunit)
 
 This project represents a way to do Specification by Example - BDD style inspired by
 the conciseness of [Machine.Specifications](https://github.com/machine/machine.specifications).
