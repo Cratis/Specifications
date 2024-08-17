@@ -82,7 +82,7 @@ public static class SpecificationMethods<T, TSpecBase>
         var type = typeof(T);
         var methods = new List<MethodInfo>();
 
-        while (type != typeof(TSpecBase))
+        while (type != typeof(TSpecBase) && type is not null)
         {
             var method = type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (method != null) methods.Insert(0, method);
