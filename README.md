@@ -7,7 +7,7 @@
 This project represents a way to do Specification by Example - BDD style inspired by
 the conciseness of [Machine.Specifications](https://github.com/machine/machine.specifications).
 
-It supports for XUnit and NUnit frameworks for testing.
+It has support for XUnit and NUnit frameworks for testing.
 
 Packages:
 
