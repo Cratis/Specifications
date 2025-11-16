@@ -1,3 +1,6 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using NUnit.Framework;
 
 namespace Cratis.Specifications;
@@ -35,19 +38,13 @@ public static class ShouldStringExtensions
     /// </summary>
     /// <param name="actual">Actual string to assert.</param>
     /// <param name="expectedSubstring">Expected substring.</param>
-    public static void ShouldContain(this string actual, string expectedSubstring)
-    {
-        Assert.That(() => actual.Contains(expectedSubstring), Is.True);
-    }
+    public static void ShouldContain(this string actual, string expectedSubstring) => Assert.That(() => actual.Contains(expectedSubstring), Is.True);
 
     /// <summary>
     /// Assert that a string does not contain an expected substring.
     /// </summary>
     /// <param name="actual">Actual string to assert.</param>
     /// <param name="expectedSubstring">Not expected substring.</param>
-    public static void ShouldNotContain(this string actual, string expectedSubstring)
-    {
-        Assert.That(() => actual.Contains(expectedSubstring), Is.False);
-    }
+    public static void ShouldNotContain(this string actual, string expectedSubstring) => Assert.That(() => actual.Contains(expectedSubstring), Is.False);
 #endif
 }

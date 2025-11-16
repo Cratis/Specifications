@@ -1,3 +1,6 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using NUnit.Framework;
 
 namespace Cratis.Specifications;
@@ -15,10 +18,7 @@ public static class ShouldComparableExtensions
     /// <param name="high">Highest value in range.</param>
     /// <typeparam name="T">Type to compare.</typeparam>
     public static void ShouldBeInRange<T>(this T actual, T low, T high)
-        where T : IComparable
-    {
-        Assert.That(actual, Is.InRange(low, high));
-    }
+        where T : IComparable => Assert.That(actual, Is.InRange(low, high));
 
     /// <summary>
     /// Assert that a value is not within range.
@@ -28,48 +28,33 @@ public static class ShouldComparableExtensions
     /// <param name="high">Highest value in range.</param>
     /// <typeparam name="T">Type to compare.</typeparam>
     public static void ShouldNotBeInRange<T>(this T actual, T low, T high)
-        where T : IComparable
-    {
-        Assert.That(actual, Is.Not.InRange(low, high));
-    }
+        where T : IComparable => Assert.That(actual, Is.Not.InRange(low, high));
 
     /// <summary>
     /// Assert that a value is greater than the other.
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeGreaterThan(this IComparable left, IComparable right)
-    {
-        Assert.That(left, Is.GreaterThan(right));
-    }
+    public static void ShouldBeGreaterThan(this IComparable left, IComparable right) => Assert.That(left, Is.GreaterThan(right));
 
     /// <summary>
     /// Assert that a value is greater or equal than the other.
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeGreaterThanOrEqual(this IComparable left, IComparable right)
-    {
-        Assert.That(left, Is.GreaterThanOrEqualTo(right));
-    }
+    public static void ShouldBeGreaterThanOrEqual(this IComparable left, IComparable right) => Assert.That(left, Is.GreaterThanOrEqualTo(right));
 
     /// <summary>
     /// Assert that a value is less than the other.
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeLessThan(this IComparable left, IComparable right)
-    {
-        Assert.That(left, Is.LessThan(right));
-    }
+    public static void ShouldBeLessThan(this IComparable left, IComparable right) => Assert.That(left, Is.LessThan(right));
 
     /// <summary>
     /// Assert that a value is less than or equal than the other.
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeLessThanOrEqual(this IComparable left, IComparable right)
-    {
-        Assert.That(left, Is.LessThanOrEqualTo(right));
-    }
+    public static void ShouldBeLessThanOrEqual(this IComparable left, IComparable right) => Assert.That(left, Is.LessThanOrEqualTo(right));
 }

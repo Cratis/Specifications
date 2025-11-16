@@ -1,3 +1,6 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Collections;
 using Xunit;
 
@@ -46,10 +49,8 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="expected">Expected values.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldContainOnly<T>(this IEnumerable<T> collection, params T[] expected)
-    {
+    public static void ShouldContainOnly<T>(this IEnumerable<T> collection, params T[] expected) =>
         collection.ShouldContainOnly(expected as IEnumerable<T>);
-    }
 
     /// <summary>
     /// Assert that a collection contains exactly only the expected elements in the same sequence.
@@ -57,10 +58,8 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="expected">Expected values.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldEqual<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
-    {
+    public static void ShouldEqual<T>(this IEnumerable<T> collection, IEnumerable<T> expected) =>
         Assert.True(collection.SequenceEqual(expected), $"Collection '{collection}' is not equal to '{expected}'");
-    }
 
     /// <summary>
     /// Assert that a collection contains exactly only the expected elements in the same sequence - based on params.
@@ -68,10 +67,8 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="expected">Expected values.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldEqual<T>(this IEnumerable<T> collection, params T[] expected)
-    {
+    public static void ShouldEqual<T>(this IEnumerable<T> collection, params T[] expected) =>
         collection.ShouldEqual(expected as IEnumerable<T>);
-    }
 
     /// <summary>
     /// Assert that a collection contains all the expected elements.
@@ -93,10 +90,8 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="expected">Expected elements as params.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldContain<T>(this IEnumerable<T> collection, params T[] expected)
-    {
+    public static void ShouldContain<T>(this IEnumerable<T> collection, params T[] expected) =>
         collection.ShouldContain(expected as IEnumerable<T>);
-    }
 
     /// <summary>
     /// Assert that a dictionary contains a specific key.
@@ -106,10 +101,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="TKey">Type of key.</typeparam>
     /// <typeparam name="TValue">Type of value.</typeparam>
     public static void ShouldContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
-        where TKey : notnull
-    {
-        Assert.Contains(expected, actual);
-    }
+        where TKey : notnull => Assert.Contains(expected, actual);
 
     /// <summary>
     /// Assert that a collection contains specific element(s) based on a predicate filter.
@@ -117,10 +109,8 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="filter">Filter to apply.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
-    {
+    public static void ShouldContain<T>(this IEnumerable<T> collection, Predicate<T> filter) =>
         Assert.Contains(collection, filter);
-    }
 
     /// <summary>
     /// Assert that a collection contains a specific element.
@@ -128,10 +118,8 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="expected">Expected element.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldContain<T>(this IEnumerable<T> collection, T expected)
-    {
+    public static void ShouldContain<T>(this IEnumerable<T> collection, T expected) =>
         Assert.Contains(expected, collection);
-    }
 
     /// <summary>
     /// Assert that a dictionary does not contain a specific key.
@@ -141,10 +129,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="TKey">Type of key.</typeparam>
     /// <typeparam name="TValue">Type of value.</typeparam>
     public static void ShouldNotContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
-        where TKey : notnull
-    {
-        Assert.DoesNotContain(expected, actual);
-    }
+        where TKey : notnull => Assert.DoesNotContain(expected, actual);
 
     /// <summary>
     /// Assert that a collection does not contain specific element(s) based on a predicate filter.
@@ -152,10 +137,8 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="filter">Filter to apply.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldNotContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
-    {
+    public static void ShouldNotContain<T>(this IEnumerable<T> collection, Predicate<T> filter) =>
         Assert.DoesNotContain(collection, filter);
-    }
 
     /// <summary>
     /// Assert that all items in a collection are conforming based on the decision of a callback.
@@ -177,35 +160,23 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     /// <param name="expected">Expected element.</param>
     /// <typeparam name="T">Type of element.</typeparam>
-    public static void ShouldNotContain<T>(this IEnumerable<T> collection, T expected)
-    {
-        Assert.DoesNotContain(expected, collection);
-    }
+    public static void ShouldNotContain<T>(this IEnumerable<T> collection, T expected) => Assert.DoesNotContain(expected, collection);
 
     /// <summary>
     /// Assert that a collection is empty.
     /// </summary>
     /// <param name="collection">Collection to assert.</param>
-    public static void ShouldBeEmpty(this IEnumerable collection)
-    {
-        Assert.Empty(collection);
-    }
+    public static void ShouldBeEmpty(this IEnumerable collection) => Assert.Empty(collection);
 
     /// <summary>
     /// Assert that a collection is not empty.
     /// </summary>
     /// <param name="collection">Collection to assert.</param>
-    public static void ShouldNotBeEmpty(this IEnumerable collection)
-    {
-        Assert.NotEmpty(collection);
-    }
+    public static void ShouldNotBeEmpty(this IEnumerable collection) => Assert.NotEmpty(collection);
 
     /// <summary>
     /// Assert that a collection has a single item.
     /// </summary>
     /// <param name="collection">Collection to assert.</param>
-    public static void ShouldContainSingleItem(this IEnumerable collection)
-    {
-        Assert.Single(collection);
-    }
+    public static void ShouldContainSingleItem(this IEnumerable collection) => Assert.Single(collection);
 }

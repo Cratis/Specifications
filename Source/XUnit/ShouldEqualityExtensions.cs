@@ -1,3 +1,6 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using Xunit;
 
 namespace Cratis.Specifications;
@@ -11,37 +14,25 @@ public static class ShouldEqualityExtensions
     /// Assert that an object is null.
     /// </summary>
     /// <param name="actual">Actual value.</param>
-    public static void ShouldBeNull(this object actual)
-    {
-        Assert.Null(actual);
-    }
+    public static void ShouldBeNull(this object actual) => Assert.Null(actual);
 
     /// <summary>
     /// Assert that an object is not null.
     /// </summary>
     /// <param name="actual">Actual value.</param>
-    public static void ShouldNotBeNull(this object actual)
-    {
-        Assert.NotNull(actual);
-    }
+    public static void ShouldNotBeNull(this object actual) => Assert.NotNull(actual);
 
     /// <summary>
     /// Assert that a boolean is false.
     /// </summary>
     /// <param name="actual">Actual value.</param>
-    public static void ShouldBeFalse(this bool actual)
-    {
-        Assert.False(actual);
-    }
+    public static void ShouldBeFalse(this bool actual) => Assert.False(actual);
 
     /// <summary>
     /// Assert that a boolean is true.
     /// </summary>
     /// <param name="actual">Actual value.</param>
-    public static void ShouldBeTrue(this bool actual)
-    {
-        Assert.True(actual);
-    }
+    public static void ShouldBeTrue(this bool actual) => Assert.True(actual);
 
     /// <summary>
     /// Assert that two objects are equal.
@@ -49,10 +40,7 @@ public static class ShouldEqualityExtensions
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
     /// <typeparam name="T">Type of object.</typeparam>
-    public static void ShouldEqual<T>(this T actual, T expected)
-    {
-        Assert.Equal(expected, actual);
-    }
+    public static void ShouldEqual<T>(this T actual, T expected) => Assert.Equal(expected, actual);
 
     /// <summary>
     /// Assert that two objects are not equal.
@@ -60,30 +48,21 @@ public static class ShouldEqualityExtensions
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
     /// <typeparam name="T">Type of object.</typeparam>
-    public static void ShouldNotEqual<T>(this T actual, T expected)
-    {
-        Assert.NotEqual(expected, actual);
-    }
+    public static void ShouldNotEqual<T>(this T actual, T expected) => Assert.NotEqual(expected, actual);
 
     /// <summary>
     /// Assert that two objects are the same.
     /// </summary>
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
-    public static void ShouldBeSame(this object actual, object expected)
-    {
-        Assert.Same(expected, actual);
-    }
+    public static void ShouldBeSame(this object actual, object expected) => Assert.Same(expected, actual);
 
     /// <summary>
     /// Assert that two objects are not the same.
     /// </summary>
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
-    public static void ShouldNotBeSame(this object actual, object expected)
-    {
-        Assert.NotSame(expected, actual);
-    }
+    public static void ShouldNotBeSame(this object actual, object expected) => Assert.NotSame(expected, actual);
 
     /// <summary>
     /// Assert that two objects are not similar - a non strict equal. <see cref="Assert.NotStrictEqual{T}(T, T)"/>.
@@ -91,10 +70,7 @@ public static class ShouldEqualityExtensions
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
     /// <typeparam name="T">Type of object.</typeparam>
-    public static void ShouldNotBeSimilar<T>(this T actual, T expected)
-    {
-        Assert.NotStrictEqual(expected, actual);
-    }
+    public static void ShouldNotBeSimilar<T>(this T actual, T expected) => Assert.NotStrictEqual(expected, actual);
 
     /// <summary>
     /// Assert that an object matches - based on a callback making the decision.
@@ -102,8 +78,5 @@ public static class ShouldEqualityExtensions
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Callback deciding what is expected.</param>
     /// <typeparam name="T">Type of object.</typeparam>
-    public static void ShouldMatch<T>(this T actual, Func<T, bool> expected)
-    {
-        Assert.True(expected(actual));
-    }
+    public static void ShouldMatch<T>(this T actual, Func<T, bool> expected) => Assert.True(expected(actual));
 }

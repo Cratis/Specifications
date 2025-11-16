@@ -1,3 +1,6 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Reflection;
 using NUnit.Framework;
 
@@ -51,29 +54,16 @@ public class Specification
     }
 
     [OneTimeTearDown]
-    public async Task DisposeAsync()
-    {
-        await OnDestroy();
-    }
+    public async Task DisposeAsync() => await OnDestroy();
 
-    Task OnEstablish()
-    {
-        return InvokeMethod("Establish");
-    }
+    Task OnEstablish() => InvokeMethod("Establish");
 
-    Task OnBecause()
-    {
-        return InvokeMethod("Because");
-    }
+    Task OnBecause() => InvokeMethod("Because");
 
-    Task OnDestroy()
-    {
-        return InvokeMethod("Destroy");
-    }
+    Task OnDestroy() => InvokeMethod("Destroy");
 
-    Task InvokeMethod(string name)
-    {
-#nullable disable
-        return typeof(SpecificationMethods<,>).MakeGenericType(GetType(), typeof(Specification)).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, [this]) as Task;
-    }
+    Task InvokeMethod(string name) => (typeof(SpecificationMethods<,>)
+        .MakeGenericType(GetType(), typeof(Specification))
+        .GetMethod(name, BindingFlags.Static | BindingFlags.Public)!
+        .Invoke(null, [this]) as Task)!;
 }
