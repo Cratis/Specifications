@@ -1,3 +1,6 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using Xunit;
 
 namespace Cratis.Specifications;
@@ -14,7 +17,9 @@ public static class ShouldTypeExtensions
     /// <typeparam name="T">Type it should be assignable from.</typeparam>
     public static void ShouldBeAssignableFrom<T>(this object actual)
     {
+#pragma warning disable xUnit2032
         Assert.IsAssignableFrom<T>(actual);
+#pragma warning restore xUnit2032
     }
 
     /// <summary>
@@ -24,7 +29,9 @@ public static class ShouldTypeExtensions
     /// <param name="expected">Type it should be assignable from.</param>
     public static void ShouldBeAssignableFrom(this object actual, Type expected)
     {
+#pragma warning disable xUnit2032
         Assert.IsAssignableFrom(expected, actual);
+#pragma warning restore xUnit2032
     }
 
     /// <summary>
