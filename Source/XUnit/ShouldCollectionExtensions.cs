@@ -24,13 +24,9 @@ public static class ShouldCollectionExtensions
 
         foreach (var item in expected)
         {
-            if (!source.Contains<T>(item))
+            if (!source.Remove(item))
             {
                 noContain.Add(item);
-            }
-            else
-            {
-                source.Remove(item);
             }
         }
 

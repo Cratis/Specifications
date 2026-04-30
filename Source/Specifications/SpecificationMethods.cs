@@ -87,7 +87,7 @@ public static class SpecificationMethods<T, TSpecBase>
         }
     }
 
-    static IEnumerable<MethodInfo> GetMethodsFor(string name)
+    static List<MethodInfo> GetMethodsFor(string name)
     {
         var type = typeof(T);
         var methods = new List<MethodInfo>();
