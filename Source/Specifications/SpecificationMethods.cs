@@ -1,3 +1,6 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Reflection;
 
 namespace Cratis.Specifications;
@@ -49,30 +52,37 @@ public static class SpecificationMethods<T, TSpecBase>
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public static Task Establish(object unit) => InvokeMethods(_establish, unit);
+    public static Task Establish(object unit) => InvokeMethods(_establish, unit, "Establish");
 
     /// <summary>
     /// Invoke all Destroy methods.
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public static Task Destroy(object unit) => InvokeMethods(_destroy, unit);
+    public static Task Destroy(object unit) => InvokeMethods(_destroy, unit, "Destroy");
 
     /// <summary>
     /// Invoke all Because methods.
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public static Task Because(object unit) => InvokeMethods(_because, unit);
+    public static Task Because(object unit) => InvokeMethods(_because, unit, "Because");
 
-    static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit)
+    static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit, string phase)
     {
         foreach (var method in methods)
         {
-            var result = method.Invoke(unit, []);
-            if (result is Task taskResult)
+            try
             {
-                await taskResult;
+                var result = method.Invoke(unit, []);
+                if (result is Task taskResult)
+                {
+                    await taskResult;
+                }
+            }
+            catch (OperationCanceledException ex)
+            {
+                throw new SpecificationCancelledException(phase, ex);
             }
         }
     }
