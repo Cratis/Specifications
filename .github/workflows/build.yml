@@ -1,16 +1,27 @@
 name: Build
 
+env:
+  DOTNET8_VERSION: "8.0.x"
+  DOTNET9_VERSION: "9.0.x"
+  DOTNET10_VERSION: "10.0.x"
+
 on:
   push:
     branches:
       - "main"
     paths:
       - "Source/**"
+      - "Directory.Build.props"
+      - "Directory.Packages.props"
+      - "global.json"
   pull_request:
     branches:
       - "**"
     paths:
       - "Source/**"
+      - "Directory.Build.props"
+      - "Directory.Packages.props"
+      - "global.json"
 
 jobs:
   build:
@@ -21,9 +32,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup .Net
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "6.0.201"
+          dotnet-version: |
+            ${{ env.DOTNET8_VERSION }}
+            ${{ env.DOTNET9_VERSION }}
+            ${{ env.DOTNET10_VERSION }}
 
       - name: Build
         run: dotnet build --configuration Release
+
+      # Only the analyzer specs are run here. The Sample projects intentionally contain
+      # failing specs to demonstrate the framework, so they are not part of the CI test run.
+      - name: Test
+        run: dotnet test Source/CodeAnalysis.Specs/CodeAnalysis.Specs.csproj --configuration Release --no-build
