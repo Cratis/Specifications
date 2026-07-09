@@ -36,6 +36,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
+      # Required for the release action to create a GitHub release and push tags
+      contents: write
       # Required for NuGet trusted publishing using OIDC tokens
       id-token: write
 
