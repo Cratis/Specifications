@@ -4,7 +4,7 @@
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net8.0;net48</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,5 +13,16 @@
 
     <ItemGroup>
         <ProjectReference Include="../Specifications/Specifications.csproj" />
+    </ItemGroup>
+
+    <!-- Bundle the Cratis Specifications Roslyn analyzers so consumers of this package get them directly. -->
+    <ItemGroup>
+        <ProjectReference Include="../CodeAnalysis/CodeAnalysis.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../CodeAnalysis/bin/$(Configuration)/netstandard2.0/Cratis.Specifications.CodeAnalysis.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
 </Project>

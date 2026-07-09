@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.CodeAnalysis</AssemblyName>
+        <RootNamespace>Cratis.Specifications.CodeAnalysis</RootNamespace>
+
+        <!-- Analyzers must target netstandard2.0 so they load in the compiler across SDKs. -->
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks></TargetFrameworks>
+
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <DevelopmentDependency>true</DevelopmentDependency>
+
+        <!-- This project is not published on its own; its assembly is bundled into the
+             analyzers/dotnet/cs folder of the consumer-facing packages (Specifications, XUnit, NUnit). -->
+        <IsPackable>false</IsPackable>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IncludeSymbols>false</IncludeSymbols>
+        <IncludeSource>false</IncludeSource>
+
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>false</ImplicitUsings>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);NU5128;NU1507;RS1038;RS2008;RS1036;RS1041</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    </ItemGroup>
+</Project>

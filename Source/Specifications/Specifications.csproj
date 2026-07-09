@@ -5,4 +5,17 @@
         <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+
+    <!-- Bundle the Cratis Specifications Roslyn analyzers into this package. NuGet marks analyzer assets as
+         private by default, so analyzers do not flow transitively across package dependencies; each consumer-facing
+         package (Specifications, XUnit, NUnit) therefore packs the analyzer assembly into analyzers/dotnet/cs. -->
+    <ItemGroup>
+        <ProjectReference Include="../CodeAnalysis/CodeAnalysis.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../CodeAnalysis/bin/$(Configuration)/netstandard2.0/Cratis.Specifications.CodeAnalysis.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
 </Project>

@@ -132,7 +132,7 @@ public static class ShouldCollectionExtensions
     public static void ShouldNotContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
         // For some reason, this does not work: Assert.That(collection, Has.No.Matches(filter));
-        Assert.That(() => collection.Any(t => filter(t)), Is.False);
+        Assert.That(collection.Any(t => filter(t)), Is.False);
     }
 
     /// <summary>
