@@ -1,0 +1,12 @@
+root = false
+
+[*.cs]
+# Spec code intentionally uses underscore method names, private lifecycle methods and fields.
+dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE0060.severity = none
+dotnet_diagnostic.CA1812.severity = none
+dotnet_diagnostic.CA1852.severity = none
+# Analyzer test harness intentionally exposes an array and keeps the AdhocWorkspace/Substring style ported from Chronicle.
+dotnet_diagnostic.CA1819.severity = none
+dotnet_diagnostic.CA2000.severity = none
+dotnet_diagnostic.CA1846.severity = none

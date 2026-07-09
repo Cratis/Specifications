@@ -1,0 +1,10 @@
+root = false
+
+[*.cs]
+# Suppress analyzer-authoring and style rules that are noise for Roslyn analyzer projects.
+dotnet_diagnostic.RS1038.severity = none
+dotnet_diagnostic.RS2008.severity = none
+dotnet_diagnostic.RS1036.severity = none
+dotnet_diagnostic.RS1041.severity = none
+dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE0060.severity = none
