@@ -29,8 +29,14 @@ on:
         - warning
         - debug
 
-  pull_request:
-    types: [closed]  
+  # Releasing on push rather than on the pull_request closed event is deliberate. A pull request from a fork
+  # runs with a read-only GITHUB_TOKEN and no secrets even on merge, so it cannot create the release or reach
+  # the publishing credentials - which is how a merged, labeled fork contribution silently released nothing.
+  # A push to main always runs with a full-permission token, and the release action finds the merged pull
+  # request and its label from the commit.
+  push:
+    branches:
+      - main
 
 jobs:
   publish:
@@ -80,3 +86,14 @@ jobs:
       - name: Push NuGet packages
         if: ${{ steps.release.outputs.should-publish == 'true' }}
         run: dotnet nuget push --skip-duplicate '${{ env.NUGET_OUTPUT }}/*.nupkg' --timeout 900 --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+
+      # A merge that publishes nothing is the failure mode that silently costs a release: the release step
+      # succeeds, every publish step is skipped for want of should-publish, and the run reports green. Fail
+      # instead, so a release that did not happen cannot be mistaken for one that did. Only for the reasons
+      # that mean something went wrong - publishing nothing is correct for a commit pushed straight to main,
+      # a Dependabot merge, or a re-run of a run that already released.
+      - name: Report that nothing was published
+        if: ${{ steps.release.outputs.reason == 'no-label' || steps.release.outputs.reason == 'error' }}
+        run: |
+          echo "::error::Nothing was published and no release was cut (reason: ${{ steps.release.outputs.reason }}). For 'no-label', add exactly one of major, minor or patch to the merged pull request and re-run this workflow - see verify-semver-label, which is meant to catch this before the merge."
+          exit 1
