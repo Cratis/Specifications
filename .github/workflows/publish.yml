@@ -41,6 +41,7 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       # Required for the release action to create a GitHub release and push tags
       contents: write
