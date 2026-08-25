@@ -1,5 +1,9 @@
 name: Build
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   DOTNET8_VERSION: "8.0.x"
   DOTNET9_VERSION: "9.0.x"
@@ -26,6 +30,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
