@@ -3,6 +3,7 @@
         <AssemblyName>Cratis.Specifications.NUnit</AssemblyName>
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
+        <Description>Specification by Example (BDD) for .NET with NUnit - Given/When/Then specifications in the style of Machine.Specifications, running on the NUnit test framework.</Description>
         <Nullable>enable</Nullable>
         <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     </PropertyGroup>
