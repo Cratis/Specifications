@@ -24,7 +24,7 @@ public class FactOnGivenBaseClassAnalyzer : DiagnosticAnalyzer
         description: "A 'given' type establishes a reusable context (Given) and is inherited by 'when_' specifications; it is not itself a runnable specification. A test method ([Fact], [Theory], [Test], or [TestCase]) placed on a 'given' context is silently never executed, producing a real coverage gap. Move the assertion into a 'when_' specification that derives from the context.");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [_rule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

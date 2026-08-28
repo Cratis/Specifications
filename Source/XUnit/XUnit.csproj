@@ -3,6 +3,7 @@
         <AssemblyName>Cratis.Specifications.XUnit</AssemblyName>
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
+        <Description>Specification by Example (BDD) for .NET with xUnit - Given/When/Then specifications in the style of Machine.Specifications, running on the xUnit test framework.</Description>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 

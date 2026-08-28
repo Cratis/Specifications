@@ -26,7 +26,7 @@ public class DoNotCallBaseLifecycleMethodAnalyzer : DiagnosticAnalyzer
         description: "Cratis specifications discover and run Establish/Because/Destroy across the whole inheritance chain automatically, base-first. Calling 'base.Establish()' (or Because/Destroy) explicitly runs that context's setup a second time, which can corrupt state or double-invoke the action under test. Remove the explicit base call.");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [_rule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

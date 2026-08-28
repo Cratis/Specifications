@@ -1,22 +1,24 @@
-# Specifications
+# Cratis Specifications
 
-[![Build](https://github.com/cratis/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/cratis-system/Specifications/actions/workflows/build.yml)
-[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit)](http://nuget.org/packages/cratis.specifications.xunit)
-[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.nunit)](http://nuget.org/packages/cratis.specifications.nunit)
+**Specification by Example (BDD) for .NET — Given/When/Then specs with xUnit and NUnit, in the style of [Machine.Specifications](https://github.com/machine/machine.specifications).**
 
-This project represents a way to do Specification by Example - BDD style inspired by
-the conciseness of [Machine.Specifications](https://github.com/machine/machine.specifications).
+[![Build](https://github.com/Cratis/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/Cratis/Specifications/actions/workflows/build.yml)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit?label=Cratis.Specifications.XUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.xunit)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.nunit?label=Cratis.Specifications.NUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.nunit)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Discord](https://img.shields.io/discord/1182595891576717413?label=Discord&logo=discord&logoColor=white)](https://discord.gg/kt4AMpV8WV)
 
-It has support for XUnit and NUnit frameworks for testing.
+Cratis Specifications brings Specification by Example — behavior-driven development (BDD) with
+**given**, **when**, **then** — to .NET test projects, keeping the concise structure and syntax
+popularized by Machine.Specifications while running on standard test frameworks. That means full
+tooling support across IDEs, editors, and CI, with your choice of xUnit or NUnit as the runner.
+The background and motivation are described in
+[this article](https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
 
 Packages:
 
-[XUnit](http://nuget.org/packages/cratis.specifications.xunit)
-[NUnit](http://nuget.org/packages/cratis.specifications.nunit)
-
-The motivation behind is years of work with Machine.Specifications and the wish to maintain
-the approach, structure and syntax - but get more love from tooling across different platforms
-and IDEs and editors; read more [here](https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
+- [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit)
+- [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit)
 
 ## What does it do?
 
@@ -26,14 +28,14 @@ system. What this particular library delivers is a way to do these and also keep
 world of having isolated specifications and not have typically a **FooTests** and dump all your tests for the unit `Foo` in
 it.
 
-The library supports my convention lifecycle methods `Establish()`, `Because()` and `Destroy()`. There is no virtual method
+The library supports the convention lifecycle methods `Establish()`, `Because()` and `Destroy()`. There is no virtual method
 to override, just match the expected signatures:
 
 | Signature | Purpose |
 | --------- | ------- |
 | void Establish() | Establishes the current context - **given** / **arrange** |
 | void Because() | Triggers the behavior being specified - **when** / **act** |
-| void Destroy() | Tears down the context |
+| void Destroy() | Tears down the context |
 
 If your specification requires to run in an async context, it also supports the following:
 
@@ -79,18 +81,18 @@ end up getting a lot of warnings. These can be turned off by adding a **NoWarn**
 </PropertyGroup>
 ```
 
-| Warning | Description |
+| Warning | Description |
 | ------- | ----------- |
 | [CA1707](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1707) | Identifiers should not contain underscores |
 | [CA1051](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/CA1051) | Do not declare visible instance fields |
 | [CS1591](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs1591)  | Missing XML comment for publicly visible type or member 'Type_or_Member' |
-| [IDE0051](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0051) | Remove unused private member |
-| [IDE1006](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/naming-rules#rule-id-ide1006-naming-rule-violation) | Naming rule violation |
-| [RCS1213](https://github.com/JosefPihrt/Roslynator/blob/master/docs/analyzers/RCS1213.md) | Remove unused member declaration|
+| [IDE0051](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0051) | Remove unused private member |
+| [IDE1006](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/naming-rules#rule-id-ide1006-naming-rule-violation) | Naming rule violation |
+| [RCS1213](https://github.com/JosefPihrt/Roslynator/blob/master/docs/analyzers/RCS1213.md) | Remove unused member declaration|
 
 If you're using static code analysis and stylecop and have turned on all rules by default, you might also encounter the following that you want to turn off:
 
-| Warning | Description |
+| Warning | Description |
 | ------- | ----------- |
 | [SA1633](https://documentation.help/StyleCop/SA1636.html) | File header copyright text must match |
 | [SA1649](https://documentation.help/StyleCop/SA1649.html) | File name must match type name |
@@ -99,9 +101,9 @@ If you're using static code analysis and stylecop and have turned on all rules b
 | [SA1502](https://documentation.help/StyleCop/SA1502.html) | Element must not be on a single line |
 | [SA1134](https://documentation.help/StyleCop/SA1134.html) ||
 
-Depending on your solution, you might want to consider suppressnig the following.
+Depending on your solution, you might want to consider suppressing the following.
 
-| Warning | Description |
+| Warning | Description |
 | ------- | ----------- |
 | [RCS1090](https://github.com/JosefPihrt/Roslynator/blob/master/docs/analyzers/RCS1090.md) | Add call to 'ConfigureAwait'.|
 
@@ -195,3 +197,26 @@ class no_user_authenticated
 
 }
 ```
+
+## Related projects
+
+Specifications pairs naturally with [Synopsis](https://github.com/Cratis/Synopsis), which turns
+your specs into living documentation, and it is the testing style used throughout the Cratis
+stack — including [Chronicle](https://github.com/Cratis/Chronicle), the event-sourcing database
+and runtime, and [Arc](https://github.com/Cratis/Arc), the CQRS application framework for
+ASP.NET Core.
+
+## The Cratis ecosystem
+
+This project is part of [Cratis](https://www.cratis.io) — free, MIT-licensed tools for building event-sourced and CQRS applications.
+
+- **[Chronicle](https://github.com/Cratis/Chronicle)** — event-sourcing database and runtime. Orleans-based kernel, pluggable storage (MongoDB default; PostgreSQL, SQL Server, SQLite, in-memory), language-agnostic gRPC contracts. [Docs](https://www.cratis.io/chronicle/)
+- **Chronicle clients** — first-class [.NET SDK](https://github.com/Cratis/Chronicle), plus [TypeScript](https://github.com/Cratis/Chronicle.TypeScript), [Kotlin/Java](https://github.com/Cratis/Chronicle.Kotlin), and [Elixir](https://github.com/Cratis/Chronicle.Elixir); [Python](https://github.com/Cratis/Chronicle.Python) coming soon (pre-alpha). AI agents connect through the [Chronicle MCP server](https://github.com/Cratis/Chronicle.Mcp).
+- **[Arc](https://github.com/Cratis/Arc)** — opinionated CQRS framework for ASP.NET Core with commands, queries, validation, authorization, and TypeScript proxy generation. Works without event sourcing. [Docs](https://www.cratis.io/arc/)
+- **[Components](https://github.com/Cratis/Components)** — React components aligned with Arc patterns. [Docs](https://www.cratis.io/components/)
+- **[CLI](https://github.com/Cratis/cli) + Workbench** — inspect and diagnose Chronicle from the terminal or the browser. [Docs](https://www.cratis.io/cli/)
+- **Model-first layer (experimental)** — [Studio](https://github.com/Cratis/Studio), [Screenplay](https://github.com/Cratis/Screenplay), [Stage](https://github.com/Cratis/Stage), [Scene](https://github.com/Cratis/Scene), [Prologue](https://github.com/Cratis/Prologue)
+- **Supporting** — [Fundamentals](https://github.com/Cratis/Fundamentals), [Specifications](https://github.com/Cratis/Specifications) (this project), [Synopsis](https://github.com/Cratis/Synopsis), [Lens](https://github.com/Cratis/Lens), [Narrator](https://github.com/Cratis/Narrator), and free [AI tooling](https://github.com/Cratis/AI) (preview); [Ensemble](https://github.com/Cratis/Ensemble) coming soon (pre-release)
+- **[Samples](https://github.com/Cratis/Samples)** — runnable event sourcing and CQRS samples for the whole stack
+
+Everything Cratis publishes today is MIT licensed and free to use.

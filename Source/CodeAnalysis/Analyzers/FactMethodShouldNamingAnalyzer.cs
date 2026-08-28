@@ -27,7 +27,7 @@ public class FactMethodShouldNamingAnalyzer : DiagnosticAnalyzer
         description: "Cratis specifications read as behavioral facts (Given/When/Then). A test method ([Fact], [Theory], [Test], or [TestCase]) inside a Specification-derived class should start with 'should_' so the test output reads as a sentence, for example 'should_reject_the_command'. This keeps the BDD readability that is the whole point of the framework.");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [_rule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

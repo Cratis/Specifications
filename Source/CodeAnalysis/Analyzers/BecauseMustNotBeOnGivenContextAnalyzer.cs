@@ -26,7 +26,7 @@ public class BecauseMustNotBeOnGivenContextAnalyzer : DiagnosticAnalyzer
         description: "A 'given' context captures the world before the action under test (the Given). Placing a Because() on it runs the action for every specification that derives from the context, which blurs what is being tested and can trigger the action multiple times. Keep 'given' contexts to Establish() only and move Because() into the concrete 'when_' specification.");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [_rule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
