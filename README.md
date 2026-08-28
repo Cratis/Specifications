@@ -13,7 +13,7 @@ Cratis Specifications brings Specification by Example — behavior-driven develo
 popularized by Machine.Specifications while running on standard test frameworks. That means full
 tooling support across IDEs, editors, and CI, with your choice of xUnit or NUnit as the runner.
 The background and motivation are described in
-[this article](https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
+[this article](https://web.archive.org/web/20210922202940/https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
 
 Packages:
 
@@ -88,24 +88,24 @@ end up getting a lot of warnings. These can be turned off by adding a **NoWarn**
 | [CS1591](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs1591)  | Missing XML comment for publicly visible type or member 'Type_or_Member' |
 | [IDE0051](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0051) | Remove unused private member |
 | [IDE1006](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/naming-rules#rule-id-ide1006-naming-rule-violation) | Naming rule violation |
-| [RCS1213](https://github.com/JosefPihrt/Roslynator/blob/master/docs/analyzers/RCS1213.md) | Remove unused member declaration|
+| [RCS1213](https://josefpihrt.github.io/docs/roslynator/analyzers/RCS1213/) | Remove unused member declaration|
 
 If you're using static code analysis and stylecop and have turned on all rules by default, you might also encounter the following that you want to turn off:
 
 | Warning | Description |
 | ------- | ----------- |
-| [SA1633](https://documentation.help/StyleCop/SA1636.html) | File header copyright text must match |
-| [SA1649](https://documentation.help/StyleCop/SA1649.html) | File name must match type name |
-| [SA1600](https://documentation.help/StyleCop/SA1600.html) | Elements must be documented |
-| [SA1310](https://documentation.help/StyleCop/SA1310.html) | Field names must not contain underscore |
-| [SA1502](https://documentation.help/StyleCop/SA1502.html) | Element must not be on a single line |
-| [SA1134](https://documentation.help/StyleCop/SA1134.html) ||
+| [SA1633](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1633.md) | File header copyright text must match |
+| [SA1649](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1649.md) | File name must match type name |
+| [SA1600](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1600.md) | Elements must be documented |
+| [SA1310](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1310.md) | Field names must not contain underscore |
+| [SA1502](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1502.md) | Element must not be on a single line |
+| [SA1134](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1134.md) ||
 
 Depending on your solution, you might want to consider suppressing the following.
 
 | Warning | Description |
 | ------- | ----------- |
-| [RCS1090](https://github.com/JosefPihrt/Roslynator/blob/master/docs/analyzers/RCS1090.md) | Add call to 'ConfigureAwait'.|
+| [RCS1090](https://josefpihrt.github.io/docs/roslynator/analyzers/RCS1090/) | Add call to 'ConfigureAwait'.|
 
 ## Example
 
@@ -215,8 +215,8 @@ This project is part of [Cratis](https://www.cratis.io) — free, MIT-licensed t
 - **[Arc](https://github.com/Cratis/Arc)** — opinionated CQRS framework for ASP.NET Core with commands, queries, validation, authorization, and TypeScript proxy generation. Works without event sourcing. [Docs](https://www.cratis.io/arc/)
 - **[Components](https://github.com/Cratis/Components)** — React components aligned with Arc patterns. [Docs](https://www.cratis.io/components/)
 - **[CLI](https://github.com/Cratis/cli) + Workbench** — inspect and diagnose Chronicle from the terminal or the browser. [Docs](https://www.cratis.io/cli/)
-- **Model-first layer (experimental)** — [Studio](https://github.com/Cratis/Studio), [Screenplay](https://github.com/Cratis/Screenplay), [Stage](https://github.com/Cratis/Stage), [Scene](https://github.com/Cratis/Scene), [Prologue](https://github.com/Cratis/Prologue)
-- **Supporting** — [Fundamentals](https://github.com/Cratis/Fundamentals), [Specifications](https://github.com/Cratis/Specifications) (this project), [Synopsis](https://github.com/Cratis/Synopsis), [Lens](https://github.com/Cratis/Lens), [Narrator](https://github.com/Cratis/Narrator), and free [AI tooling](https://github.com/Cratis/AI) (preview); [Ensemble](https://github.com/Cratis/Ensemble) coming soon (pre-release)
+- **Model-first layer (experimental)** — Studio, [Screenplay](https://github.com/Cratis/Screenplay), [Stage](https://github.com/Cratis/Stage), [Scene](https://github.com/Cratis/Scene), [Prologue](https://github.com/Cratis/Prologue)
+- **Supporting** — [Fundamentals](https://github.com/Cratis/Fundamentals), [Specifications](https://github.com/Cratis/Specifications) (this project), [Synopsis](https://github.com/Cratis/Synopsis), [Lens](https://github.com/Cratis/Lens), [Narrator](https://github.com/Cratis/Narrator), and free [AI tooling](https://github.com/Cratis/AI) (preview); Ensemble coming soon (pre-release)
 - **[Samples](https://github.com/Cratis/Samples)** — runnable event sourcing and CQRS samples for the whole stack
 
 Everything Cratis publishes today is MIT licensed and free to use.
