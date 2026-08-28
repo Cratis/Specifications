@@ -27,7 +27,7 @@ public class OneSpecificationPerFileAnalyzer : DiagnosticAnalyzer
         description: "Cratis specifications map one behavior to one file (for_/when_/and_). Declaring more than one Specification-derived class in a single file hides scenarios and breaks the navigable one-file-per-behavior convention. Shared context types in a 'given' namespace and '*SpecHelpers' types are exempt.");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [_rule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

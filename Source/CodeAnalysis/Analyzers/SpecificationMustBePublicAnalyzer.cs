@@ -24,7 +24,7 @@ public class SpecificationMustBePublicAnalyzer : DiagnosticAnalyzer
         description: "The test runner only discovers publicly accessible test classes. A Specification-derived class that declares test methods but is internal (or nested inside a non-public type) is silently skipped, producing a false sense of coverage. Make the specification (and any type containing it) public.");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [_rule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

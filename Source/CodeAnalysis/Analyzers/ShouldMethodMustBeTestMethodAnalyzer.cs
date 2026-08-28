@@ -25,7 +25,7 @@ public class ShouldMethodMustBeTestMethodAnalyzer : DiagnosticAnalyzer
         description: "A method named 'should_*' inside a Specification-derived class reads as a behavioral fact, but without a test attribute ([Fact], [Theory], [Test], or [TestCase]) it is just an ordinary private method that the runner never executes. This silently drops the assertion and creates a false sense of coverage. Add the missing test attribute, or rename the method if it is a helper.");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [_rule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
