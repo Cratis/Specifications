@@ -198,6 +198,32 @@ class no_user_authenticated
 }
 ```
 
+## Shared instance per specification class (opt-in)
+
+By default, xUnit constructs a fresh instance of the test class for every `[Fact]`, which means
+`Establish` and `Because` run once **per fact** rather than once per behavior. For specs whose
+`Because` drives real machinery, that multiplies the cost of the action by the number of facts —
+and a behavior described by several facts ends up being executed several times.
+
+The xUnit package ships an opt-in execution mode with MSpec-style semantics. Add the standard
+xUnit assembly attribute to your test assembly:
+
+```csharp
+[assembly: Xunit.TestFramework("Cratis.Specifications.SpecificationTestFramework", "Cratis.Specifications.XUnit")]
+```
+
+With this in place, every eligible specification class is constructed **once**, `Establish` and
+`Because` run **once**, all its facts run against that shared instance, and `Destroy` runs **once**
+after the last fact.
+
+A class is eligible when it derives from `Specification`, has a single public parameterless
+constructor, does not implement `IDisposable` and contains only plain facts. Everything else —
+plain xUnit test classes, theories, classes using fixtures or `ITestOutputHelper` — keeps the
+stock per-fact lifecycle, so the attribute is safe to add to an existing spec assembly.
+
+The one rule to honor: facts must not mutate the shared context. They are assertions about the
+single execution the class describes — which is the BDD model to begin with.
+
 ## Related projects
 
 Specifications pairs naturally with [Synopsis](https://github.com/Cratis/Synopsis), which turns
