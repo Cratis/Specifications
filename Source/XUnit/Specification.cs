@@ -45,6 +45,8 @@ namespace Cratis.Specifications;
 /// </remarks>
 public class Specification : IAsyncLifetime
 {
+    bool _initialized;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Specification"/> class.
     /// </summary>
@@ -52,9 +54,28 @@ public class Specification : IAsyncLifetime
     {
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the instance is shared across all facts in its class.
+    /// </summary>
+    /// <remarks>
+    /// Set by <see cref="SpecificationTestClassRunner"/> when the opt-in shared lifecycle is active.
+    /// When set, <see cref="DisposeAsync"/> becomes a no-op so the per-fact lifecycle applied by
+    /// the stock xUnit invoker does not destroy the context between facts; the class runner instead
+    /// calls <see cref="DestroyAsync"/> once after the last fact.
+    /// </remarks>
+    internal bool IsSharedInstance { get; set; }
+
     /// <inheritdoc/>
+    /// <remarks>
+    /// Establish and Because run only on the first call; subsequent calls on the same instance are
+    /// no-ops. Stock xUnit calls this exactly once per instance, so this only has an effect when the
+    /// instance is shared across facts through <see cref="SpecificationTestFramework"/>.
+    /// </remarks>
     public async Task InitializeAsync()
     {
+        if (_initialized) return;
+        _initialized = true;
+
         await OnEstablish();
         await OnBecause();
     }
@@ -62,8 +83,16 @@ public class Specification : IAsyncLifetime
     /// <inheritdoc/>
     public async Task DisposeAsync()
     {
+        if (IsSharedInstance) return;
+
         await OnDestroy();
     }
+
+    /// <summary>
+    /// Performs the Destroy lifecycle for an instance shared across all facts in its class.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    internal Task DestroyAsync() => OnDestroy();
 
     Task OnEstablish()
     {

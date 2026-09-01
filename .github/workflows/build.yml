@@ -47,7 +47,10 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
 
-      # Only the analyzer specs are run here. The Sample projects intentionally contain
+      # Only the spec projects are run here. The Sample projects intentionally contain
       # failing specs to demonstrate the framework, so they are not part of the CI test run.
       - name: Test
-        run: dotnet test Source/CodeAnalysis.Specs/CodeAnalysis.Specs.csproj --configuration Release --no-build
+        run: |
+          dotnet test Source/CodeAnalysis.Specs/CodeAnalysis.Specs.csproj --configuration Release --no-build
+          dotnet test Source/XUnit.Specs/XUnit.Specs.csproj --configuration Release --no-build
+          dotnet test Source/XUnit.DefaultBehavior.Specs/XUnit.DefaultBehavior.Specs.csproj --configuration Release --no-build
