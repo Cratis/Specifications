@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="xunit" Version="$(xunit)" />
+        <PackageReference Include="xunit.extensibility.execution" />
     </ItemGroup>
 
     <ItemGroup>
