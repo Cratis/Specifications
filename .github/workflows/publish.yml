@@ -43,6 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
+      issues: write
       # Required for the release action to create a GitHub release and push tags
       contents: write
       # Required for NuGet trusted publishing using OIDC tokens
