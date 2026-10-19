@@ -31,7 +31,7 @@ public static class SpecSource
             "namespace Xunit",
             "{",
             "    [AttributeUsage(AttributeTargets.Method)]",
-            "    public sealed class FactAttribute : Attribute { public string Skip { get; set; } }",
+            "    public class FactAttribute : Attribute { public string Skip { get; set; } }",
             "    [AttributeUsage(AttributeTargets.Method)]",
             "    public sealed class TheoryAttribute : Attribute { }",
             "}",

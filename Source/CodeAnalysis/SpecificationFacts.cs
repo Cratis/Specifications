@@ -68,7 +68,7 @@ public static class SpecificationFacts
     }
 
     /// <summary>
-    /// Determines whether the method is a test method (carries a known xUnit or NUnit test attribute).
+    /// Determines whether the method is a test method (carries a known xUnit or NUnit test attribute, or one derived from it).
     /// </summary>
     /// <param name="method">The method to inspect.</param>
     /// <returns>True if the method carries a recognized test attribute.</returns>
@@ -76,12 +76,22 @@ public static class SpecificationFacts
         method.GetAttributes().Any(attribute => IsTestMethodAttribute(attribute.AttributeClass));
 
     /// <summary>
-    /// Determines whether the attribute type is a recognized xUnit or NUnit test attribute.
+    /// Determines whether the attribute type is, or derives from, a recognized xUnit or NUnit test attribute.
     /// </summary>
     /// <param name="attributeClass">The attribute type to inspect.</param>
     /// <returns>True if it is a recognized test attribute.</returns>
-    public static bool IsTestMethodAttribute(INamedTypeSymbol? attributeClass) =>
-        attributeClass is not null && _testMethodAttributeNames.Contains(attributeClass.Name);
+    public static bool IsTestMethodAttribute(INamedTypeSymbol? attributeClass)
+    {
+        for (var current = attributeClass; current is not null; current = current.BaseType)
+        {
+            if (_testMethodAttributeNames.Contains(current.Name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Determines whether the type and every type that contains it are publicly accessible.
