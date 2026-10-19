@@ -42,8 +42,8 @@
         <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
         
-        <RepositoryUrl>https://github.com/cratis/Specifications</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/cratis/Specifications</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Cratis/Specifications</RepositoryUrl>
+        <PackageProjectUrl>https://www.cratis.io/specifications/</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
