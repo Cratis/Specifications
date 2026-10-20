@@ -46,6 +46,7 @@
         <RepositoryUrl>https://github.com/Cratis/Specifications</RepositoryUrl>
         <PackageProjectUrl>https://www.cratis.io/specifications/</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>logo.png</PackageIcon>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
@@ -73,5 +74,6 @@
 
     <ItemGroup>
         <Content Include="$(MSBuildThisFileDirectory)/README.md" PackagePath="/" />
+        <Content Include="$(MSBuildThisFileDirectory)/logo.png" PackagePath="/" />
     </ItemGroup>
 </Project>
