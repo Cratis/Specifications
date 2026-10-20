@@ -33,7 +33,8 @@
         <Copyright>Copyright Cratis</Copyright>
         <Description>Specification by Example (BDD) for .NET - Given/When/Then specifications in the style of Machine.Specifications, with support for xUnit and NUnit.</Description>
         <PackageTags>bdd;specification-by-example;testing;xunit;nunit;mspec;given-when-then;cratis</PackageTags>
-        <Authors>all contributors</Authors>
+        <Authors>Cratis</Authors>
+        <Company>Cratis</Company>
         <DebugType>portable</DebugType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
