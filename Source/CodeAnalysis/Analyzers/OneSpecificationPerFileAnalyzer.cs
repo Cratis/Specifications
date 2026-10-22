@@ -42,13 +42,8 @@ public class OneSpecificationPerFileAnalyzer : DiagnosticAnalyzer
         var root = context.SemanticModel.SyntaxTree.GetRoot(context.CancellationToken);
         var specifications = new List<(INamedTypeSymbol Symbol, ClassDeclarationSyntax Declaration)>();
 
-        foreach (var declaration in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
+        foreach (var declaration in TopLevelClasses(root))
         {
-            if (!IsTopLevel(declaration))
-            {
-                continue;
-            }
-
             if (context.SemanticModel.GetDeclaredSymbol(declaration, context.CancellationToken) is not { } symbol)
             {
                 continue;
@@ -77,8 +72,31 @@ public class OneSpecificationPerFileAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    static bool IsTopLevel(ClassDeclarationSyntax declaration) =>
-        declaration.Parent is BaseNamespaceDeclarationSyntax or CompilationUnitSyntax;
+    // Walks only the type declarations that are not nested in another type, so method bodies are never visited.
+    static IEnumerable<ClassDeclarationSyntax> TopLevelClasses(SyntaxNode container)
+    {
+        var members = container switch
+        {
+            CompilationUnitSyntax compilationUnit => compilationUnit.Members,
+            BaseNamespaceDeclarationSyntax namespaceDeclaration => namespaceDeclaration.Members,
+            _ => default
+        };
+
+        foreach (var member in members)
+        {
+            if (member is ClassDeclarationSyntax classDeclaration)
+            {
+                yield return classDeclaration;
+            }
+            else if (member is BaseNamespaceDeclarationSyntax nested)
+            {
+                foreach (var declaration in TopLevelClasses(nested))
+                {
+                    yield return declaration;
+                }
+            }
+        }
+    }
 
     static bool IsExempt(INamedTypeSymbol symbol) =>
         symbol.Name.EndsWith(SpecificationFacts.SpecHelpersSuffix, System.StringComparison.Ordinal) ||
