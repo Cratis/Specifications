@@ -17,9 +17,8 @@ Benchmarks/run.sh --n 5 --f 2 --r 1
 # Default: 500 classes, 5 facts, 5 measured repetitions, both parallel modes.
 Benchmarks/run.sh
 
-# Shared-machine example; select a subset to bound each execution phase.
-N=300 F=5 R=5 Benchmarks/run.sh --flavors xunit-v2
-Benchmarks/run.sh --n 300 --f 5 --r 5 --flavors xunit-v3,nunit4,tunit
+# Shared-machine example; compare several flavors within one interleaved run.
+N=300 F=5 R=5 Benchmarks/run.sh --flavors xunit-v2,xunit-v3,nunit4,tunit
 
 # Generator alone, for inspection or manual experiments.
 python3 Benchmarks/generate.py --n 5 --f 2
@@ -34,8 +33,9 @@ publishes the `cratis-runner` suite with Native AOT and measures the native exec
 the publish is timed separately and not included in the build columns. Numbers must be positive; flavors are comma-separated
 with no duplicates. `--parallel` accepts `default`, `off`, or `both` (default).
 Run only one harness process per checkout: generation and runner configuration
-share files. On shared developer machines, run each flavor through your build/test
-admission queue, not concurrently.
+share files. On shared developer machines, run the entire multi-flavor invocation through
+your build/test admission queue. Several flavors in one `run.sh` invocation is
+the normal comparison mode; separate invocations cannot share interleaving.
 
 `generated/<flavor>/` and `generated/<flavor>-raw/` contain a single-TFM net10.0
 project and deterministic source. Generation overwrites only its own two files;
@@ -76,8 +76,22 @@ projects too; it does not flush NuGet/OS caches. Subsequent projects may benefit
 from warmed dependencies. Build times are recorded once and reused in each
 runner/mode table row, not remeasured for each row.
 
-Each runner/mode gets one validated, excluded warm-up and R fresh processes.
-The report includes wall-time median/min/max and maximum sampled peak RSS:
+All selected projects (and optional AOT executables) are built before any runner
+measurements. One validated warm-up pass runs every selected variant once and is
+excluded. Each of R measured repetitions then runs every variant once in a fresh
+process: a variant is a (flavor, Cratis/raw suite, parallel mode, runner path).
+The ordering rotates left by the repetition number (warm-up is 0), spreading
+first/last positions across repetitions instead of measuring contiguous blocks
+under potentially different machine loads. Execution remains sequential, not concurrent.
+
+The report includes median CPU time, wall-time median/min/max and maximum sampled
+peak RSS. **CPU time is the primary column for comparing per-test overhead on a
+loaded machine**: user + system CPU time of the child process tree is less sensitive
+to scheduling delays than wall time. It still includes startup, JIT, discovery and
+reporting, and does not isolate framework overhead. Wall time remains useful for
+elapsed latency; neither metric removes thermal/cache or parallelism effects.
+Load averages (1, 5 and 15 minutes from `os.getloadavg()`) are captured at harness
+start/end and at the start/end of every pass, including warm-up, in Markdown and JSON.
 
 | Flavor | Primary path | Additional path |
 |---|---|---|
@@ -94,7 +108,10 @@ MSBuild invocation. Warm-up does not retain JIT code across measured processes;
 startup/JIT/discovery/report-writing overhead remains part of every measurement.
 
 `/usr/bin/time -l` (macOS) or `-v` (Linux) measures wall time externally and peak
-RSS. macOS RSS bytes and Linux KiB are normalized to MiB. RSS includes the timed
+RSS. CPU time is the delta of `resource.getrusage(RUSAGE_CHILDREN)` user and
+system time around the synchronous invocation, including descendants accounted
+for by the OS and the time wrapper itself; no other children run concurrently in
+the harness. macOS RSS bytes and Linux KiB are normalized to MiB. RSS includes the timed
 runner/descendant accounting supplied by the OS; it is **not** aggregate concurrent
 process-tree memory, and is not directly comparable across operating systems.
 
@@ -128,15 +145,16 @@ were controlled for parallelism.
 contains configuration, exact commands, build measurements, warm-ups and every
 sample. The sibling `-logs/` directory retains runner reports, stdout/stderr and
 time statistics. Generated files and results are gitignored; no machine-specific
-ranking is committed. Load averages (`uptime`), SDK, host and OS are recorded.
+ranking is committed. Load averages, SDK, host and OS are recorded.
 
 The manual-only GitHub Actions workflow accepts N/F/R, uses Ubuntu with SDK 10,
 runs both modes, uploads the reports/logs and puts the table in the job summary.
 A failed row fails the job without hiding measurements for successful rows.
 
 Machine load, power/thermal state, CPU count, JIT, file caches, execution order,
-report formats and framework default parallelism all affect results. Suites run
-sequentially (Cratis then raw for each flavor), not randomized; rerun on an idle,
-fixed machine for a meaningful ranking. Prefer same-runner, same-mode comparisons;
+report formats and framework default parallelism all affect results. Variants run
+sequentially in rotated, interleaved passes, not randomized; short runs cannot
+fully balance every position. Rerun on an idle, fixed machine for a meaningful ranking.
+Prefer same-runner, same-mode comparisons;
 report both native/direct speed and CLI-inclusive speed rather than declaring
 an unconditional fastest framework. Tiny suites mostly measure runner startup.

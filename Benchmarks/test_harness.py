@@ -1,7 +1,9 @@
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 """Non-vacuity/regression tests; actual framework behavior is checked by smoke runs."""
+import json
 import tempfile
+from types import SimpleNamespace
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -10,6 +12,7 @@ import xml.etree.ElementTree as ET
 from generate import NO_RAW, SOURCES, arguments, generate, project, suite
 from measurement import counts, measure, runner
 from report import render
+from run import prepare_project, rotated_order, run_interleaved
 
 
 class HarnessTests(unittest.TestCase):
@@ -100,15 +103,99 @@ class HarnessTests(unittest.TestCase):
             self.assertEqual(7, result["exit"])
             self.assertGreater(result["seconds"], 0)
             self.assertIsNotNone(result["peak_rss_mib"])
+            self.assertGreaterEqual(result["cpu_seconds"], 0)
             self.assertIn("intentional-failure", Path(result["log"]).read_text())
+
+    def test_interleaving_rotates_every_variant_once_per_pass(self):
+        rows = [{"id": (flavor, suite, mode, route)}
+                for flavor in ("xunit-v3", "tunit") for suite in ("Cratis", "raw")
+                for mode in ("default", "off") for route in ("cli", "executable")]
+        self.assertEqual([], rotated_order([], 1))
+        repetitions = []
+        with patch("run.run_sample") as sample, patch("run.load", return_value=(1, 2, 3)):
+            run_interleaved(rows, SimpleNamespace(r=len(rows)), Path("unused"), repetitions)
+        calls = [(call.args[0], call.args[3]) for call in sample.call_args_list]
+        for repetition in range(len(rows) + 1):
+            offset = repetition % len(rows)
+            expected = rows[offset:] + rows[:offset]
+            self.assertEqual([(row, repetition) for row in expected],
+                             calls[repetition * len(rows):(repetition + 1) * len(rows)])
+        self.assertEqual(list(range(len(rows) + 1)), [p["repetition"] for p in repetitions])
+        self.assertTrue(all(p["load_before"] == (1, 2, 3) and p["load_after"] == (1, 2, 3)
+                            for p in repetitions))
+
+    def test_preparation_builds_without_measuring_and_retains_all_modes(self):
+        with tempfile.TemporaryDirectory() as directory, patch("run.build", return_value={}) as build, \
+                patch("run.measure") as measure, patch("builtins.print"):
+            rows = []
+            args = SimpleNamespace(aot=False, parallel="both")
+            for suite in ("Cratis", "raw"):
+                item = {"flavor": "xunit-v3", "suite": suite, "project": f"{suite}/Benchmark.csproj"}
+                prepare_project(item, args, Path(directory), rows)
+            self.assertEqual(2, build.call_count)
+            measure.assert_not_called()
+            self.assertEqual(8, len(rows))
+            self.assertEqual({(suite, mode, route) for suite in ("Cratis", "raw")
+                              for mode in ("default", "off") for route in ("dotnet-test", "executable")},
+                             {(row["suite"], row["parallel"], row["route"]) for row in rows})
+
+    def test_failed_counts_invalidate_only_that_variant_without_retries(self):
+        with tempfile.TemporaryDirectory() as directory, patch("run.runner", return_value=([], Path("unused"))), \
+                patch("run.measure", side_effect=lambda *args: {"exit": 0, "seconds": 1, "cpu_seconds": 0.5, "peak_rss_mib": 20}), \
+                patch("run.counts", side_effect=[ValueError("wrong count"), 10, 10, 10]) as count, \
+                patch("run.load", return_value=(1, 2, 3)), patch("builtins.print"):
+            rows = [{"flavor": "xunit-v3", "project": f"{name}/Benchmark.csproj",
+                     "parallel": "default", "route": "executable", "samples": []}
+                    for name in ("bad", "good")]
+            for name in ("bad", "good"):
+                (Path(directory) / name).mkdir()
+            run_interleaved(rows, SimpleNamespace(n=5, f=2, r=2), Path(directory), [])
+            self.assertFalse(rows[0]["warmup"]["valid"])
+            self.assertEqual([], rows[0]["samples"])
+            self.assertEqual([1, 2], [s["repetition"] for s in rows[1]["samples"]])
+            self.assertTrue(all(s["valid"] for s in rows[1]["samples"]))
+            self.assertEqual(4, count.call_count)
+            self.assertTrue(all(call.args[1] == 10 for call in count.call_args_list))
+
+    def test_cpu_time_is_user_plus_system_child_usage_delta(self):
+        before = SimpleNamespace(ru_utime=10.25, ru_stime=4.5)
+        after = SimpleNamespace(ru_utime=11.75, ru_stime=5.25)
+        with tempfile.TemporaryDirectory() as directory, \
+                patch("measurement.resource.getrusage", side_effect=[before, after]) as usage:
+            result = measure(["/bin/sh", "-c", "exit 0"], Path(directory) / "measurement")
+            self.assertEqual(2.25, result["cpu_seconds"])
+            self.assertEqual(2, usage.call_count)
+            self.assertEqual(usage.call_args_list[0], usage.call_args_list[1])
 
     def test_complete_samples_report_median_range_and_peak(self):
         with tempfile.TemporaryDirectory() as directory, patch("builtins.print"):
-            row = {"flavor": "tunit", "suite": "Cratis", "parallel": "off", "route": "executable", "warmup": {"seconds": 99}, "samples": [{"valid": True, "seconds": s, "peak_rss_mib": m} for s, m in ((2, 30), (1, 40), (3, 20))]}
+            row = {"flavor": "tunit", "suite": "Cratis", "parallel": "off", "route": "executable", "warmup": {"seconds": 99, "cpu_seconds": 99}, "samples": [{"valid": True, "seconds": s, "cpu_seconds": c, "peak_rss_mib": m} for s, c, m in ((2, 0.5, 30), (1, 0.9, 40), (3, 0.1, 20))]}
             data = {"n": 5, "f": 2, "r": 3, "host": "test", "platform": "test", "sdk": "test", "load_before": "test", "load_after": "test", "rows": [row]}
             render(data, Path(directory) / "result")
             self.assertTrue(row["valid"])
+            self.assertEqual(0.5, row["median_cpu_seconds"])
+            self.assertIn("CPU median (s)", (Path(directory) / "result.md").read_text())
+            self.assertEqual(0.5, json.loads((Path(directory) / "result.json").read_text())["rows"][0]["median_cpu_seconds"])
             self.assertEqual((2, 1, 3, 40), (row["median_seconds"], row["min_seconds"], row["max_seconds"], row["peak_rss_mib"]))
+
+    def test_load_averages_are_retained_in_markdown_and_json(self):
+        with tempfile.TemporaryDirectory() as directory, patch("builtins.print"):
+            passes = [{"repetition": r, "load_before": (1, 2, 3), "load_after": (4, 5, 6)}
+                      for r in range(3)]
+            data = {"n": 5, "f": 2, "r": 2, "host": "test", "platform": "test", "sdk": "test",
+                    "load_before": (7, 8, 9), "load_after": (10, 11, 12), "repetitions": passes, "rows": []}
+            render(data, Path(directory) / "result")
+            markdown = (Path(directory) / "result.md").read_text()
+            self.assertIn("Load before: `(7, 8, 9)`", markdown)
+            self.assertIn("Load after: `(10, 11, 12)`", markdown)
+            for label in ("Warm-up", "1", "2"):
+                self.assertIn(f"| {label} | (1, 2, 3) | (4, 5, 6) |", markdown)
+            saved = json.loads((Path(directory) / "result.json").read_text())
+            self.assertEqual([7, 8, 9], saved["load_before"])
+            self.assertEqual([10, 11, 12], saved["load_after"])
+            self.assertEqual(3, len(saved["repetitions"]))
+            self.assertTrue(all(p["load_before"] == [1, 2, 3] and p["load_after"] == [4, 5, 6]
+                                for p in saved["repetitions"]))
 
     def test_partial_samples_never_become_a_valid_median(self):
         with tempfile.TemporaryDirectory() as directory, patch("builtins.print"):

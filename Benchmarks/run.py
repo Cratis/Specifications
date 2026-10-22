@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
-"""Build generated suites, then measure each natural runner independently."""
+"""Build generated suites, then measure all variants in rotated, interleaved passes."""
 import datetime
 import os
 import platform
@@ -16,7 +16,7 @@ from report import render
 
 
 def load():
-    return subprocess.check_output(["uptime"], text=True).strip()
+    return os.getloadavg()
 
 
 def runtime_identifier():
@@ -48,7 +48,7 @@ def build(project, logs):
     return builds
 
 
-def run_project(item, args, directory, rows):
+def prepare_project(item, args, directory, rows):
     project, flavor = Path(item["project"]), item["flavor"]
     logs = directory / project.parent.name
     logs.mkdir(parents=True)
@@ -70,28 +70,52 @@ def run_project(item, args, directory, rows):
         for route in routes:
             row = {**item, "parallel": mode, "route": route, "builds": builds, "samples": []}
             rows.append(row)
-            for repetition in range(args.r + 1):
-                run_dir = logs / f"{mode}-{route}-{repetition}"
-                run_dir.mkdir()
-                command, report = runner(project, flavor, route, mode == "off", run_dir)
-                print(f"{project.parent.name} {mode} {route} {'warm-up' if repetition == 0 else repetition}", flush=True)
-                sample = measure(command, run_dir / "measurement")
-                try:
-                    if sample["exit"]:
-                        raise ValueError(f"runner exit {sample['exit']}; {sample['log']}")
-                    if sample["peak_rss_mib"] is None:
-                        raise ValueError("missing peak RSS")
-                    sample["count"] = counts(report, args.n * args.f)
-                    sample["valid"] = True
-                except (ValueError, OSError, KeyError, ET.ParseError) as error:
-                    sample["valid"] = False
-                    row["error"] = str(error)
-                if repetition == 0:
-                    row["warmup"] = sample
-                else:
-                    row["samples"].append(sample)
-                if not sample["valid"]:
-                    break  # Never promote partial/failed runs or retry silently.
+
+
+def rotated_order(rows, repetition):
+    if not rows:
+        return []
+    offset = repetition % len(rows)
+    return rows[offset:] + rows[:offset]
+
+
+def run_sample(row, args, directory, repetition):
+    project = Path(row["project"])
+    mode, route = row["parallel"], row["route"]
+    run_dir = directory / project.parent.name / f"{mode}-{route}-{repetition}"
+    run_dir.mkdir()
+    command, report = runner(project, row["flavor"], route, mode == "off", run_dir)
+    print(f"{project.parent.name} {mode} {route} {'warm-up' if repetition == 0 else repetition}", flush=True)
+    sample = measure(command, run_dir / "measurement")
+    sample["repetition"] = repetition
+    try:
+        if sample["exit"]:
+            raise ValueError(f"runner exit {sample['exit']}; {sample['log']}")
+        if sample["peak_rss_mib"] is None:
+            raise ValueError("missing peak RSS")
+        if sample["cpu_seconds"] is None:
+            raise ValueError("missing CPU time")
+        sample["count"] = counts(report, args.n * args.f)
+        sample["valid"] = True
+    except (ValueError, OSError, KeyError, ET.ParseError) as error:
+        sample["valid"] = False
+        row["error"] = str(error)
+    if repetition == 0:
+        row["warmup"] = sample
+    else:
+        row["samples"].append(sample)
+
+
+def run_interleaved(rows, args, directory, repetitions):
+    for repetition in range(args.r + 1):
+        record = {"repetition": repetition, "load_before": load()}
+        repetitions.append(record)
+        try:
+            for row in rotated_order(rows, repetition):
+                if not row.get("error"):
+                    run_sample(row, args, directory, repetition)
+        finally:
+            record["load_after"] = load()
 
 
 def main():
@@ -109,10 +133,11 @@ def main():
     directory.mkdir(parents=True)
     data = {"n": args.n, "f": args.f, "r": args.r, "host": host, "platform": platform.platform(),
             "sdk": subprocess.check_output(["dotnet", "--version"], text=True).strip(),
-            "work_us": args.work_us, "load_before": load(), "rows": []}
+            "work_us": args.work_us, "load_before": load(), "repetitions": [], "rows": []}
     try:
         for item in projects:
-            run_project(item, args, directory, data["rows"])
+            prepare_project(item, args, directory, data["rows"])
+        run_interleaved(data["rows"], args, directory, data["repetitions"])
     finally:
         data["load_after"] = load()
         render(data, destination)

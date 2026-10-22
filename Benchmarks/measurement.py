@@ -1,8 +1,9 @@
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
-"""Runner-independent wall/RSS measurement and strict structured result validation."""
+"""Runner-independent wall/CPU/RSS measurement and strict structured result validation."""
 import platform
 import re
+import resource
 import subprocess
 import time
 import xml.etree.ElementTree as ET
@@ -12,14 +13,18 @@ def measure(command, prefix):
     output = prefix.with_suffix(".log")
     memory = prefix.with_suffix(".time")
     flag = "-l" if platform.system() == "Darwin" else "-v"
+    # Synchronous runs isolate this child's user/system time, including OS-accounted descendants.
+    before = resource.getrusage(resource.RUSAGE_CHILDREN)
     started = time.perf_counter()
     with output.open("w") as log:
         process = subprocess.run(["/usr/bin/time", flag, "-o", str(memory), *command], stdout=log, stderr=subprocess.STDOUT)
     seconds = time.perf_counter() - started
+    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    cpu_seconds = (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)
     stats = memory.read_text()
     match = re.search(r"(\d+)\s+maximum resident set size", stats) if flag == "-l" else re.search(r"Maximum resident set size \(kbytes\):\s*(\d+)", stats)
     rss = int(match[1]) / (1024 * 1024 if flag == "-l" else 1024) if match else None
-    return {"command": command, "exit": process.returncode, "seconds": seconds, "peak_rss_mib": rss, "log": str(output)}
+    return {"command": command, "exit": process.returncode, "seconds": seconds, "cpu_seconds": cpu_seconds, "peak_rss_mib": rss, "log": str(output)}
 
 
 def counts(path, expected):
