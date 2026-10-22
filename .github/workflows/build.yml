@@ -54,3 +54,5 @@ jobs:
           dotnet test Source/CodeAnalysis.Specs/CodeAnalysis.Specs.csproj --configuration Release --no-build
           dotnet test Source/XUnit.Specs/XUnit.Specs.csproj --configuration Release --no-build
           dotnet test Source/XUnit.DefaultBehavior.Specs/XUnit.DefaultBehavior.Specs.csproj --configuration Release --no-build
+          dotnet test Source/NUnit.Specs/NUnit.Specs.csproj --configuration Release --no-build
+          dotnet test Source/NUnit5.Specs/NUnit5.Specs.csproj --configuration Release --no-build

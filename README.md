@@ -18,7 +18,8 @@ The background and motivation are described in
 Packages:
 
 - [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit)
-- [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit)
+- [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit) (NUnit 4)
+- [Cratis.Specifications.NUnit5](https://www.nuget.org/packages/cratis.specifications.nunit5) (NUnit 5)
 
 ## What does it do?
 
@@ -110,6 +111,16 @@ Depending on your solution, you might want to consider suppressing the following
 ## Example
 
 In the [sample](./Sample) folder you'll find samples of using it both for XUnit and NUnit.
+
+### NUnit 4 or NUnit 5
+
+Pick the package that matches the NUnit version your test project uses. Both offer the same API and
+the same namespace, so switching is only a package change:
+
+| NUnit version | Package |
+| ------------- | ------- |
+| 4.x | `Cratis.Specifications.NUnit` |
+| 5.x | `Cratis.Specifications.NUnit5` |
 
 The difference between XUnit and NUnit is on the signature of the tests.
 Instead of `[Fact]` for XUnit, you'll have to adorn with `[Test]`, in addition to that, NUnit
