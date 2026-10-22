@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.XUnit.v3.Specs</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <!-- xUnit v3 test projects are executables. -->
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <Nullable>disable</Nullable>
+        <!-- xUnit1000 is suppressed because the harness specs use internal probe classes that must stay invisible to test discovery.
+             CA1001 is suppressed because spec contexts hold disposable collaborators without owning a dispose pattern. -->
+        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060;xUnit1000;CA1001</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+        <ProjectReference Include="../XUnit.v3/XUnit.v3.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- xunit.v3.mtp-off runs on VSTest through xunit.runner.visualstudio, so `dotnet test` treats this project
+             like every other spec project in the solution; the default xunit.v3 package opts into Microsoft.Testing.Platform. -->
+        <PackageReference Include="xunit.v3.mtp-off" />
+        <PackageReference Include="Microsoft.NET.Test.SDK" />
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- The framework-level specs and the probes are written against Specification and [Fact] only, so the
+         xUnit v2 specs are shared to prove that both packages give the same semantics. -->
+    <ItemGroup>
+        <Compile Include="../XUnit.Specs/for_SpecificationTestFramework/*.cs" Link="for_SpecificationTestFramework/%(Filename)%(Extension)" />
+        <Compile Include="../XUnit.Specs/for_SpecificationTestClassRunner/probes/*.cs" Link="for_SpecificationTestClassRunner/probes/%(Filename)%(Extension)" />
+    </ItemGroup>
+</Project>
