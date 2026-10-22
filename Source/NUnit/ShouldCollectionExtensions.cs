@@ -109,7 +109,10 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
-        Assert.That(collection, Has.Some.Matches(filter));
+        // NUnit 5 declares the predicate as Predicate<T?>; the null-forgiving operator is needed there but redundant on NUnit 4.
+#pragma warning disable IDE0370
+        Assert.That(collection, Has.Some.Matches<T>(item => filter(item!)));
+#pragma warning restore IDE0370
     }
 
     /// <summary>
@@ -165,7 +168,10 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEachConformTo<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
-        Assert.That(collection, Has.All.Matches(filter));
+        // NUnit 5 declares the predicate as Predicate<T?>; the null-forgiving operator is needed there but redundant on NUnit 4.
+#pragma warning disable IDE0370
+        Assert.That(collection, Has.All.Matches<T>(item => filter(item!)));
+#pragma warning restore IDE0370
     }
 
     /// <summary>
