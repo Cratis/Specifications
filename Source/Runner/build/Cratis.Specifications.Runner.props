@@ -1,0 +1,3 @@
+<Project>
+    <Import Project="../buildTransitive/Cratis.Specifications.Runner.props" />
+</Project>
