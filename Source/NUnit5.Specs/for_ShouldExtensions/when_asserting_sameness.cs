@@ -19,6 +19,6 @@ public class when_asserting_sameness : Specification
 
     [Test] public void should_pass_for_the_same_instance() => instance.ShouldBeSame(same);
     [Test] public void should_pass_not_same_for_a_different_instance() => instance.ShouldNotBeSame(other);
-    [Test] public void should_fail_for_a_different_instance() => Assert.Throws<AssertionException>(() => instance.ShouldBeSame(other));
-    [Test] public void should_fail_not_same_for_the_same_instance() => Assert.Throws<AssertionException>(() => instance.ShouldNotBeSame(same));
+    [Test] public void should_fail_for_a_different_instance() => Assertion.ShouldFail(() => instance.ShouldBeSame(other));
+    [Test] public void should_fail_not_same_for_the_same_instance() => Assertion.ShouldFail(() => instance.ShouldNotBeSame(same));
 }
