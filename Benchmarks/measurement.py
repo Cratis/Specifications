@@ -63,8 +63,12 @@ def runner(project, flavor, route, serial, result_dir):
             command += ["-parallelMode", "none"]
     else:
         report = result_dir / "results.trx"
-        command = (["dotnet", "run", "--project", str(project), "-c", "Release", "-f", "net10.0", "--no-build", "--no-restore", "--"] if route == "dotnet-run" else [str(binary)])
+        if route == "dotnet-run":
+            command = ["dotnet", "run", "--project", str(project), "-c", "Release", "-f", "net10.0", "--no-build", "--no-restore", "--"]
+        else:
+            command = [str(directory / "bin/aot/Benchmark" if route == "aot" else binary)]
         command += ["--report-trx", "--report-trx-filename", "results.trx", "--results-directory", str(result_dir)]
         if serial:
-            command += ["--maximum-parallel-tests", "1"]
+            # The native Cratis runner schedules classes itself; TUnit limits tests.
+            command += ["--specs-parallel", "1", "--specs-sequential-facts"] if flavor == "cratis-runner" else ["--maximum-parallel-tests", "1"]
     return command, report

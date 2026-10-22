@@ -19,6 +19,21 @@ def load():
     return subprocess.check_output(["uptime"], text=True).strip()
 
 
+def runtime_identifier():
+    machine = platform.machine().lower()
+    arch = "arm64" if machine in ("arm64", "aarch64") else "x64"
+    return f"{'osx' if platform.system() == 'Darwin' else 'linux'}-{arch}"
+
+
+def publish_aot(project, logs):
+    # Native AOT publish of the native Cratis runner; timed like a clean build, measured separately.
+    result = measure(["dotnet", "publish", str(project), "-c", "Release", "-f", "net10.0", "-r", runtime_identifier(),
+                      "-p:PublishAot=true", "-o", str(project.parent / "bin/aot")], logs / "aot-publish")
+    if result["exit"]:
+        raise RuntimeError(f"AOT publish failed: {result['log']}")
+    return result
+
+
 def build(project, logs):
     # Restore is intentionally outside the build timer (network is not compiler work).
     with (logs / "restore.log").open("w") as log:
@@ -43,7 +58,13 @@ def run_project(item, args, directory, rows):
     except RuntimeError as error:
         rows.append({**item, "parallel": "—", "route": "build", "error": str(error)})
         return
-    routes = ["dotnet-run", "executable"] if flavor == "tunit" else ["dotnet-test", "executable"] if flavor == "xunit-v3" else ["dotnet-test"]
+    if flavor == "cratis-runner" and args.aot:
+        try:
+            builds["aot"] = publish_aot(project, logs)
+        except RuntimeError as error:
+            rows.append({**item, "parallel": "—", "route": "aot", "error": str(error)})
+    routes = ["dotnet-run", "executable", *(["aot"] if "aot" in builds else [])] if flavor == "cratis-runner" else \
+        ["dotnet-run", "executable"] if flavor == "tunit" else ["dotnet-test", "executable"] if flavor == "xunit-v3" else ["dotnet-test"]
     modes = ["default", "off"] if args.parallel == "both" else [args.parallel]
     for mode in modes:
         for route in routes:
@@ -77,6 +98,8 @@ def main():
     parser = arguments()
     parser.add_argument("--r", type=positive, default=os.getenv("R", "5"))
     parser.add_argument("--parallel", choices=["default", "off", "both"], default=os.getenv("PARALLEL", "both"))
+    parser.add_argument("--aot", action="store_true", default=os.getenv("AOT") == "1",
+                        help="also publish the cratis-runner suite with Native AOT and measure the native executable")
     args = parser.parse_args()
     projects = generate(args)
     host = socket.gethostname().split(".")[0]
@@ -86,7 +109,7 @@ def main():
     directory.mkdir(parents=True)
     data = {"n": args.n, "f": args.f, "r": args.r, "host": host, "platform": platform.platform(),
             "sdk": subprocess.check_output(["dotnet", "--version"], text=True).strip(),
-            "load_before": load(), "rows": []}
+            "work_us": args.work_us, "load_before": load(), "rows": []}
     try:
         for item in projects:
             run_project(item, args, directory, data["rows"])

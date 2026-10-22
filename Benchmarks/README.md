@@ -26,8 +26,12 @@ python3 Benchmarks/generate.py --n 5 --f 2
 python3 -m unittest discover -s Benchmarks -p 'test_*.py' -v
 ```
 
-`--n`, `--f`, `--r`, `--flavors` and `--parallel` override `N`, `F`, `R`,
-`FLAVORS` and `PARALLEL`. Numbers must be positive; flavors are comma-separated
+`--n`, `--f`, `--r`, `--flavors`, `--parallel`, `--work-us` and `--aot` override `N`, `F`, `R`,
+`FLAVORS`, `PARALLEL`, `WORK_US` and `AOT=1`. `--work-us <µs>` adds deterministic CPU work
+to every context, half in Establish and half in Because (and makes every Because asynchronous),
+so the cost of running a context once per class versus once per fact shows. `--aot` also
+publishes the `cratis-runner` suite with Native AOT and measures the native executable;
+the publish is timed separately and not included in the build columns. Numbers must be positive; flavors are comma-separated
 with no duplicates. `--parallel` accepts `default`, `off`, or `both` (default).
 Run only one harness process per checkout: generation and runner configuration
 share files. On shared developer machines, run each flavor through your build/test
@@ -81,6 +85,7 @@ The report includes wall-time median/min/max and maximum sampled peak RSS:
 | xUnit v3 (`xunit.v3.mtp-off`) | `dotnet test` / VSTest | Built executable / native xUnit runner |
 | NUnit 4/5 | `dotnet test` / NUnit3TestAdapter | None |
 | TUnit | `dotnet run --no-build --no-restore` / MTP | Built executable / MTP |
+| Cratis runner (`cratis-runner`) | `dotnet run --no-build --no-restore` / MTP | Built executable / MTP; Native AOT executable with `--aot` |
 
 All `dotnet test` invocations also use `--no-build --no-restore`. TUnit is **not**
 run via `dotnet test`: this repository uses VSTest globally and mixing MTP would
@@ -113,6 +118,9 @@ were controlled for parallelism.
   The default/off comparison can therefore be effectively identical.
 - TUnit: framework's default concurrency; disabled with
   `--maximum-parallel-tests 1` for both launch paths.
+- Cratis runner: classes on `ProcessorCount` workers, asynchronous facts of one class
+  concurrently; disabled with `--specs-parallel 1 --specs-sequential-facts`. It has no
+  raw baseline (there is no plain framework underneath).
 
 ## Output and interpretation
 

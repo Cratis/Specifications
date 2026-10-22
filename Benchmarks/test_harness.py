@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
-from generate import SOURCES, arguments, generate, project, suite
+from generate import NO_RAW, SOURCES, arguments, generate, project, suite
 from measurement import counts, measure, runner
 from report import render
 
@@ -15,10 +15,11 @@ from report import render
 class HarnessTests(unittest.TestCase):
     def test_each_flavor_has_exact_fact_count_and_workload(self):
         for flavor in SOURCES:
-            for raw in (False, True):
+            for raw in (False,) if flavor in NO_RAW else (False, True):
                 with self.subTest(flavor=flavor, raw=raw):
                     source = suite(flavor, raw, 5, 2)
-                    attribute = "[Fact]" if flavor.startswith("xunit") else "[Test]"
+                    # The native Cratis runner finds should_* facts by convention, without an attribute.
+                    attribute = "public void should_match_" if flavor in NO_RAW else "[Fact]" if flavor.startswith("xunit") else "[Test]"
                     self.assertEqual(10, source.count(attribute))
                     self.assertEqual(5, source.count("public class when_processing_"))
                     self.assertEqual(2, source.count("await Task.Yield()"))
@@ -30,12 +31,23 @@ class HarnessTests(unittest.TestCase):
 
     def test_projects_are_single_tfm_non_packable_and_raw_is_independent(self):
         for flavor in SOURCES:
-            for raw in (False, True):
+            for raw in (False,) if flavor in NO_RAW else (False, True):
                 root = ET.fromstring(project(flavor, raw))
                 self.assertEqual("net10.0", root.findtext(".//TargetFramework"))
                 self.assertFalse(root.findtext(".//TargetFrameworks"))
                 self.assertEqual("false", root.findtext(".//IsPackable"))
-                self.assertEqual(0 if raw else 1, len(root.findall(".//ProjectReference")))
+                # The native Cratis runner also references its source generator as an analyzer.
+                self.assertEqual(0 if raw else 2 if flavor in NO_RAW else 1, len(root.findall(".//ProjectReference")))
+
+    def test_work_parameter_adds_equal_context_work_to_every_flavor(self):
+        for flavor in SOURCES:
+            for raw in (False,) if flavor in NO_RAW else (False, True):
+                with self.subTest(flavor=flavor, raw=raw):
+                    source = suite(flavor, raw, 4, 2, work_us=500)
+                    self.assertEqual(1, source.count("public static class BenchmarkWork"))
+                    self.assertEqual(8, source.count("BenchmarkWork.Spin(125000)"))
+                    self.assertEqual(4, source.count("await Task.Yield()"))
+                    self.assertNotIn("BenchmarkWork", suite(flavor, raw, 4, 2))
 
     def test_generator_rejects_empty_unknown_or_duplicate_population(self):
         for flavors in ("", "unknown", "tunit,tunit"):
@@ -77,7 +89,7 @@ class HarnessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             project_path = Path(directory) / "Benchmark.csproj"
             (project_path.parent / "bin/Release/net10.0").mkdir(parents=True)
-            for flavor, route, setting in (("xunit-v2", "dotnet-test", "--logger"), ("xunit-v3", "executable", "-parallelMode"), ("nunit4", "dotnet-test", "NUnit.NumberOfTestWorkers=0"), ("tunit", "executable", "--maximum-parallel-tests"), ("tunit", "dotnet-run", "--maximum-parallel-tests")):
+            for flavor, route, setting in (("xunit-v2", "dotnet-test", "--logger"), ("xunit-v3", "executable", "-parallelMode"), ("nunit4", "dotnet-test", "NUnit.NumberOfTestWorkers=0"), ("tunit", "executable", "--maximum-parallel-tests"), ("tunit", "dotnet-run", "--maximum-parallel-tests"), ("cratis-runner", "executable", "--specs-parallel"), ("cratis-runner", "aot", "--specs-sequential-facts")):
                 command, report = runner(project_path, flavor, route, True, Path(directory))
                 self.assertIn(setting, command)
                 self.assertIn(str(report) if route == "executable" and flavor == "xunit-v3" else str(Path(directory)), command)
