@@ -289,6 +289,37 @@ xUnit v3 takes the framework type rather than its name:
 [assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
 ```
 
+## Native runner on Microsoft.Testing.Platform (experimental)
+
+`Cratis.Specifications.Runner` is an experimental, native specification runner on
+[Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro),
+without xUnit, NUnit or TUnit underneath. Reference the package and the test project becomes an executable test
+application; a source generator registers the specifications at compile time, so there is no reflection at run time.
+
+```csharp
+public class when_registering : Specification
+{
+    Author _author;
+
+    void Given() => _author = new Author();            // or Establish
+    void When() => _author.Register("Jane");          // or Because
+
+    void should_be_registered() => _author.IsRegistered.ShouldBeTrue();
+}
+```
+
+- Facts are methods named `should_*`; no attribute is needed (`[Fact]` is accepted too, and `[Fact(Skip = "...")]` skips).
+- `Given`/`When` are aliases for `Establish`/`Because`; a class may not declare both forms of the same step.
+- One instance per class: `Establish` and `Because` run once, facts may run concurrently and must only read the
+  shared context, then `Destroy` and disposal (`IDisposable`/`IAsyncDisposable`) run once.
+- Test names read as sentences: `for_Author.when_registering.should_be_registered` shows as
+  `Author › when registering › should be registered`.
+- Options: `--specs-parallel <n>`, `--specs-sequential-facts`, `--fail-fast`, `--last-failed-first`,
+  `--shard <index>/<count>` and `--specs-cache <path|none>`; standard options such as `--filter-uid` and `--report-trx` apply.
+
+Run it with `dotnet run --project <spec project>` or the built executable. The package, its options and its
+behavior may change without notice while it is experimental.
+
 ## Related projects
 
 Specifications pairs naturally with [Synopsis](https://github.com/Cratis/Synopsis), which turns
