@@ -1,0 +1,23 @@
+<Project>
+    <!-- Every packable project bundles the Cratis Specifications Roslyn analyzers into analyzers/dotnet/cs.
+         NuGet marks analyzer assets as private by default, so analyzers do not flow transitively across package
+         dependencies; each consumer-facing package therefore carries its own copy. The analyzer path is resolved
+         from the project reference, so it does not depend on bin/$(Configuration) layout. -->
+    <ItemGroup Condition="'$(IsPackable)' == 'true'">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)CodeAnalysis/CodeAnalysis.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <Target Name="PackCratisAnalyzer"
+            BeforeTargets="_GetPackageFiles"
+            Condition="'$(IsPackable)' == 'true'">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)CodeAnalysis/CodeAnalysis.csproj"
+                 Targets="GetTargetPath"
+                 RemoveProperties="TargetFramework;TargetFrameworks">
+            <Output TaskParameter="TargetOutputs" ItemName="_CratisAnalyzerAssembly" />
+        </MSBuild>
+        <ItemGroup>
+            <None Include="@(_CratisAnalyzerAssembly)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        </ItemGroup>
+    </Target>
+</Project>

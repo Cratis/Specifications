@@ -300,6 +300,20 @@ xUnit v3 takes the framework type rather than its name:
 [assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
 ```
 
+## Analyzers
+
+The packages ship Roslyn analyzers (`CRSPEC0001`–`CRSPEC0008`) that catch common specification mistakes.
+
+`CRSPEC0008` — *facts should not modify the shared specification context* — reports a `should_*`
+fact that assigns to, increments, or calls `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on
+an instance field or property of the specification. Because it would otherwise break builds that treat
+warnings as errors, it is reported as **info** by default. Raise it in an `.editorconfig`:
+
+```ini
+[*.cs]
+dotnet_diagnostic.CRSPEC0008.severity = warning   # or error
+```
+
 ## Related projects
 
 Specifications pairs naturally with [Synopsis](https://github.com/Cratis/Synopsis), which turns

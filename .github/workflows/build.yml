@@ -44,8 +44,19 @@ jobs:
             ${{ env.DOTNET9_VERSION }}
             ${{ env.DOTNET10_VERSION }}
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore Specifications.sln
+
       - name: Build
-        run: dotnet build --configuration Release
+        run: dotnet build Specifications.sln --configuration Release --no-restore
 
       # TUnit runs on Microsoft.Testing.Platform, which on the .NET 10 SDK cannot be mixed with the VSTest based xUnit and NUnit
       # projects under `dotnet test` (it requires a repository-wide runner switch in global.json), so it is run directly.

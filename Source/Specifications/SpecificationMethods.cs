@@ -1,8 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Reflection;
-
 namespace Cratis.Specifications;
 
 /// <summary>
@@ -34,71 +32,24 @@ namespace Cratis.Specifications;
 /// </remarks>
 public static class SpecificationMethods<T, TSpecBase>
 {
-    static SpecificationMethods()
-    {
-        _establish = GetMethodsFor("Establish");
-        _destroy = GetMethodsFor("Destroy");
-        _because = GetMethodsFor("Because");
-    }
-
-    static IEnumerable<MethodInfo> _establish { get; }
-
-    static IEnumerable<MethodInfo> _because { get; }
-
-    static IEnumerable<MethodInfo> _destroy { get; }
-
     /// <summary>
     /// Invoke all Establish methods.
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public static Task Establish(object unit) => InvokeMethods(_establish, unit, "Establish");
+    public static Task Establish(object unit) => SpecificationLifecycle.Establish(unit, typeof(T), typeof(TSpecBase));
 
     /// <summary>
     /// Invoke all Destroy methods.
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public static Task Destroy(object unit) => InvokeMethods(_destroy, unit, "Destroy");
+    public static Task Destroy(object unit) => SpecificationLifecycle.Destroy(unit, typeof(T), typeof(TSpecBase));
 
     /// <summary>
     /// Invoke all Because methods.
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public static Task Because(object unit) => InvokeMethods(_because, unit, "Because");
-
-    static async Task InvokeMethods(IEnumerable<MethodInfo> methods, object unit, string phase)
-    {
-        foreach (var method in methods)
-        {
-            try
-            {
-                var result = method.Invoke(unit, []);
-                if (result is Task taskResult)
-                {
-                    await taskResult;
-                }
-            }
-            catch (OperationCanceledException ex)
-            {
-                throw new SpecificationCancelledException(phase, ex);
-            }
-        }
-    }
-
-    static List<MethodInfo> GetMethodsFor(string name)
-    {
-        var type = typeof(T);
-        var methods = new List<MethodInfo>();
-
-        while (type != typeof(TSpecBase) && type is not null)
-        {
-            var method = type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            if (method != null) methods.Insert(0, method);
-            type = type.BaseType;
-        }
-
-        return methods;
-    }
+    public static Task Because(object unit) => SpecificationLifecycle.Because(unit, typeof(T), typeof(TSpecBase));
 }

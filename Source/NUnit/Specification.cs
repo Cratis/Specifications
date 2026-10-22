@@ -1,7 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Reflection;
 using NUnit.Framework;
 
 namespace Cratis.Specifications;
@@ -59,24 +58,9 @@ public class Specification
         await OnDestroy();
     }
 
-    Task OnEstablish()
-    {
-        return InvokeMethod("Establish");
-    }
+    Task OnEstablish() => SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
 
-    Task OnBecause()
-    {
-        return InvokeMethod("Because");
-    }
+    Task OnBecause() => SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
 
-    Task OnDestroy()
-    {
-        return InvokeMethod("Destroy");
-    }
-
-    Task InvokeMethod(string name)
-    {
-#nullable disable
-        return typeof(SpecificationMethods<,>).MakeGenericType(GetType(), typeof(Specification)).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, [this]) as Task;
-    }
+    Task OnDestroy() => SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
 }
