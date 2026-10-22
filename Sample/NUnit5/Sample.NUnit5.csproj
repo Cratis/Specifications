@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.Sample.NUnit5</AssemblyName>
+        <RootNamespace>Cratis.Specifications.Sample</RootNamespace>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <Nullable>disable</Nullable>
+        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../Source/Specifications/Specifications.csproj"/>
+        <ProjectReference Include="../../Source/NUnit5/NUnit5.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="nunit" VersionOverride="5.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.SDK"/>
+        <PackageReference Include="NUnit3TestAdapter">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- The NUnit 4 sample specs are compiled as-is; they only use the API shared by both packages. -->
+    <ItemGroup>
+        <Compile Include="../NUnit/**/*.cs" Exclude="../NUnit/obj/**;../NUnit/bin/**" LinkBase="Shared" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="$(MSBuildThisFileDirectory)/../Common/**/*.cs"/>
+    </ItemGroup>
+</Project>
