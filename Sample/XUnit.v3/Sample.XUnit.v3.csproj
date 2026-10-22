@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.Sample.XUnit.v3</AssemblyName>
+        <RootNamespace>Cratis.Specifications.Sample</RootNamespace>
+        <!-- xUnit v3 test projects are executables. -->
+        <OutputType>Exe</OutputType>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <Nullable>disable</Nullable>
+        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../Source/Specifications/Specifications.csproj"/>
+        <ProjectReference Include="../../Source/XUnit.v3/XUnit.v3.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.mtp-off" />
+        <PackageReference Include="Microsoft.NET.Test.SDK"/>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- The xUnit v2 sample specifications compile unchanged against xUnit v3, so they are shared rather than copied. -->
+    <ItemGroup>
+        <Compile Include="$(MSBuildThisFileDirectory)/../XUnit/**/*.cs" Exclude="$(MSBuildThisFileDirectory)/../XUnit/bin/**;$(MSBuildThisFileDirectory)/../XUnit/obj/**" LinkBase="Shared"/>
+        <Compile Include="$(MSBuildThisFileDirectory)/../Common/**/*.cs"/>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.XUnit.v3.DefaultBehavior.Specs</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <!-- xUnit v3 test projects are executables. -->
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <Nullable>disable</Nullable>
+        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+        <ProjectReference Include="../XUnit.v3/XUnit.v3.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.mtp-off" />
+        <PackageReference Include="Microsoft.NET.Test.SDK" />
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- Deliberately does not register SpecificationTestFramework: proves the stock per-fact lifecycle stays the
+         default. The spec is shared with the xUnit v2 package to prove both packages behave the same. -->
+    <ItemGroup>
+        <Compile Include="../XUnit.DefaultBehavior.Specs/**/*.cs" Exclude="../XUnit.DefaultBehavior.Specs/bin/**;../XUnit.DefaultBehavior.Specs/obj/**" />
+    </ItemGroup>
+</Project>

@@ -4,6 +4,7 @@
 
 [![Build](https://github.com/Cratis/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/Cratis/Specifications/actions/workflows/build.yml)
 [![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit?label=Cratis.Specifications.XUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.xunit)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit.v3?label=Cratis.Specifications.XUnit.v3&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.xunit.v3)
 [![Nuget](https://img.shields.io/nuget/v/cratis.specifications.nunit?label=Cratis.Specifications.NUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.nunit)
 [![Nuget](https://img.shields.io/nuget/v/cratis.specifications.tunit?label=Cratis.Specifications.TUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.tunit)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -18,7 +19,8 @@ The background and motivation are described in
 
 Packages:
 
-- [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit)
+- [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit) — for xUnit v2
+- [Cratis.Specifications.XUnit.v3](https://www.nuget.org/packages/cratis.specifications.xunit.v3) — for xUnit v3
 - [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit)
 - [Cratis.Specifications.TUnit](https://www.nuget.org/packages/cratis.specifications.tunit)
 
@@ -265,6 +267,27 @@ stock per-fact lifecycle, so the attribute is safe to add to an existing spec as
 
 The one rule to honor: facts must not mutate the shared context. They are assertions about the
 single execution the class describes — which is the BDD model to begin with.
+
+## xUnit v2 and xUnit v3
+
+Pick the package that matches the xUnit version of your test project:
+
+| xUnit version | Package | Test framework packages |
+| --- | --- | --- |
+| v2 (`xunit` 2.x) | `Cratis.Specifications.XUnit` | `xunit`, `xunit.runner.visualstudio` |
+| v3 (`xunit.v3` 4.x) | `Cratis.Specifications.XUnit.v3` | `xunit.v3` (or `xunit.v3.mtp-off`), `xunit.runner.visualstudio` |
+
+Both packages expose the same `Specification` base class, `Establish`/`Because`/`Destroy` conventions
+and `Should*` assertion extensions, so specifications move between them unchanged. An xUnit v3 test
+project is an executable, so set `<OutputType>Exe</OutputType>` as described in the
+[xUnit v3 migration guide](https://xunit.net/docs/getting-started/v3/migration).
+
+The shared instance per specification class is opt-in on xUnit v3 too, with the same eligibility rules.
+xUnit v3 takes the framework type rather than its name:
+
+```csharp
+[assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
+```
 
 ## Related projects
 
