@@ -16,7 +16,7 @@ public class SpecificationClassConstructor : IClassConstructor
 
     /// <inheritdoc/>
     public Task<object> Create(Type type, ClassConstructorMetadata classConstructorMetadata) =>
-        Task.FromResult(_instances.GetOrAdd(type, _ => new Lazy<object>(() => Activator.CreateInstance(type)!)).Value);
+        Task.FromResult(_instances.GetOrAdd(type, static t => new Lazy<object>(() => Activator.CreateInstance(t)!)).Value);
 
     /// <summary>
     /// Removes the shared instance for a specification class.
