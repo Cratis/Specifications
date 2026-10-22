@@ -1,17 +1,18 @@
 # Cratis Specifications
 
-**Specification by Example (BDD) for .NET — Given/When/Then specs with xUnit and NUnit, in the style of [Machine.Specifications](https://github.com/machine/machine.specifications).**
+**Specification by Example (BDD) for .NET — Given/When/Then specs with xUnit, NUnit and TUnit, in the style of [Machine.Specifications](https://github.com/machine/machine.specifications).**
 
 [![Build](https://github.com/Cratis/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/Cratis/Specifications/actions/workflows/build.yml)
 [![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit?label=Cratis.Specifications.XUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.xunit)
 [![Nuget](https://img.shields.io/nuget/v/cratis.specifications.nunit?label=Cratis.Specifications.NUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.nunit)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.tunit?label=Cratis.Specifications.TUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.tunit)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/discord/1182595891576717413?label=Discord&logo=discord&logoColor=white)](https://discord.gg/kt4AMpV8WV)
 
 Cratis Specifications brings Specification by Example — behavior-driven development (BDD) with
 **given**, **when**, **then** — to .NET test projects, keeping the concise structure and syntax
 popularized by Machine.Specifications while running on standard test frameworks. That means full
-tooling support across IDEs, editors, and CI, with your choice of xUnit or NUnit as the runner.
+tooling support across IDEs, editors, and CI, with your choice of xUnit, NUnit or TUnit as the runner.
 The background and motivation are described in
 [this article](https://web.archive.org/web/20210922202940/https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
 
@@ -19,6 +20,7 @@ Packages:
 
 - [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit)
 - [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit)
+- [Cratis.Specifications.TUnit](https://www.nuget.org/packages/cratis.specifications.tunit)
 
 ## What does it do?
 
@@ -109,11 +111,11 @@ Depending on your solution, you might want to consider suppressing the following
 
 ## Example
 
-In the [sample](./Sample) folder you'll find samples of using it both for XUnit and NUnit.
+In the [sample](./Sample) folder you'll find samples of using it XUnit, NUnit and TUnit.
 
 The difference between XUnit and NUnit is on the signature of the tests.
 Instead of `[Fact]` for XUnit, you'll have to adorn with `[Test]`, in addition to that, NUnit
-requires methods to be public to run them.
+requires methods to be public to run them. TUnit uses `[Test]` as well, and also requires public methods.
 
 Basically, building on the Machine.Specifications sample - this would become:
 
@@ -197,6 +199,46 @@ class no_user_authenticated
 
 }
 ```
+
+## Using TUnit
+
+Add the `Cratis.Specifications.TUnit` package next to the [`TUnit`](https://tunit.dev) package in your test project:
+
+```bash
+dotnet add package TUnit
+dotnet add package Cratis.Specifications.TUnit
+```
+
+Specifications derive from `Specification` exactly as with the other frameworks, and facts are public `[Test]` methods:
+
+```csharp
+public class when_adding_an_item : Specification
+{
+    List<string> _items;
+
+    void Establish() => _items = [];
+    void Because() => _items.Add("item");
+
+    [Test] public void should_contain_the_item() => _items.ShouldContain("item");
+}
+```
+
+The lifecycle matches the xUnit shared mode and NUnit: each specification class is constructed **once**,
+`Establish` and `Because` run **once** before the first fact, all facts share that instance, and `Destroy`
+runs **once** after the last fact. If `Establish` or `Because` fails, every fact of the class fails.
+TUnit may run the facts of a class in parallel, so facts must only read from the shared context. Because the
+instance is shared, do not implement `IDisposable` on a specification: TUnit would dispose it after every
+fact. Use `Destroy` instead.
+
+TUnit assertions are asynchronous, so the `Should*` extension methods in this package are implemented
+without them and throw a `SpecificationAssertionException` with the expected and actual values. They have the
+same names and signatures as in the xUnit package.
+
+TUnit runs on [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro).
+On the .NET 10 SDK, `dotnet test` for a TUnit project requires opting in to the Microsoft.Testing.Platform runner in
+`global.json` (`"test": { "runner": "Microsoft.Testing.Platform" }`), which applies to every test project in the
+repository. Use `dotnet run --project <spec project>` when the repository also has xUnit or NUnit projects on VSTest,
+as this repository does.
 
 ## Shared instance per specification class (opt-in)
 
