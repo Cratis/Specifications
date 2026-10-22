@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.XUnit.v3</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <Description>Specification by Example (BDD) for .NET with xUnit v3 - Given/When/Then specifications in the style of Machine.Specifications, running on the xUnit v3 test framework.</Description>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.extensibility.core" />
+        <PackageReference Include="xunit.v3.assert" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+    </ItemGroup>
+
+    <!-- The assertion extensions are shared with the xUnit v2 package; the xUnit v3 assertion API is compatible. -->
+    <ItemGroup>
+        <Compile Include="../XUnit/Should*.cs" Link="%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <!-- Bundle the Cratis Specifications Roslyn analyzers so consumers of this package get them directly. -->
+    <ItemGroup>
+        <ProjectReference Include="../CodeAnalysis/CodeAnalysis.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../CodeAnalysis/bin/$(Configuration)/netstandard2.0/Cratis.Specifications.CodeAnalysis.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+</Project>
