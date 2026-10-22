@@ -44,7 +44,7 @@ public static class SpecificationFacts
         "FactAttribute",
         "TheoryAttribute",
 
-        // NUnit
+        // NUnit and TUnit (TUnit.Core.TestAttribute)
         "TestAttribute",
         "TestCaseAttribute"
     };
@@ -68,7 +68,7 @@ public static class SpecificationFacts
     }
 
     /// <summary>
-    /// Determines whether the method is a test method (carries a known xUnit or NUnit test attribute, or one derived from it).
+    /// Determines whether the method is a test method (carries a known xUnit, NUnit or TUnit test attribute, or one derived from it).
     /// </summary>
     /// <param name="method">The method to inspect.</param>
     /// <returns>True if the method carries a recognized test attribute.</returns>
@@ -76,7 +76,7 @@ public static class SpecificationFacts
         method.GetAttributes().Any(attribute => IsTestMethodAttribute(attribute.AttributeClass));
 
     /// <summary>
-    /// Determines whether the attribute type is, or derives from, a recognized xUnit or NUnit test attribute.
+    /// Determines whether the attribute type is, or derives from, a recognized xUnit, NUnit or TUnit test attribute.
     /// </summary>
     /// <param name="attributeClass">The attribute type to inspect.</param>
     /// <returns>True if it is a recognized test attribute.</returns>
