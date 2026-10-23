@@ -37,6 +37,18 @@ public static class DisplayNames
     public static string ForFact(string classDisplayName, string methodName) => classDisplayName + Separator + Readable(methodName);
 
     /// <summary>
+    /// Gives a specification the raw display names used when readable names are off: the qualified type name for the class
+    /// and the method name for the fact, still joined by <see cref="Separator"/> so reports can split them.
+    /// </summary>
+    /// <param name="model">The specification model with readable names.</param>
+    /// <returns>The model with raw names.</returns>
+    public static SpecificationModel Raw(SpecificationModel model) => model with
+    {
+        DisplayName = model.Uid,
+        Facts = new([.. model.Facts.Select(_ => _ with { DisplayName = model.Uid + Separator + _.Call.Name })])
+    };
+
+    /// <summary>
     /// Turns an identifier into words: underscores become spaces.
     /// </summary>
     /// <param name="identifier">The identifier.</param>

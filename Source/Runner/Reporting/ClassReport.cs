@@ -25,7 +25,7 @@ internal sealed record ClassReport(IReadOnlyList<string> Levels, IReadOnlyList<R
         {
             var fact = work.Facts[index];
             var result = results[index];
-            facts.Add(new ReportNode(SpecificationDisplayNames.Readable(fact.MethodName), true)
+            facts.Add(new ReportNode(FactName(work.Specification, fact), true)
             {
                 Outcome = result.Outcome,
                 Duration = result.Duration,
@@ -39,6 +39,15 @@ internal sealed record ClassReport(IReadOnlyList<string> Levels, IReadOnlyList<R
 
         var levels = work.Specification.DisplayName.Split(SpecificationDisplayNames.Separator);
         return new(levels, facts, shared is null ? null : FailureInfo.From(shared));
+    }
+
+    /// <summary>
+    /// The fact name as generated: the display name of the fact without the display name of its class, so it follows the readable names opt-out.
+    /// </summary>
+    static string FactName(SpecificationClassDescriptor specification, FactDescriptor fact)
+    {
+        var prefix = specification.DisplayName + SpecificationDisplayNames.Separator;
+        return fact.DisplayName.StartsWith(prefix, StringComparison.Ordinal) ? fact.DisplayName.Substring(prefix.Length) : fact.DisplayName;
     }
 
     static Exception? SharedFailure(IReadOnlyList<FactResult> results)

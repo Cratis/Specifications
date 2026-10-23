@@ -11,6 +11,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Project references skip the buildTransitive targets, so opt into readable names the way they do. -->
+        <AssemblyAttribute Include="Cratis.Specifications.ReadableSpecificationNamesAttribute" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="../Runner/Runner.csproj" />
         <ProjectReference Include="../Runner.Generator/Runner.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>

@@ -2,6 +2,7 @@
 
 The native runner prints the specifications as a tree grouped by their names, and can write the same tree as a report.
 This applies to the runner only; xUnit, NUnit and TUnit keep the output of their own frameworks.
+Setting `CratisSpecificationsReadableNames` to `false` applies to the runner too: the tree and reports then show the raw type and method names instead of readable ones, and test identities do not change.
 
 ## The console tree
 
