@@ -26,6 +26,15 @@ All packages target `net10.0` only. The 4.x packages also targeted .NET 8 and .N
 still target those versions stay on 4.x; the libraries you test can keep targeting older versions, because only the
 specification project references the package.
 
+If a shared `Directory.Build.props` sets several target frameworks, override them in the specification project with the
+plural property, so it replaces the inherited list instead of adding to it:
+
+```xml
+<PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+</PropertyGroup>
+```
+
 ## xUnit shares the specification lifecycle by default
 
 On xUnit v2 (`Cratis.Specifications.XUnit`) and xUnit v3 (`Cratis.Specifications.XUnit.v3`), `Establish` and `Because`
@@ -217,7 +226,9 @@ Additive features that you do not need to adopt:
 
 - [Shared resources and isolation leases](./Documentation/shared-resources.md) (experimental): start a database or a
   container once per test session and give each specification its own lease. Opt in with
-  `CratisSpecificationsSharedResources=true`; the API reports `CRSPECEXP01`.
+  `CratisSpecificationsSharedResources=true`; the API reports `CRSPECEXP01`. A source generator that writes `typeof(...)`
+  for every public type of referenced assemblies can trip `CRSPECEXP01` in its generated code even when you do not use
+  the API. Update the generator, or add `CRSPECEXP01` to `NoWarn` in the specification project.
 - [Phase timings](./Documentation/phase-timings.md): see how long `Establish`, `Because` and `Destroy` take, report slow
   phases, and write a JSON timings file.
 - [Runner output and reports](./Documentation/runner-output.md): a console tree and Markdown, JSON and GitHub summary
