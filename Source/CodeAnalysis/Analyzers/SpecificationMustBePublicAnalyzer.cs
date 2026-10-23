@@ -48,7 +48,7 @@ public class SpecificationMustBePublicAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (SpecificationFacts.IsEffectivelyPublic(type))
+        if (SpecificationFacts.IsEffectivelyPublic(type) || SpecificationFacts.IsRunnerSpecification(type))
         {
             return;
         }

@@ -12,6 +12,13 @@ namespace Cratis.Specifications.CodeAnalysis.Specs.Testing;
 public static class SpecSource
 {
     /// <summary>
+    /// Wrap the supplied usage in a namespace, relying on the runner stub assembly for <c>Cratis.Specifications.Specification</c>.
+    /// </summary>
+    /// <param name="usage">The C# declarations under test.</param>
+    /// <returns>The full compilable source.</returns>
+    public static string WrapForRunner(string usage) => $"namespace Sample\n{{\n{usage}\n}}";
+
+    /// <summary>
     /// Wrap the supplied usage in a namespace together with the stub framework declarations.
     /// </summary>
     /// <param name="usage">The C# declarations under test.</param>

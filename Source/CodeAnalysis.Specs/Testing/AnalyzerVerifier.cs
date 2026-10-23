@@ -24,10 +24,20 @@ public static class AnalyzerVerifier<TAnalyzer>
     /// <param name="source">The C# source to analyze (may contain <c>{|#0:...|}</c> markers).</param>
     /// <param name="expected">The expected diagnostics, ordered by source position.</param>
     /// <returns>A <see cref="Task"/> representing the verification.</returns>
-    public static async Task VerifyAnalyzer(string source, params ExpectedDiagnostic[] expected)
+    public static Task VerifyAnalyzer(string source, params ExpectedDiagnostic[] expected) => Verify(source, false, expected);
+
+    /// <summary>
+    /// Verify analyzer diagnostics for source that derives from the specification base type of the runner assembly.
+    /// </summary>
+    /// <param name="source">The C# source to analyze (may contain <c>{|#0:...|}</c> markers).</param>
+    /// <param name="expected">The expected diagnostics, ordered by source position.</param>
+    /// <returns>A <see cref="Task"/> representing the verification.</returns>
+    public static Task VerifyRunnerAnalyzer(string source, params ExpectedDiagnostic[] expected) => Verify(source, true, expected);
+
+    static async Task Verify(string source, bool withRunnerStub, ExpectedDiagnostic[] expected)
     {
         var markedSource = SourceMarker.Parse(source);
-        var project = TestProject.CreateProject(markedSource.Source);
+        var project = TestProject.CreateProject(markedSource.Source, withRunnerStub);
         var compilation = await project.GetCompilationAsync();
 
         var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new TAnalyzer());
