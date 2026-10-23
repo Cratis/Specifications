@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <Compile Remove="Probes/**/*.cs" />
+        <None Remove="Probes/bin/**;Probes/obj/**" />
         <ProjectReference Include="Probes/ContractProbes.csproj" />
         <ProjectReference Include="../Runner/Runner.csproj" />
         <ProjectReference Include="../Runner.Specs.Probes/Runner.Specs.Probes.csproj" />
