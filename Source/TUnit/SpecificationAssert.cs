@@ -154,7 +154,9 @@ static class SpecificationAssert
     static bool SequencesEqual(IEnumerable expected, IEnumerable actual)
     {
         var expectedEnumerator = expected.GetEnumerator();
+        using var expectedDisposable = expectedEnumerator as IDisposable;
         var actualEnumerator = actual.GetEnumerator();
+        using var actualDisposable = actualEnumerator as IDisposable;
         while (true)
         {
             var expectedHasNext = expectedEnumerator.MoveNext();
