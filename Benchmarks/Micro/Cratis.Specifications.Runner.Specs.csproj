@@ -1,0 +1,28 @@
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks />
+    <!-- Use the existing friend identity to benchmark internal execution without product changes. -->
+    <AssemblyName>Cratis.Specifications.Runner.Specs</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
+    <DefineConstants>$(DefineConstants);MICRO</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="XUnit2/**/*.cs;XUnit3/**/*.cs;Shared/**/*.cs" />
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <ProjectReference Include="../../Source/Specifications/Specifications.csproj" />
+    <ProjectReference Include="../../Source/XUnit/XUnit.csproj" Aliases="v2" />
+    <ProjectReference Include="../../Source/XUnit.v3/XUnit.v3.csproj" Aliases="v3" />
+    <ProjectReference Include="../../Source/NUnit/NUnit.csproj" Aliases="n4" />
+    <ProjectReference Include="../../Source/NUnit5/NUnit5.csproj" Aliases="n5" />
+    <ProjectReference Include="../../Source/TUnit/TUnit.csproj" Aliases="tu" />
+    <ProjectReference Include="../../Source/Runner/Runner.csproj" />
+    <ProjectReference Include="../../Source/Runner.Generator/Runner.Generator.csproj" ReferenceOutputAssembly="true" OutputItemType="Reference" />
+    <ProjectReference Include="../../Source/CodeAnalysis/CodeAnalysis.csproj" ReferenceOutputAssembly="true" OutputItemType="Reference" />
+  </ItemGroup>
+</Project>
