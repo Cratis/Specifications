@@ -15,10 +15,12 @@ From the repository root:
 dotnet build Benchmarks/Micro/Cratis.Specifications.Runner.Specs.csproj -c Release
 dotnet build Benchmarks/Micro/XUnit2/XUnit2.csproj -c Release
 dotnet build Benchmarks/Micro/XUnit3/XUnit3.csproj -c Release
+dotnet build Benchmarks/Micro/NUnit4/NUnit4.csproj -c Release
 
 dotnet run --project Benchmarks/Micro/Cratis.Specifications.Runner.Specs.csproj -c Release --no-build -- --job dry --filter '*' --artifacts .ai-work/perf/dry-core
 dotnet run --project Benchmarks/Micro/XUnit2/XUnit2.csproj -c Release --no-build -- --job dry --filter '*' --artifacts .ai-work/perf/dry-xunit2
 dotnet run --project Benchmarks/Micro/XUnit3/XUnit3.csproj -c Release --no-build -- --job dry --filter '*' --artifacts .ai-work/perf/dry-xunit3
+dotnet run --project Benchmarks/Micro/NUnit4/NUnit4.csproj -c Release --no-build -- --job dry --filter '*' --artifacts .ai-work/perf/dry-nunit4
 ```
 
 Dry jobs check compilation and execution; they are **not performance results**.
@@ -41,8 +43,10 @@ All failures, including failed benchmark processes and empty selections, return 
 - The main executable deliberately uses the existing `Cratis.Specifications.Runner.Specs`
   friend assembly identity to access internal execution classes without changing product
   visibility. Its project filename must match that assembly name for BDN project discovery.
-- xUnit versions use separate executables to avoid assembly/type collisions.
-  Assertion flavors use reference aliases in the main executable.
+- xUnit class-runner versions use separate executables to avoid assembly/type collisions.
+  NUnit 4 assertions also run separately: NuGet otherwise resolves NUnit 5 for both adapters
+  in one host. The other assertion flavors use reference aliases in the main executable.
+  Check resolved `.deps.json` versions before comparing framework flavors.
 - Cold lifecycle cache eviction is iteration setup, not measured work. BDN consequently
   uses one invocation per iteration for that method. Warm invocation does not clear caches.
   Async lifecycle/fact cases deliberately include real `Task.Yield` scheduling.

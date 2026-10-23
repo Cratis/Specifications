@@ -12,13 +12,12 @@
     <DefineConstants>$(DefineConstants);MICRO</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="XUnit2/**/*.cs;XUnit3/**/*.cs;Shared/**/*.cs" />
+    <Compile Remove="XUnit2/**/*.cs;XUnit3/**/*.cs;NUnit4/**/*.cs;Shared/**/*.cs" />
     <PackageReference Include="BenchmarkDotNet" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <ProjectReference Include="../../Source/Specifications/Specifications.csproj" />
     <ProjectReference Include="../../Source/XUnit/XUnit.csproj" Aliases="v2" />
     <ProjectReference Include="../../Source/XUnit.v3/XUnit.v3.csproj" Aliases="v3" />
-    <ProjectReference Include="../../Source/NUnit/NUnit.csproj" Aliases="n4" />
     <ProjectReference Include="../../Source/NUnit5/NUnit5.csproj" Aliases="n5" />
     <ProjectReference Include="../../Source/TUnit/TUnit.csproj" Aliases="tu" />
     <ProjectReference Include="../../Source/Runner/Runner.csproj" />
