@@ -13,6 +13,7 @@ namespace Cratis.Specifications.Resources;
 internal static partial class ResourceCatalog
 {
     static readonly TimeSpan _patience = TimeSpan.FromSeconds(10);
+    static readonly ResourceLeaseObserver _leaseObserver = new();
 
     public static async Task<ResourceCatalogResults> Run()
     {
@@ -28,6 +29,7 @@ internal static partial class ResourceCatalog
         await NeverDisposeBorrowed(results);
         await FailOnlyTheFailingLease(results);
         await RejectLeasesOutsideAScope(results);
+        await RejectLeasesWithoutOptIn(results);
         return results;
     }
 
@@ -55,7 +57,7 @@ internal static partial class ResourceCatalog
         var log = new ResourceLog();
         var scope = NewScope("never acquires");
         await Establish(scope, () => Task.CompletedTask);
-        await scope.End();
+        await End(scope);
         await registry.Stop();
 
         results.CreatedWhenNeverAcquired = log.Created;
@@ -92,7 +94,7 @@ internal static partial class ResourceCatalog
             leases.Add(await registry.Lease<unlimited_resource, ProbeLease>(() => new(log), default));
             log.Add("established");
         });
-        await scope.End();
+        await End(scope);
         results.ReleaseSequence = log.Entries;
         await registry.Stop();
 
@@ -109,7 +111,7 @@ internal static partial class ResourceCatalog
             var scope = NewScope($"exclusive {index}");
             await Establish(scope, () => registry.Lease<first_exclusive_resource, ProbeLease>(() => new(log), default).AsTask());
             await Task.Delay(5);
-            await scope.End();
+            await End(scope);
         })));
         results.PeakForExclusiveGroup = log.Peak;
         await registry.Stop();
@@ -121,8 +123,8 @@ internal static partial class ResourceCatalog
         results.IndependentGroupsLeasedTogether = await CompletesWithinPatience(
             Establish(second, () => registry.Lease<second_exclusive_resource, ProbeLease>(() => new(independent), default).AsTask()));
         results.PeakForIndependentGroups = independent.Peak;
-        await first.End();
-        await second.End();
+        await End(first);
+        await End(second);
         await registry.Stop();
     }
 
@@ -136,12 +138,12 @@ internal static partial class ResourceCatalog
             await registry.Lease<second_exclusive_resource, ProbeLease>(() => new(log), default);
             await registry.Lease<first_exclusive_resource, ProbeLease>(() => new(log), default);
         });
-        await scope.End();
+        await End(scope);
 
         var next = NewScope("after out of order");
         results.OutOfOrderLeaseLeftGroupFree = await CompletesWithinPatience(
             Establish(next, () => registry.Lease<first_exclusive_resource, ProbeLease>(() => new(log), default).AsTask()));
-        await next.End();
+        await End(next);
         await registry.Stop();
     }
 
@@ -157,8 +159,8 @@ internal static partial class ResourceCatalog
             results.CancelledWaitingForLease = await Establish(waiter, () => registry.Lease<first_exclusive_resource, ProbeLease>(() => new(log), cancellation.Token).AsTask());
         }
 
-        await waiter.End();
-        await holder.End();
+        await End(waiter);
+        await End(holder);
 
         var gate = new TaskCompletionSource();
         using (var cancellation = new CancellationTokenSource(TimeSpan.FromMilliseconds(50)))

@@ -44,4 +44,7 @@ public class when_running_the_resource_catalog : Specification
     [Fact] void should_fail_the_scope_whose_release_failed() => results.ScopeEndFailure.ShouldBeSame(results.ReleaseFailure);
     [Fact] void should_free_the_group_when_a_release_fails() => results.FailedReleaseLeftGroupFree.ShouldBeTrue();
     [Fact] void should_reject_a_lease_outside_a_specification() => results.LeaseOutsideScopeFailure.ShouldBeOfExactType<InvalidOperationException>();
+    [Fact] void should_reject_a_lease_when_the_project_has_not_opted_in() => results.LeaseWithoutOptInFailure.Message.ShouldContain("CratisSpecificationsSharedResources");
+    [Fact] void should_reject_a_lease_through_the_static_api_when_the_project_has_not_opted_in() => results.LeaseThroughTheStaticApiWithoutOptInFailure.Message.ShouldContain("CratisSpecificationsSharedResources");
+    [Fact] void should_create_nothing_when_rejecting_a_lease_without_opt_in() => results.CreatedWithoutOptIn.ShouldEqual(0);
 }

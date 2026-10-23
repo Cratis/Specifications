@@ -15,17 +15,17 @@ internal static partial class ResourceCatalog
         results.LeaseFailure = new InvalidOperationException("Lease failure");
         var failing = NewScope("lease fails");
         results.FailedLeaseEstablishFailure = await Establish(failing, () => registry.Lease<first_exclusive_resource, ProbeLease>(() => new(log, new() { LeaseFailure = results.LeaseFailure }), default).AsTask());
-        await failing.End();
+        await End(failing);
         await registry.Stop();
 
         var released = new ResourceLog();
         results.ReleaseFailure = new InvalidOperationException("Release failure");
         var releasing = NewScope("release fails");
         await Establish(releasing, () => registry.Lease<first_exclusive_resource, ProbeLease>(() => new(released, new() { ReleaseFailure = results.ReleaseFailure }), default).AsTask());
-        results.ScopeEndFailure = await Catch(() => releasing.End().AsTask());
+        results.ScopeEndFailure = await Catch(() => End(releasing));
         var next = NewScope("after a failed release");
         results.FailedReleaseLeftGroupFree = await CompletesWithinPatience(Establish(next, () => registry.Lease<first_exclusive_resource, ProbeLease>(() => throw new InvalidOperationException("Created twice"), default).AsTask()));
-        await Catch(() => next.End().AsTask());
+        await Catch(() => End(next));
         await registry.Stop();
 
         // A failed lease never held a slot, so the next lease on the group is not kept waiting.
@@ -35,8 +35,19 @@ internal static partial class ResourceCatalog
         var second = NewScope("leases after the failure");
         var secondLease = Establish(second, () => afterFailedLease.Lease<first_exclusive_resource, ProbeLease>(() => throw new InvalidOperationException("Created twice"), default).AsTask());
         results.FailedLeaseLeftGroupFree = await CompletesWithinPatience(secondLease) && await secondLease is InvalidOperationException { Message: "Lease failure" };
-        await first.End();
-        await second.End();
+        await End(first);
+        await End(second);
+    }
+
+    static async Task RejectLeasesWithoutOptIn(ResourceCatalogResults results)
+    {
+        var log = new ResourceLog();
+        var notOptedIn = new ResourceRegistry(_ => { }, static () => false);
+        var scope = NewScope("not opted in");
+        results.LeaseWithoutOptInFailure = await Establish(scope, () => notOptedIn.Lease<unlimited_resource, ProbeLease>(() => new(log), default).AsTask());
+        results.LeaseThroughTheStaticApiWithoutOptInFailure = await Establish(scope, () => SpecificationResources.Lease<unlimited_resource, ProbeLease>(() => new(log)).AsTask());
+        await End(scope);
+        results.CreatedWithoutOptIn = log.Created;
     }
 
     static async Task RejectLeasesOutsideAScope(ResourceCatalogResults results)
@@ -55,7 +66,14 @@ internal static partial class ResourceCatalog
     static (ResourceRegistry Registry, CatalogSession Session) NewRegistry()
     {
         var session = new CatalogSession();
-        return (new ResourceRegistry(session.Register), session);
+        return (new ResourceRegistry(session.Register, static () => true), session);
+    }
+
+    // The spec projects do not opt in, so nothing registered the lease observer; each case releases through it directly.
+    static async Task End(SpecificationScope scope)
+    {
+        await scope.End();
+        await _leaseObserver.ScopeEnded(scope);
     }
 
     static SpecificationScope NewScope(string name) => new(new object(), name);

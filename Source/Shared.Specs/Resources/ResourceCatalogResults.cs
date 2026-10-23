@@ -58,4 +58,8 @@ internal sealed class ResourceCatalogResults
     public bool FailedReleaseLeftGroupFree { get; set; }
 
     public Exception LeaseOutsideScopeFailure { get; set; }
+
+    public Exception LeaseWithoutOptInFailure { get; set; }
+    public Exception LeaseThroughTheStaticApiWithoutOptInFailure { get; set; }
+    public int CreatedWithoutOptIn { get; set; }
 }
