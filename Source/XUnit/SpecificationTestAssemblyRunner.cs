@@ -41,6 +41,17 @@ public class SpecificationTestAssemblyRunner(
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// Ends the specification session after the last test collection has run. A failure is reported as a test
+    /// assembly cleanup failure.
+    /// </remarks>
+    protected override async Task BeforeTestAssemblyFinishedAsync()
+    {
+        await Aggregator.RunAsync(() => SpecificationSessionHook.End());
+        await base.BeforeTestAssemblyFinishedAsync();
+    }
+
+    /// <inheritdoc/>
     protected override async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
     {
         EnsureParallelSemaphore();

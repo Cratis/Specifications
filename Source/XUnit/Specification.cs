@@ -45,6 +45,7 @@ namespace Cratis.Specifications;
 public class Specification : IAsyncLifetime
 {
     bool _initialized;
+    SpecificationScope? _scope;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Specification"/> class.
@@ -75,16 +76,29 @@ public class Specification : IAsyncLifetime
         if (_initialized) return;
         _initialized = true;
 
+        _scope = SpecificationScope.CreateIfObserved(this);
+        if (_scope is not null) await _scope.Start();
         await OnEstablish();
         await OnBecause();
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// An observed scope ends here, after Destroy. xUnit v2 disposes an <see cref="IDisposable"/> specification
+    /// after this method, so that disposal happens after the scope has ended.
+    /// </remarks>
     public async Task DisposeAsync()
     {
         if (IsSharedInstance) return;
 
-        await OnDestroy();
+        try
+        {
+            await OnDestroy();
+        }
+        finally
+        {
+            await EndScope();
+        }
     }
 
     /// <summary>
@@ -93,9 +107,15 @@ public class Specification : IAsyncLifetime
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     internal Task DestroyAsync() => OnDestroy();
 
-    Task OnEstablish() => SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
+    /// <summary>
+    /// Ends the observed scope of the instance, if it has one.
+    /// </summary>
+    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    internal ValueTask EndScope() => _scope?.End() ?? default;
 
-    Task OnBecause() => SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
+    Task OnEstablish() => _scope?.Establish(typeof(Specification)) ?? SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
 
-    Task OnDestroy() => SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
+    Task OnBecause() => _scope?.Because(typeof(Specification)) ?? SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
+
+    Task OnDestroy() => _scope?.Destroy(typeof(Specification)) ?? SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
 }

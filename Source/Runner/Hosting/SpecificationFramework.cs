@@ -38,8 +38,21 @@ internal sealed class SpecificationFramework(SpecificationRunOptions options, Tr
         Task.FromResult(new CreateTestSessionResult { IsSuccess = true });
 
     /// <inheritdoc/>
-    public Task<CloseTestSessionResult> CloseTestSessionAsync(CloseTestSessionContext context) =>
-        Task.FromResult(new CloseTestSessionResult { IsSuccess = true });
+    /// <remarks>
+    /// Ends the specification session; a failure fails the test session with its message.
+    /// </remarks>
+    public async Task<CloseTestSessionResult> CloseTestSessionAsync(CloseTestSessionContext context)
+    {
+        try
+        {
+            await SpecificationSession.End();
+            return new CloseTestSessionResult { IsSuccess = true };
+        }
+        catch (Exception ex)
+        {
+            return new CloseTestSessionResult { IsSuccess = false, ErrorMessage = $"Ending the specification session failed: {ex}" };
+        }
+    }
 
     /// <inheritdoc/>
     public async Task ExecuteRequestAsync(ExecuteRequestContext context)

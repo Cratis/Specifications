@@ -50,12 +50,14 @@ internal static class SpecificationClassRunner
         }
 
         object? instance = null;
+        SpecificationScope? scope = null;
         Exception? contextFailure = null;
         try
         {
             instance = specification.Create();
-            await RunPhase(specification.Establish, instance);
-            await RunPhase(specification.Because, instance);
+            scope = await StartScope(instance, specification.DisplayName);
+            await RunPhase(scope, SpecificationPhase.Establish, specification.Establish, instance);
+            await RunPhase(scope, SpecificationPhase.Because, specification.Because, instance);
         }
         catch (Exception ex)
         {
@@ -71,7 +73,7 @@ internal static class SpecificationClassRunner
             FailAll(facts, results, contextFailure, started);
         }
 
-        if (instance is not null && await TearDown(specification, instance) is Exception teardownFailure)
+        if (instance is not null && await TearDown(specification, instance, scope) is Exception teardownFailure)
         {
             ApplyTearDownFailure(results, teardownFailure);
         }
@@ -79,38 +81,54 @@ internal static class SpecificationClassRunner
         return results;
     }
 
-    static ValueTask RunPhase(Func<object, ValueTask>? phase, object instance) => phase is null ? default : phase(instance);
-
-    static async ValueTask<Exception?> TearDown(SpecificationClassDescriptor specification, object instance)
+    static ValueTask RunPhase(SpecificationScope? scope, SpecificationPhase phase, Func<object, ValueTask>? body, object instance)
     {
-        Exception? failure = null;
-        try
-        {
-            await RunPhase(specification.Destroy, instance);
-        }
-        catch (Exception ex)
-        {
-            failure = ex;
-        }
-
-        try
-        {
-            if (instance is IAsyncDisposable asyncDisposable)
-            {
-                await asyncDisposable.DisposeAsync();
-            }
-            else if (instance is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
-        catch (Exception ex)
-        {
-            failure = failure is null ? ex : new AggregateException(failure, ex);
-        }
-
-        return failure;
+        if (scope is not null) return scope.Run(phase, body);
+        return body is null ? default : body(instance);
     }
+
+    static async ValueTask<SpecificationScope?> StartScope(object instance, string displayName)
+    {
+        var scope = SpecificationScope.CreateIfObserved(instance, displayName);
+        if (scope is not null) await scope.Start();
+        return scope;
+    }
+
+    static async ValueTask<Exception?> TearDown(SpecificationClassDescriptor specification, object instance, SpecificationScope? scope)
+    {
+        var failure = await Attempt(() => RunPhase(scope, SpecificationPhase.Destroy, specification.Destroy, instance));
+        failure = Combine(failure, await Attempt(() => Dispose(instance)));
+        if (scope is null) return failure;
+        return Combine(failure, await Attempt(scope.End));
+    }
+
+    static async ValueTask Dispose(object instance)
+    {
+        if (instance is IAsyncDisposable asyncDisposable)
+        {
+            await asyncDisposable.DisposeAsync();
+        }
+        else if (instance is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+    }
+
+    static async ValueTask<Exception?> Attempt(Func<ValueTask> action)
+    {
+        try
+        {
+            await action();
+            return null;
+        }
+        catch (Exception ex)
+        {
+            return ex;
+        }
+    }
+
+    static Exception? Combine(Exception? failure, Exception? next) =>
+        failure is null ? next : next is null ? failure : new AggregateException(failure, next);
 
     static bool AllSkipped(IReadOnlyList<FactDescriptor> facts)
     {

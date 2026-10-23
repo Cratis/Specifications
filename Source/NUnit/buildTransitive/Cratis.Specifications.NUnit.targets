@@ -1,3 +1,8 @@
 <Project>
     <!-- CratisSpecificationsSharedLifecycle is accepted: this framework already shares the specification context. -->
+
+    <!-- Ends the Cratis specification session once every specification has run. Inert unless something registered for the end of the session. -->
+    <ItemGroup Condition="'$(CratisSpecificationsSessionHook)' != 'false'">
+        <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsSession.NUnit.g.cs" Visible="false" />
+    </ItemGroup>
 </Project>
