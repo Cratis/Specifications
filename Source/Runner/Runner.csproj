@@ -20,12 +20,6 @@
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
 
-    <!-- The Should* assertions are framework-neutral (they throw SpecificationAssertionException) and are shared
-         with the TUnit package by linking, until the assertions get a package of their own. -->
-    <ItemGroup>
-        <Compile Include="../TUnit/Should*.cs" Link="Assertions/%(Filename)%(Extension)" />
-    </ItemGroup>
-
     <ItemGroup>
         <InternalsVisibleTo Include="Cratis.Specifications.Runner.Specs" />
     </ItemGroup>

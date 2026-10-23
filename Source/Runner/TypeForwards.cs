@@ -4,4 +4,9 @@
 using System.Runtime.CompilerServices;
 using Cratis.Specifications;
 
+[assembly: TypeForwardedTo(typeof(ShouldCollectionExtensions))]
+[assembly: TypeForwardedTo(typeof(ShouldComparableExtensions))]
+[assembly: TypeForwardedTo(typeof(ShouldEqualityExtensions))]
+[assembly: TypeForwardedTo(typeof(ShouldStringExtensions))]
+[assembly: TypeForwardedTo(typeof(ShouldTypeExtensions))]
 [assembly: TypeForwardedTo(typeof(SpecificationAssertionException))]

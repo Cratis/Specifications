@@ -27,6 +27,17 @@ public static class AssertionCases
     static readonly int[][] _nestedSame = [_firstInner, _secondInner];
     static readonly int[][] _nestedDifferent = [_firstInner, _otherInner];
     static readonly Dictionary<string, int> _dictionary = new() { ["one"] = 1 };
+    static readonly int[][] _nestedCopy = [[1], [2]];
+    static readonly int[][] _nestedReversedCopy = [[2], [1]];
+    static readonly List<List<int>> _nestedLists = [[1, 2], [3]];
+    static readonly List<List<int>> _nestedListsCopy = [[1, 2], [3]];
+    static readonly int[] _firstInnerCopy = [1];
+    static readonly int[] _secondInnerCopy = [2];
+
+    // Delegates typed as Func, which every predicate-taking assertion accepts.
+    static readonly Func<int, bool> _greaterThanOne = item => item > 1;
+    static readonly Func<int, bool> _greaterThanTwo = item => item > 2;
+    static readonly Func<int, bool> _positive = item => item > 0;
 
     // Null actuals: every assertion must fail with the package's own assertion exception.
     static readonly IEnumerable<int> _noCollection = null;
@@ -65,12 +76,9 @@ public static class AssertionCases
         // Existing equality and contain-only.
         Pass("equal enumerable: same sequence", () => _numbers.ShouldEqual((IEnumerable<int>)[1, 2, 3])),
         Fail("equal enumerable: reversed sequence", () => _numbers.ShouldEqual((IEnumerable<int>)_reversed)),
-#if NUNIT4
-        // The NUnit 4 package has always compared params without regard to order.
-        Pass("equal params: reversed sequence", () => _numbers.ShouldEqual(3, 2, 1)),
-#else
+        // Params are ordered in every package.
+        Pass("equal params: same sequence", () => _numbers.ShouldEqual(1, 2, 3)),
         Fail("equal params: reversed sequence", () => _numbers.ShouldEqual(3, 2, 1)),
-#endif
         Fail("equal params: different items", () => _numbers.ShouldEqual(1, 2, 4)),
         Pass("contain only: reversed sequence", () => _numbers.ShouldContainOnly(3, 2, 1)),
         Fail("contain only: duplicates that differ", () => _duplicated.ShouldContainOnly(1, 2)),
@@ -135,6 +143,45 @@ public static class AssertionCases
         Fail("less than: actual is null", () => _noComparable.ShouldBeLessThan(1)),
         Pass("in range: inside", () => 2.ShouldBeInRange(1, 3)),
         Fail("in range: outside", () => 4.ShouldBeInRange(1, 3)),
+        Fail("in range: actual is null", () => ((string)null).ShouldBeInRange("a", "z")),
+        Fail("not in range: actual is null", () => ((string)null).ShouldNotBeInRange("a", "z")),
+
+        // Nested collections compare deeply, not by reference.
+        Pass("in order: nested collections holding equal copies", () => _nested.ShouldEqualInOrder(_nestedCopy)),
+        Pass("equal: nested collections holding equal copies", () => _nested.ShouldEqual(_nestedCopy)),
+        Pass("equal params: nested collections holding equal copies", () => _nested.ShouldEqual(_firstInnerCopy, _secondInnerCopy)),
+        Fail("equal params: nested collections in a different order", () => _nested.ShouldEqual(_secondInnerCopy, _firstInnerCopy)),
+        Pass("equal: nested lists holding equal copies", () => _nestedLists.ShouldEqual(_nestedListsCopy)),
+        Fail("in order: nested collections in a different order", () => _nested.ShouldEqualInOrder(_nestedReversedCopy)),
+        Pass("any order: nested collections holding equal copies", () => _nested.ShouldEqualInAnyOrder(_nestedReversedCopy)),
+        Pass("contain only: nested collections holding equal copies", () => _nested.ShouldContainOnly(_nestedReversedCopy)),
+        Pass("contain: nested collection holding an equal copy", () => _nested.ShouldContain(_secondInnerCopy)),
+        Fail("not contain: nested collection holding an equal copy", () => _nested.ShouldNotContain(_secondInnerCopy)),
+
+        // Null rules.
+        Pass("equal: null expected and null actual", () => _noString.ShouldEqual(null)),
+        Fail("equal: null actual", () => _noString.ShouldEqual("a")),
+        Fail("equal: null expected", () => "a".ShouldEqual(null)),
+        Pass("equal enumerable: null expected and null actual", () => _noCollection.ShouldEqual(_noCollection)),
+        Fail("equal enumerable: actual is null", () => _noCollection.ShouldEqual((IEnumerable<int>)_numbers)),
+        Fail("equal enumerable: expected is null", () => _numbers.ShouldEqual(_noCollection)),
+        Fail("contain only: expected is null", () => _numbers.ShouldContainOnly(_noCollection)),
+        Fail("contain: expected collection is null", () => _numbers.ShouldContain(_noCollection)),
+        Pass("null: actual is null", _noString.ShouldBeNull),
+        Fail("null: actual is not null", "a".ShouldBeNull),
+        Fail("not null: actual is null", _noString.ShouldNotBeNull),
+        Fail("assignable: actual is null", _noString.ShouldBeAssignableFrom<string>),
+        Fail("exact type: actual is null", _noString.ShouldBeOfExactType<string>),
+
+        // Func delegates.
+        Pass("contain: Func matches", () => _numbers.ShouldContain(_greaterThanTwo)),
+        Fail("not contain: Func matches", () => _numbers.ShouldNotContain(_greaterThanTwo)),
+        Pass("single matching: Func matches once", () => _numbers.ShouldContainSingleMatching(_greaterThanTwo)),
+        Fail("single matching: Func matches twice", () => _numbers.ShouldContainSingleMatching(_greaterThanOne)),
+        Pass("each conforms: Func holds for all", () => _numbers.ShouldEachConformTo(_positive)),
+        Fail("each conforms: Func fails for one", () => _numbers.ShouldEachConformTo(_greaterThanOne)),
+        Pass("match: Func holds", () => 2.ShouldMatch(_greaterThanOne)),
+        Fail("match: Func does not hold", () => 1.ShouldMatch(_greaterThanOne)),
     ];
 
     static AssertionCase Pass(string name, Action run) => new(name, run, ExpectedOutcome.Pass);
