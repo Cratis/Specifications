@@ -89,8 +89,14 @@ public class Specification : IAsyncLifetime
     {
         if (IsSharedInstance) return;
 
-        await OnDestroy();
-        (this as IDisposable)?.Dispose();
+        try
+        {
+            await OnDestroy();
+        }
+        finally
+        {
+            (this as IDisposable)?.Dispose();
+        }
     }
 
     /// <summary>
