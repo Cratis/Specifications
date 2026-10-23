@@ -37,7 +37,7 @@ public static class Diagnostics
         "A fact or lifecycle method must not be async void",
         "{0} is async void, which can not be awaited and loses its failures; return Task or ValueTask instead",
         Category,
-        DiagnosticSeverity.Error,
+        DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     /// <summary>

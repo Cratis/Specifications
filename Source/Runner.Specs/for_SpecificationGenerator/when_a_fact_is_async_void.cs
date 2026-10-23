@@ -22,7 +22,7 @@ public class when_a_fact_is_async_void : Specification
 
     void should_report_the_fact_and_the_lifecycle_method() => diagnostics.Count.ShouldEqual(2);
 
-    void should_report_an_error() => diagnostics.ShouldEachConformTo(_ => _.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+    void should_report_a_warning() => diagnostics.ShouldEachConformTo(_ => _.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Warning);
 
     void should_name_the_method() => diagnostics.Select(_ => _.GetMessage()).ShouldEachConformTo(_ => _.Contains("an_async_void_specification."));
 }
