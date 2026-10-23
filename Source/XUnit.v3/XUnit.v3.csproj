@@ -22,4 +22,8 @@
     <ItemGroup>
         <Compile Include="../XUnit/TypeForwards.cs;../XUnit/AssertionFailureFactory.cs" Link="%(Filename)%(Extension)" />
     </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.Specifications.XUnit.v3.Specs" />
+    </ItemGroup>
 </Project>

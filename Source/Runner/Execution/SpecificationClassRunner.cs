@@ -78,6 +78,11 @@ internal static class SpecificationClassRunner
             ApplyTearDownFailure(results, teardownFailure);
         }
 
+        if (scope is not null && PhaseTimings.PhasesOf(scope) is { } phases)
+        {
+            AttachSteps(results, phases, specification.DisplayName);
+        }
+
         return results;
     }
 
@@ -147,6 +152,17 @@ internal static class SpecificationClassRunner
             results[index] = facts[index].SkipReason is not null || exception is null
                 ? FactResult.Skipped(facts[index].SkipReason ?? string.Empty, started)
                 : FactResult.Failed(exception, started, TimeSpan.Zero);
+        }
+    }
+
+    static void AttachSteps(FactResult[] results, IReadOnlyList<PhaseRecord> classPhases, string displayName)
+    {
+        for (var index = 0; index < results.Length; index++)
+        {
+            var result = results[index];
+            if (result.Outcome == FactOutcome.Skipped) continue;
+            var fact = new PhaseRecord(SpecificationPhase.Fact, PhaseRecord.SpecOwner, displayName, null, result.Started, result.Duration, result.Outcome == FactOutcome.Failed);
+            results[index] = result with { Steps = [.. classPhases, fact] };
         }
     }
 
