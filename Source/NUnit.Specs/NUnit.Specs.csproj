@@ -9,7 +9,7 @@
         <!-- The NUnit 4 package compares ShouldEqual(params) without regard to order; the shared catalog expects that. -->
         <DefineConstants>$(DefineConstants);NUNIT4</DefineConstants>
         <!-- CA1812 is suppressed because probe specifications are only instantiated by the specs that exercise them. -->
-        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060;CA1001</NoWarn>
+        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060;CA1001;CRSPECEXP01</NoWarn>
     </PropertyGroup>
 
     <!-- The specs are shared with the NUnit 5 package specs: the same behavior must hold on NUnit 4. -->
@@ -17,6 +17,7 @@
     <ItemGroup>
         <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
         <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Resources/*.cs" Link="Resources/%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
