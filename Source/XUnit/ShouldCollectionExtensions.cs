@@ -4,6 +4,10 @@
 using System.Collections;
 using Xunit;
 
+// Failures keep raising the TrueException (and message) of the former Assert.True(condition, message) calls;
+// the message is only built once the condition is known to have failed.
+#pragma warning disable xUnit2020
+
 namespace Cratis.Specifications;
 
 /// <summary>
@@ -58,7 +62,9 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEqual<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
     {
-        Assert.True(collection.SequenceEqual(expected), $"Collection '{collection}' is not equal to '{expected}'");
+        if (collection.SequenceEqual(expected)) return;
+
+        Assert.True(false, $"Collection '{collection}' is not equal to '{expected}'");
     }
 
     /// <summary>

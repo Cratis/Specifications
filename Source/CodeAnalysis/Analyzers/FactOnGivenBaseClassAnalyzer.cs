@@ -45,12 +45,12 @@ public class FactOnGivenBaseClassAnalyzer : DiagnosticAnalyzer
 
         var containingType = method.ContainingType;
 
-        if (!SpecificationFacts.DerivesFromSpecification(containingType))
+        if (!SpecificationFacts.IsInGivenNamespace(containingType))
         {
             return;
         }
 
-        if (!SpecificationFacts.IsInGivenNamespace(containingType))
+        if (!SpecificationFacts.DerivesFromSpecification(containingType))
         {
             return;
         }

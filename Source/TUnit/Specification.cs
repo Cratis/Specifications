@@ -1,8 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Reflection;
-
 namespace Cratis.Specifications;
 
 /// <summary>
@@ -49,7 +47,11 @@ namespace Cratis.Specifications;
 [ClassConstructor<SpecificationClassConstructor>]
 public class Specification
 {
+#if NET9_0_OR_GREATER
+    readonly Lock _lock = new();
+#else
     readonly object _lock = new();
+#endif
     Task? _initialization;
 
     /// <summary>
@@ -88,15 +90,9 @@ public class Specification
 
     async Task EstablishAndPerformAction()
     {
-        await InvokeMethod("Establish");
-        await InvokeMethod("Because");
+        await SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
+        await SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
     }
 
-    Task OnDestroy() => InvokeMethod("Destroy");
-
-    Task InvokeMethod(string name)
-    {
-#nullable disable
-        return typeof(SpecificationMethods<,>).MakeGenericType(GetType(), typeof(Specification)).GetMethod(name, BindingFlags.Static | BindingFlags.Public).Invoke(null, [this]) as Task;
-    }
+    Task OnDestroy() => SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
 }

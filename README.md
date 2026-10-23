@@ -21,7 +21,8 @@ Packages:
 
 - [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit) — for xUnit v2
 - [Cratis.Specifications.XUnit.v3](https://www.nuget.org/packages/cratis.specifications.xunit.v3) — for xUnit v3
-- [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit)
+- [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit) — for NUnit 4
+- [Cratis.Specifications.NUnit5](https://www.nuget.org/packages/cratis.specifications.nunit5) — for NUnit 5
 - [Cratis.Specifications.TUnit](https://www.nuget.org/packages/cratis.specifications.tunit)
 
 ## What does it do?
@@ -114,6 +115,20 @@ Depending on your solution, you might want to consider suppressing the following
 ## Example
 
 In the [sample](./Sample) folder you'll find samples of using it XUnit, NUnit and TUnit.
+
+### NUnit 4 or NUnit 5
+
+Pick the package that matches the NUnit version your test project uses. Both offer the same API and
+the same namespace, so switching is only a package change:
+
+| NUnit version | Package |
+| ------------- | ------- |
+| 4.x | `Cratis.Specifications.NUnit` |
+| 5.x | `Cratis.Specifications.NUnit5` |
+
+One difference: `collection.ShouldEqual(1, 2, 3)` compares the sequence, including order, in the NUnit 5
+package (as in the xUnit and TUnit packages), while the NUnit 4 package has always ignored the order and
+keeps doing so for compatibility.
 
 The difference between XUnit and NUnit is on the signature of the tests.
 Instead of `[Fact]` for XUnit, you'll have to adorn with `[Test]`, in addition to that, NUnit
@@ -287,6 +302,20 @@ xUnit v3 takes the framework type rather than its name:
 
 ```csharp
 [assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
+```
+
+## Analyzers
+
+The packages ship Roslyn analyzers (`CRSPEC0001`–`CRSPEC0008`) that catch common specification mistakes.
+
+`CRSPEC0008` — *facts should not modify the shared specification context* — reports a `should_*`
+fact that assigns to, increments, or calls `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on
+an instance field or property of the specification. Because it would otherwise break builds that treat
+warnings as errors, it is reported as **info** by default. Raise it in an `.editorconfig`:
+
+```ini
+[*.cs]
+dotnet_diagnostic.CRSPEC0008.severity = warning   # or error
 ```
 
 ## Native runner on Microsoft.Testing.Platform (experimental)

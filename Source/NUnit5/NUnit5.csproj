@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.NUnit5</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <Description>Specification by Example (BDD) for .NET with NUnit 5 - Given/When/Then specifications in the style of Machine.Specifications, running on the NUnit 5 test framework. For NUnit 4 use Cratis.Specifications.NUnit.</Description>
+        <Nullable>enable</Nullable>
+        <DefineConstants>$(DefineConstants);NUNIT5</DefineConstants>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="nunit" VersionOverride="5.0.0" />
+    </ItemGroup>
+
+    <!-- One copy of the source: shared with the NUnit 4 package, compiled here against NUnit 5. -->
+    <ItemGroup>
+        <Compile Include="../NUnit/*.cs" LinkBase="Shared" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+    </ItemGroup>
+</Project>

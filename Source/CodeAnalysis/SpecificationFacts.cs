@@ -18,6 +18,10 @@ public static class SpecificationFacts
     /// </summary>
     public const string SpecificationBaseTypeName = "Cratis.Specifications.Specification";
 
+    const string SpecificationTypeName = "Specification";
+    const string SpecificationsNamespaceName = "Specifications";
+    const string CratisNamespaceName = "Cratis";
+
     /// <summary>
     /// The namespace segment that marks a reusable specification context.
     /// </summary>
@@ -58,13 +62,31 @@ public static class SpecificationFacts
     {
         for (var current = type?.BaseType; current is not null; current = current.BaseType)
         {
-            if (current.ToDisplayString() == SpecificationBaseTypeName)
+            if (IsSpecificationBaseType(current))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    // Compares the symbol name and containing namespaces instead of formatting a display string, which would allocate for every base type visited.
+    static bool IsSpecificationBaseType(INamedTypeSymbol type)
+    {
+        if (type.Name != SpecificationTypeName || type.ContainingType is not null || type.IsGenericType)
+        {
+            return false;
+        }
+
+        var specifications = type.ContainingNamespace;
+        if (specifications is null || specifications.Name != SpecificationsNamespaceName)
+        {
+            return false;
+        }
+
+        var cratis = specifications.ContainingNamespace;
+        return cratis is not null && cratis.Name == CratisNamespaceName && cratis.ContainingNamespace is { IsGlobalNamespace: true };
     }
 
     /// <summary>

@@ -42,4 +42,9 @@ public static class DiagnosticIds
     /// The action under test (Because) must not be declared on a reusable 'given' context.
     /// </summary>
     public const string BecauseMustNotBeOnGivenContext = "CRSPEC0007";
+
+    /// <summary>
+    /// A fact (test method) must not modify the shared specification context, since facts share state and must not depend on execution order.
+    /// </summary>
+    public const string FactMustNotModifySharedContext = "CRSPEC0008";
 }
