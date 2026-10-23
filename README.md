@@ -397,6 +397,30 @@ warnings as errors, it is reported as **info** by default. Raise it in an `.edit
 dotnet_diagnostic.CRSPEC0008.severity = warning   # or error
 ```
 
+### Turning the analyzers off
+
+The analyzers cost build time in large repositories. Turn them off with one property; it removes only the
+`Cratis.Specifications.CodeAnalysis` analyzers, so other analyzers and the native runner's source generator keep working:
+
+```xml
+<PropertyGroup>
+    <CratisSpecificationsAnalyzers>false</CratisSpecificationsAnalyzers>
+</PropertyGroup>
+```
+
+| Value | Effect |
+| --- | --- |
+| Unset or `true` | The analyzers run (default). |
+| `false` | The analyzers never run, in command-line builds or in the IDE. |
+| `ide` | The analyzers run in IDE design-time builds only (Visual Studio, Rider and VS Code design-time builds count as IDE), not in command-line or CI builds. |
+
+Standard SDK switches also work:
+
+- `RunAnalyzersDuringBuild=false` or `RunAnalyzers=false` turns off **all** analyzers, not only ours.
+- Set a single rule's severity in `.editorconfig`: `dotnet_diagnostic.CRSPEC0008.severity = none`.
+- `ExcludeAssets="analyzers"` on the `PackageReference` drops the analyzers. Do not use it on `Cratis.Specifications.Runner`:
+  that also drops its source generator and the specifications are no longer registered.
+
 ## Native runner on Microsoft.Testing.Platform (experimental)
 
 `Cratis.Specifications.Runner` is an experimental, native specification runner on
@@ -437,6 +461,12 @@ public class when_registering : Specification
 
 Run it with `dotnet run --project <spec project>` or the built executable. The package, its options and its
 behavior may change without notice while it is experimental.
+
+## Guides
+
+- [Running specifications fast](./Documentation/running-fast.md) — package and runner choice, shared lifecycle, filtering, sharding and a short feedback loop.
+- [Structuring specifications](./Documentation/structuring-specifications.md) — from a single behavior to shared contexts, doubles, async work and readable names.
+- [Integration specifications](./Documentation/integration-specifications.md) — in-process scenarios, shared fixtures and keeping infrastructure-backed specifications fast.
 
 ## Related projects
 
