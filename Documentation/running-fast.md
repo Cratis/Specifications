@@ -93,6 +93,12 @@ as a run parameter after `--`.
   [build workflow](https://github.com/Cratis/Specifications/blob/main/.github/workflows/build.yml) does.
 - Build once in `Release` and run every spec project with `--no-build`.
 
+## Skip the analyzers in large builds
+
+The bundled analyzers add build time. Set `<CratisSpecificationsAnalyzers>false</CratisSpecificationsAnalyzers>` to turn
+them off, or `ide` to keep them in the editor and drop them from command-line and CI builds. See
+[Turning the analyzers off](https://github.com/Cratis/Specifications/blob/main/README.md#turning-the-analyzers-off).
+
 ## Keep the feedback loop short
 
 - Run only the affected spec projects while iterating; run everything before you push.
