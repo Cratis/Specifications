@@ -97,14 +97,14 @@ The same optional properties work for every package:
 ```xml
 <PropertyGroup>
     <CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>
-    <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
+    <CratisSpecificationsReadableNames>false</CratisSpecificationsReadableNames>
 </PropertyGroup>
 ```
 
 | Property | Default | What it sets |
 | --- | --- | --- |
 | `CratisSpecificationsSharedLifecycle` | `true` | xUnit: generates the framework registration attribute, sharing eligible specification instances. Set to `false` to keep xUnit's per-fact lifecycle (the build emits `[assembly: PerFactSpecificationLifecycle]`). NUnit, TUnit and the native runner already share instances; this property is accepted without changing their lifecycle. |
-| `CratisSpecificationsReadableNames` | Unset | Generates `[assembly: ReadableSpecificationNames]`. xUnit also registers the framework; if shared lifecycle is not enabled it emits `[assembly: PerFactSpecificationLifecycle]` to retain per-fact execution. TUnit additionally generates its display-name formatter attribute. The native runner already uses readable names. |
+| `CratisSpecificationsReadableNames` | `true` | Generates `[assembly: ReadableSpecificationNames]`; set to `false` to keep the original display names. xUnit also registers the framework; if shared lifecycle is turned off it emits `[assembly: PerFactSpecificationLifecycle]` to retain per-fact execution. TUnit additionally generates its display-name formatter attribute. The native runner already uses readable names. |
 
 xUnit projects share the specification lifecycle by default: `Establish` and `Because` run once per class. If your xUnit project already
 has a handwritten `[assembly: Xunit.TestFramework(...)]`, **remove it**; duplicate framework attributes cause `CS0579`.

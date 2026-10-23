@@ -1,5 +1,5 @@
 <Project>
-    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' == 'true'">
+    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' != 'false'">
         <AssemblyAttribute Include="Cratis.Specifications.ReadableSpecificationNamesAttribute" />
     </ItemGroup>
 </Project>

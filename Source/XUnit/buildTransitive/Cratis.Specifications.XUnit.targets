@@ -1,5 +1,5 @@
 <Project>
-    <ItemGroup Condition="'$(CratisSpecificationsSharedLifecycle)' != 'false' Or '$(CratisSpecificationsReadableNames)' == 'true'">
+    <ItemGroup Condition="'$(CratisSpecificationsSharedLifecycle)' != 'false' Or '$(CratisSpecificationsReadableNames)' != 'false'">
         <AssemblyAttribute Include="Xunit.TestFrameworkAttribute">
             <_Parameter1>Cratis.Specifications.SpecificationTestFramework</_Parameter1>
             <_Parameter2>Cratis.Specifications.XUnit</_Parameter2>

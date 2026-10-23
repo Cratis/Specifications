@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <DefineConstants>$(DefineConstants);NUNIT</DefineConstants>
-        <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Cratis.Specifications.NUnit" Version="0.0.0-ci" />
