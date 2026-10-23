@@ -50,3 +50,10 @@ public class without_facts : Specification
 {
     void Establish() => CallLog.Record(nameof(without_facts), "Establish");
 }
+
+public class fact_with_an_unsupported_return_type : Specification
+{
+    void should_pass() => CallLog.Record(nameof(fact_with_an_unsupported_return_type), "fact");
+
+    bool should_return_a_value() => true;
+}

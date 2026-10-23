@@ -32,10 +32,10 @@ public static class SpecificationModelBuilder
         }
 
         var chain = Chain(type);
-        var facts = Facts(chain, compilation);
-        if (facts.Count == 0) return null;
-
         var errors = new List<string>();
+        var facts = Facts(chain, compilation, errors);
+        if (facts.Count == 0 && errors.Count == 0) return null;
+
         var establish = Lifecycle(chain, compilation, errors, "Establish", "Given");
         var because = Lifecycle(chain, compilation, errors, "Because", "When");
         var destroy = Lifecycle(chain, compilation, errors, "Destroy", null);
@@ -120,7 +120,7 @@ public static class SpecificationModelBuilder
     static IMethodSymbol? Find(INamedTypeSymbol type, string name) =>
         type.GetMembers(name).OfType<IMethodSymbol>().FirstOrDefault(_ => !_.IsStatic && !_.IsOverride && _.Parameters.Length == 0 && !_.IsGenericMethod);
 
-    static List<FactModel> Facts(List<INamedTypeSymbol> chain, Compilation compilation)
+    static List<FactModel> Facts(List<INamedTypeSymbol> chain, Compilation compilation, List<string> errors)
     {
         var facts = new List<FactModel>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -132,7 +132,7 @@ public static class SpecificationModelBuilder
                 var attribute = method.GetAttributes().FirstOrDefault(_ => _.AttributeClass?.ToDisplayString() == FactAttribute);
                 if (method.MethodKind != MethodKind.Ordinary || method.IsStatic || method.IsGenericMethod || method.Parameters.Length > 0 ||
                     (attribute is null && !method.Name.StartsWith("should_", StringComparison.Ordinal)) || !seen.Add(method.Name) ||
-                    ToCall(method, compilation, null) is not MethodCall call)
+                    ToFactCall(method, compilation, errors) is not MethodCall call)
                 {
                     continue;
                 }
@@ -146,6 +146,14 @@ public static class SpecificationModelBuilder
         }
 
         return facts;
+    }
+
+    // A fact with an unsupported return type fails its class with a discovery error. It still needs a call to be listed under, so it gets one
+    // through reflection that never runs, because the error fails every fact of the class before anything is invoked.
+    static MethodCall? ToFactCall(IMethodSymbol method, Compilation compilation, List<string> errors)
+    {
+        if (ToCall(method, compilation, errors) is MethodCall call) return call;
+        return new(method.ContainingType.ToDisplayString(_qualified), method.Name, ReturnKind.Void, CallKind.Reflection);
     }
 
     static MethodCall? ToCall(IMethodSymbol method, Compilation compilation, List<string>? errors)
