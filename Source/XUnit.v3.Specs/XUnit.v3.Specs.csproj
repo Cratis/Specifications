@@ -44,5 +44,6 @@
         <Compile Include="../XUnit.Specs/for_SpecificationSession/*.cs" Link="for_SpecificationSession/%(Filename)%(Extension)" />
         <Compile Include="../XUnit.Specs/for_SpecificationTestClassRunner/probes/*.cs" Link="for_SpecificationTestClassRunner/probes/%(Filename)%(Extension)" />
         <Compile Include="../XUnit.Specs/for_Should/when_running_the_assertion_catalog.cs" Link="for_Should/%(Filename)%(Extension)" />
+        <Compile Include="../XUnit.Specs/for_AssertionFailures/*.cs" Link="for_AssertionFailures/%(Filename)%(Extension)" />
     </ItemGroup>
 </Project>
