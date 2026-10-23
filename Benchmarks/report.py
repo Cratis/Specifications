@@ -5,6 +5,13 @@ import json
 import statistics
 
 
+def aot_columns(builds):
+    aot = builds.get("aot")
+    if not aot:
+        return "—", "—"
+    return f"{aot['seconds']:.3f}", str(aot.get("aot_trim_warnings", "—"))
+
+
 def render(data, destination):
     lines = ["# Specifications benchmark", "", f"N={data['n']}, F={data['f']}, R={data['r']}; one excluded warm-up pass; rotated, interleaved repetitions.",
              f"Host: {data['host']}; OS: {data['platform']}; SDK: {data['sdk']}.",
@@ -12,8 +19,9 @@ def render(data, destination):
              "Shared/loaded machine: results include startup, discovery and reporting; not a causal ranking of framework overhead.", "",
              "CPU time (user + system) is the primary comparison for per-test overhead on a loaded machine; wall time includes scheduling delays.", "",
              "Clean means project Rebuild after untimed restore; dependencies/cache may already be warm. RSS is the maximum reported for the timed process tree (not summed concurrent memory).", "",
-             "| Flavor | Suite | Parallel | Runner | Build clean / no-op (s) | CPU median (s) | Wall median [min, max] (s) | Peak RSS (MiB) | Tests | Status |",
-             "|---|---|---|---|---|---|---|---|---|---|"]
+             "Cratis runner JIT vs Cratis runner AOT (not a cross-framework AOT comparison). AOT publish time is separate from JIT build and execution; warning count is unique IL2xxx/IL3xxx warning lines in the publish log.", "",
+             "| Flavor | Suite | Parallel | Runner | Build clean / no-op (s) | AOT publish (s) | AOT/trim warnings | CPU median (s) | Wall median [min, max] (s) | Peak RSS (MiB) | Tests | Status |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for row in data["rows"]:
         samples = row.get("samples", [])
         valid = [s for s in samples if s.get("valid")]
@@ -32,8 +40,10 @@ def render(data, destination):
             cpu, wall, memory = "—", "—", "—"
         builds = row.get("builds", {})
         build = " / ".join(f"{builds[k]['seconds']:.3f}" if k in builds else "—" for k in ("clean", "incremental"))
+        publish, warnings = aot_columns(builds)
+        flavor = {"xunit-v3": "xunit-v3 (native runner, mtp-off)"}.get(row["flavor"], row["flavor"])
         status = "valid" if complete else "INVALID: " + row.get("error", "incomplete samples")
-        lines.append(f"| {row['flavor']} | {row['suite']} | {row['parallel']} | {row['route']} | {build} | {cpu} | {wall} | {memory} | {data['n'] * data['f'] if complete else '—'} | {status} |")
+        lines.append(f"| {flavor} | {row['suite']} | {row['parallel']} | {row['route']} | {build} | {publish} | {warnings} | {cpu} | {wall} | {memory} | {data['n'] * data['f'] if complete else '—'} | {status} |")
     lines += ["", "Load averages (1, 5, 15 minutes) per pass:", "",
               "| Pass | Start | End |", "|---|---|---|"]
     for repetition in data.get("repetitions", []):
