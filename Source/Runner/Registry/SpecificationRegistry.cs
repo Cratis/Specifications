@@ -17,7 +17,11 @@ namespace Cratis.Specifications.Runner;
 public static class SpecificationRegistry
 {
     static readonly Dictionary<Assembly, List<SpecificationClassDescriptor>> _registered = [];
+#if NET9_0_OR_GREATER
+    static readonly Lock _lock = new();
+#else
     static readonly object _lock = new();
+#endif
 
     /// <summary>
     /// Registers a specification class.
