@@ -36,6 +36,7 @@ so the cost of running a context once per class versus once per fact shows. `--a
 publishes the `cratis-runner` suite with Native AOT and measures the native executable;
 the publish is timed separately and not included in the build columns. Reports include AOT publish seconds and the number of unique IL2xxx/IL3xxx warning lines from the publish log (the same diagnostic repeated in a build summary counts once). Warnings are retained, not suppressed. This is explicitly **Cratis runner JIT vs Cratis runner AOT**, not an AOT comparison across frameworks. Numbers must be positive; flavors are comma-separated
 with no duplicates. `--parallel` accepts `default`, `off`, or `both` (default).
+`--nunit-parallel {none,fixtures}` (`NUNIT_PARALLEL`, default `none`) opts NUnit suites into fixture parallelism.
 Run only one harness process per checkout: generation and runner configuration
 share files. On shared developer machines, run the entire multi-flavor invocation through
 your build/test admission queue. Several flavors in one `run.sh` invocation is

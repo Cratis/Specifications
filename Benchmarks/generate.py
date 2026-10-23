@@ -38,6 +38,8 @@ def arguments():
     parser.add_argument("--flavors", default=os.getenv("FLAVORS", ",".join(SOURCES)))
     parser.add_argument("--work-us", type=non_negative, default=os.getenv("WORK_US", "0"),
                         help="deterministic CPU work in Establish and Because per context, in approximate microseconds")
+    parser.add_argument("--nunit-parallel", choices=("none", "fixtures"), default=os.getenv("NUNIT_PARALLEL", "none"),
+                        help="opt in to NUnit fixture parallelism")
     return parser
 
 
@@ -110,6 +112,13 @@ WORK_HELPER = """public static class BenchmarkWork
     }
 }
 """
+
+
+def with_nunit_parallelism(flavor, source, parallel):
+    if flavor.startswith("nunit") and parallel == "fixtures":
+        attribute = "[assembly: NUnit.Framework.Parallelizable(NUnit.Framework.ParallelScope.Fixtures)]\n"
+        return source.replace("namespace BenchmarkSuite;", attribute + "namespace BenchmarkSuite;", 1)
+    return source
 
 
 def suite(flavor, raw, n, facts, work_us=0):
@@ -197,7 +206,7 @@ def generate(args):
             directory = ROOT / "generated" / (flavor + ("-raw" if raw else ""))
             directory.mkdir(parents=True, exist_ok=True)
             (directory / "Benchmark.csproj").write_text(project(flavor, raw))
-            (directory / "Suite.g.cs").write_text(suite(flavor, raw, args.n, args.f, args.work_us))
+            (directory / "Suite.g.cs").write_text(with_nunit_parallelism(flavor, suite(flavor, raw, args.n, args.f, args.work_us), args.nunit_parallel))
             projects.append({"flavor": flavor, "suite": "raw" if raw else "Cratis", "project": str(directory / "Benchmark.csproj")})
     return projects
 
