@@ -31,6 +31,19 @@ static class ShouldCountedMatch
             return false;
         }
 
+        try
+        {
+            return CountsMatch(source, expected);
+        }
+        catch
+        {
+            // A throwing GetHashCode or Equals means the lookup cannot tell; the original algorithm decides.
+            return false;
+        }
+    }
+
+    static bool CountsMatch<T>(List<T> source, ICollection<T> expected)
+    {
         // Nulls cannot be dictionary keys; they are counted on the side.
         var nulls = 0;
 #pragma warning disable CS8714 // Null items are never used as keys.
