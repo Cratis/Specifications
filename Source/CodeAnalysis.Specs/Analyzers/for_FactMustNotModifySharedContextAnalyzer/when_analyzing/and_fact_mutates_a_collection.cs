@@ -27,8 +27,8 @@ public class and_fact_mutates_a_collection : given.a_fact_must_not_modify_shared
 
     void Because() => _result = AnalyzerVerifier<FactMustNotModifySharedContextAnalyzer>.VerifyAnalyzer(
         SpecSource.Wrap(Usage, "Sample.when_something"),
-        new ExpectedDiagnostic(DiagnosticIds.FactMustNotModifySharedContext, DiagnosticSeverity.Info, "should_change", "_items"),
-        new ExpectedDiagnostic(DiagnosticIds.FactMustNotModifySharedContext, DiagnosticSeverity.Info, "should_change", "_items"));
+        new ExpectedDiagnostic(DiagnosticIds.FactMustNotModifySharedContext, DiagnosticSeverity.Error, "should_change", "_items"),
+        new ExpectedDiagnostic(DiagnosticIds.FactMustNotModifySharedContext, DiagnosticSeverity.Error, "should_change", "_items"));
 
     [Fact] Task should_report_each_mutating_call() => _result;
 }
