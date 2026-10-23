@@ -2,9 +2,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <DefineConstants>$(DefineConstants);XUNIT</DefineConstants>
-        <CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>
         <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
-        <CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Cratis.Specifications.XUnit.v3" Version="0.0.0-ci" />

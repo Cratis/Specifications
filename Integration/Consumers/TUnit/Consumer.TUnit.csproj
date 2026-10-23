@@ -2,9 +2,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <DefineConstants>$(DefineConstants);TUNIT</DefineConstants>
-        <CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>
         <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
-        <CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Cratis.Specifications.TUnit" Version="0.0.0-ci" />

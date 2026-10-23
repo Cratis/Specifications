@@ -1,3 +1,0 @@
-is_global = true
-global_level = 0
-dotnet_diagnostic.CRSPEC0008.severity = warning

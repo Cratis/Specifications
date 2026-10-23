@@ -4,7 +4,7 @@
 namespace Cratis.Specifications;
 
 /// <summary>
-/// Retains xUnit's per-fact lifecycle when the Cratis framework is registered only for readable names.
+/// Retains xUnit's per-fact lifecycle for the marked assembly or specification class.
 /// </summary>
-[AttributeUsage(AttributeTargets.Assembly)]
+[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class)]
 public sealed class PerFactSpecificationLifecycleAttribute : Attribute;

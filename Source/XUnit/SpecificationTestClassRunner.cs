@@ -101,6 +101,7 @@ public class SpecificationTestClassRunner(
         var type = Class.Type;
         if (!typeof(Specification).IsAssignableFrom(type)) return false;
         if (type.Assembly.IsDefined(typeof(PerFactSpecificationLifecycleAttribute))) return false;
+        if (type.IsDefined(typeof(PerFactSpecificationLifecycleAttribute), inherit: true)) return false;
         if (HasCustomAsyncLifetime(type)) return false;
 
         var constructors = type.GetTypeInfo()
