@@ -18,6 +18,11 @@
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
 
+    <!-- The assertion failure registration under buildTransitive compiles into consumers, not into this package. -->
+    <ItemGroup>
+        <Compile Remove="buildTransitive/**" />
+    </ItemGroup>
+
     <ItemGroup>
         <InternalsVisibleTo Include="Cratis.Specifications.XUnit.Specs" />
     </ItemGroup>

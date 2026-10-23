@@ -194,6 +194,9 @@ If you use `Cratis.Specifications.Runner`:
   Return `Task` or `ValueTask`. (The 4.x line reports this as a warning.)
 - **`CRSPEC0011` is a warning.** A method declared on a constructed generic base type that the test assembly cannot
   call is invoked through reflection, which is not trim or AOT safe. Make the method `public` or `internal`.
+- `SpecificationMethods<T, TSpecBase>.Establish`, `Because` and `Destroy` are marked `[RequiresUnreferencedCode]`: they discover
+  the lifecycle methods through reflection. Trimmed or AOT callers should use the native runner, whose generated code calls
+  the lifecycle methods directly.
 - The runner prints a console tree and can write Markdown, JSON and GitHub summary reports; see
   [runner output and reports](./Documentation/runner-output.md).
 

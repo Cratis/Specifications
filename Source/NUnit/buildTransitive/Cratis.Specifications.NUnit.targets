@@ -5,4 +5,8 @@
     <ItemGroup Condition="'$(CratisSpecificationsSessionHook)' != 'false'">
         <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsSession.NUnit.g.cs" Visible="false" />
     </ItemGroup>
+    <!-- Registers the assertion failure factory when the test assembly loads, ahead of any specification. -->
+    <ItemGroup Condition="'$(CratisSpecificationsAssertionFailures)' != 'false' And '$(Language)' == 'C#'">
+        <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsAssertionFailures.NUnit.g.cs" Visible="false" />
+    </ItemGroup>
 </Project>

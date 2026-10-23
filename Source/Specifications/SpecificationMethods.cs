@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Cratis.Specifications;
 
 /// <summary>
@@ -37,6 +39,7 @@ public static class SpecificationMethods<T, TSpecBase>
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [RequiresUnreferencedCode("Runs the lifecycle methods of the specification type, which are discovered through reflection.")]
     public static Task Establish(object unit) => SpecificationLifecycle.Establish(unit, typeof(T), typeof(TSpecBase));
 
     /// <summary>
@@ -44,6 +47,7 @@ public static class SpecificationMethods<T, TSpecBase>
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [RequiresUnreferencedCode("Runs the lifecycle methods of the specification type, which are discovered through reflection.")]
     public static Task Destroy(object unit) => SpecificationLifecycle.Destroy(unit, typeof(T), typeof(TSpecBase));
 
     /// <summary>
@@ -51,5 +55,6 @@ public static class SpecificationMethods<T, TSpecBase>
     /// </summary>
     /// <param name="unit">Unit to invoke them on.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [RequiresUnreferencedCode("Runs the lifecycle methods of the specification type, which are discovered through reflection.")]
     public static Task Because(object unit) => SpecificationLifecycle.Because(unit, typeof(T), typeof(TSpecBase));
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cratis.Specifications;
 
@@ -76,6 +77,7 @@ internal sealed class SpecificationScope(object instance, string? displayName = 
     /// </summary>
     /// <param name="specificationBase">The framework base type at which the inheritance walk stops.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [RequiresUnreferencedCode("Runs the lifecycle methods of the specification type, which are discovered through reflection.")]
     public Task Establish(Type specificationBase) => RunLifecycle(SpecificationPhase.Establish, specificationBase);
 
     /// <summary>
@@ -83,6 +85,7 @@ internal sealed class SpecificationScope(object instance, string? displayName = 
     /// </summary>
     /// <param name="specificationBase">The framework base type at which the inheritance walk stops.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [RequiresUnreferencedCode("Runs the lifecycle methods of the specification type, which are discovered through reflection.")]
     public Task Because(Type specificationBase) => RunLifecycle(SpecificationPhase.Because, specificationBase);
 
     /// <summary>
@@ -90,6 +93,7 @@ internal sealed class SpecificationScope(object instance, string? displayName = 
     /// </summary>
     /// <param name="specificationBase">The framework base type at which the inheritance walk stops.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [RequiresUnreferencedCode("Runs the lifecycle methods of the specification type, which are discovered through reflection.")]
     public Task Destroy(Type specificationBase) => RunLifecycle(SpecificationPhase.Destroy, specificationBase);
 
     /// <summary>
@@ -129,6 +133,7 @@ internal sealed class SpecificationScope(object instance, string? displayName = 
         }
     }
 
+    [RequiresUnreferencedCode("Runs the lifecycle methods of the specification type, which are discovered through reflection.")]
     async Task RunLifecycle(SpecificationPhase phase, Type specificationBase)
     {
         _current.Value = this;

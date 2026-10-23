@@ -5,6 +5,8 @@
         <IsPackable>true</IsPackable>
         <EnablePackageValidation>true</EnablePackageValidation>
         <Nullable>enable</Nullable>
+        <!-- Ships inside the AOT native runner, so it must stay trim and AOT analyzable. -->
+        <IsAotCompatible>true</IsAotCompatible>
         <!-- The only package that carries the analyzers; the flavor packages receive them through this dependency. -->
         <CratisBundleAnalyzers>true</CratisBundleAnalyzers>
     </PropertyGroup>
