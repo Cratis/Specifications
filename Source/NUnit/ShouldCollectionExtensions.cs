@@ -52,7 +52,13 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEqual<T>(this IEnumerable<T> collection, params T[] expected)
     {
+#if NUNIT5
+        Assert.That(collection, Is.EqualTo(expected));
+#else
+        // The NUnit 4 package has always compared without regard to order. Kept for compatibility;
+        // the NUnit 5 package compares the sequence, like the xUnit and TUnit packages.
         Assert.That(collection, Is.EquivalentTo(expected));
+#endif
     }
 
     /// <summary>

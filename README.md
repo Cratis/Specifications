@@ -126,6 +126,10 @@ the same namespace, so switching is only a package change:
 | 4.x | `Cratis.Specifications.NUnit` |
 | 5.x | `Cratis.Specifications.NUnit5` |
 
+One difference: `collection.ShouldEqual(1, 2, 3)` compares the sequence, including order, in the NUnit 5
+package (as in the xUnit and TUnit packages), while the NUnit 4 package has always ignored the order and
+keeps doing so for compatibility.
+
 The difference between XUnit and NUnit is on the signature of the tests.
 Instead of `[Fact]` for XUnit, you'll have to adorn with `[Test]`, in addition to that, NUnit
 requires methods to be public to run them. TUnit uses `[Test]` as well, and also requires public methods.
