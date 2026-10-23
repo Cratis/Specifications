@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <CratisSpecificationsRuntimeDefaults>true</CratisSpecificationsRuntimeDefaults>
         <DefineConstants>$(DefineConstants);XUNIT</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
@@ -8,6 +9,7 @@
         <PackageReference Include="xunit.v3.mtp-off" Version="4.0.2" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0" />
+        <Compile Include="../when_running_with_the_package_runtime_defaults.cs" Link="when_running_with_the_package_runtime_defaults.cs" />
         <Compile Include="../when_using_given_and_when.cs" Link="when_using_given_and_when.cs" />
     </ItemGroup>
 </Project>

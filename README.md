@@ -404,6 +404,15 @@ dotnet_diagnostic.CRSPEC0008.severity = warning   # or suggestion, or none
 
 The `CratisSpecificationsWarnOnSharedContextMutation` property from 4.x is gone.
 
+### Optional runtime tuning and NUnit parallelism
+
+`CratisSpecificationsRuntimeDefaults=true` opts into non-concurrent GC and disables dynamic PGO;
+explicit `ConcurrentGarbageCollection` and `TieredPGO` properties always win. `false` leaves SDK settings unchanged.
+`CratisSpecificationsParallelFixtures=true` opts NUnit 4/5 into fixture parallelism; unset or `false`
+emits no attribute. Both switches are off by default. Do not combine the NUnit switch with an existing
+assembly-level `Parallelizable` attribute. See [Running specifications fast](./Documentation/running-fast.md)
+for trade-offs and how to run a built executable after restoring and building once.
+
 ### Turning the analyzers off
 
 The analyzers cost build time in large repositories. Turn them off with one property; it removes only the

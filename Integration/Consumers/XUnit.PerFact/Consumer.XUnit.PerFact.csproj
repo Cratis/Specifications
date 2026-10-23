@@ -1,7 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <CratisSpecificationsRuntimeDefaults>false</CratisSpecificationsRuntimeDefaults>
         <CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>
         <CratisSpecificationsReadableNames>false</CratisSpecificationsReadableNames>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(RuntimeDefaultsOverrideProbe)' == 'true'">
+        <CratisSpecificationsRuntimeDefaults>true</CratisSpecificationsRuntimeDefaults>
+        <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+        <TieredPGO>true</TieredPGO>
+        <DefineConstants>$(DefineConstants);RUNTIME_OVERRIDES</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Cratis.Specifications.XUnit" Version="0.0.0-ci" />

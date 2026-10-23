@@ -55,10 +55,14 @@ lifecycle runs them once per class, which is what a specification means: one con
 `dotnet test` adds MSBuild evaluation and the VSTest host on every run. For a local loop:
 
 ```bash
-dotnet build Source/MyProject.Specs --configuration Release
-dotnet run --project Source/MyProject.Specs --configuration Release --no-build
-# or run the built apphost directly
+dotnet restore Source/MyProject.Specs
+dotnet build Source/MyProject.Specs --configuration Release --no-restore
+./Source/MyProject.Specs/bin/Release/net10.0/MyProject.Specs
 ```
+
+Restore and build once, then run the built executable for repeated runs. Without an apphost,
+use `dotnet Source/MyProject.Specs/bin/Release/net10.0/MyProject.Specs.dll`. `dotnet run --no-build`
+still starts MSBuild to resolve the project; the executable avoids that overhead.
 
 TUnit and the native runner are executables already. xUnit v3 projects set `<OutputType>Exe</OutputType>`.
 Where a repository mixes Microsoft.Testing.Platform and VSTest projects, run each project on its own, as this
@@ -98,6 +102,39 @@ as a run parameter after `--`.
 The bundled analyzers add build time. Set `<CratisSpecificationsAnalyzers>false</CratisSpecificationsAnalyzers>` to turn
 them off, or `ide` to keep them in the editor and drop them from command-line and CI builds. See
 [Turning the analyzers off](https://github.com/Cratis/Specifications/blob/main/README.md#turning-the-analyzers-off).
+
+## Optional runtime tuning
+
+Runtime tuning remains opt-in: no gain has yet been established under controlled load. To try
+batch (non-concurrent) GC and disable dynamic PGO for a short-lived spec process:
+
+```xml
+<PropertyGroup>
+    <CratisSpecificationsRuntimeDefaults>true</CratisSpecificationsRuntimeDefaults>
+</PropertyGroup>
+```
+
+Set `CratisSpecificationsRuntimeDefaults=false` to leave SDK runtime settings unchanged. Explicit
+`ConcurrentGarbageCollection` and `TieredPGO` properties always win, even with the switch enabled.
+For example, `<TieredPGO>true</TieredPGO>` retains dynamic PGO. Compare representative runs before
+opting in; allocation-heavy or long-running suites may benefit from background GC or PGO.
+The package does not change server GC (including Web SDK defaults), runtime identifiers, AOT,
+ReadyToRun, or lifecycle settings. Helper libraries without a runtimeconfig are unaffected.
+
+## NUnit fixture parallelism
+
+NUnit 4 and NUnit 5 keep their existing sequential default. Independent fixtures can opt in:
+
+```xml
+<PropertyGroup>
+    <CratisSpecificationsParallelFixtures>true</CratisSpecificationsParallelFixtures>
+</PropertyGroup>
+```
+
+This emits `[assembly: Parallelizable(ParallelScope.Fixtures)]`; `false` (or omitting the property)
+emits nothing. Do not enable it if the assembly already declares that attribute. Shared external
+resources, static state, and order-dependent fixtures must be made safe first. Contexts still run
+once per fixture. No performance gain is claimed without measurement on a quiet host.
 
 ## Keep the feedback loop short
 

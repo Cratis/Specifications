@@ -13,6 +13,14 @@
         <_CratisRemoveAnalyzers Condition="'$(CratisSpecificationsAnalyzers)' == 'ide' And '$(DesignTimeBuild)' != 'true' And '$(BuildingInsideVisualStudio)' != 'true'">true</_CratisRemoveAnalyzers>
     </PropertyGroup>
 
+    <!-- Runtime tuning is opt-in until measured gains justify a default. Explicit SDK properties always win.
+         These settings are inert in helper libraries that do not produce a runtimeconfig.
+         Web SDK projects keep their own ServerGarbageCollection setting. -->
+    <PropertyGroup Condition="'$(CratisSpecificationsRuntimeDefaults)' == 'true'">
+        <ConcurrentGarbageCollection Condition="'$(ConcurrentGarbageCollection)' == ''">false</ConcurrentGarbageCollection>
+        <TieredPGO Condition="'$(TieredPGO)' == ''">false</TieredPGO>
+    </PropertyGroup>
+
     <Target Name="CratisSpecificationsRemoveAnalyzers"
             AfterTargets="ResolveLockFileAnalyzers"
             Condition="'$(_CratisRemoveAnalyzers)' == 'true'">

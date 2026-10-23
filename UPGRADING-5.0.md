@@ -223,6 +223,15 @@ the adapter supplies the exception type they throw, so the two are released and 
 `Cratis.Specifications` directly (for example in a `Directory.Packages.props`), update that pin together with the
 adapter.
 
+## Runtime settings and NUnit parallelism remain opt-in
+
+No GC or PGO default changes are introduced. `CratisSpecificationsRuntimeDefaults=true` opts into
+non-concurrent GC and disables dynamic PGO; `false` leaves SDK settings unchanged. Explicit
+`ConcurrentGarbageCollection` and `TieredPGO` properties take precedence. NUnit fixture parallelism
+also remains off unless `CratisSpecificationsParallelFixtures=true`; do not combine it with an existing
+assembly-level `Parallelizable` attribute. See [Running specifications fast](https://github.com/Cratis/Specifications/blob/main/Documentation/running-fast.md)
+for trade-offs and executable launch guidance.
+
 ## New in 5.0
 
 Additive features that you do not need to adopt:
