@@ -66,6 +66,7 @@ public sealed record FactModel(MethodCall Call, string DisplayName, string? File
 /// <param name="Destroy">The Destroy chain, most basic type first.</param>
 /// <param name="Facts">The facts.</param>
 /// <param name="Error">A discovery error, if any.</param>
+/// <param name="Diagnostics">The diagnostics to report for the class.</param>
 public sealed record SpecificationModel(
     string Uid,
     string Namespace,
@@ -77,4 +78,5 @@ public sealed record SpecificationModel(
     EquatableArray<MethodCall> Because,
     EquatableArray<MethodCall> Destroy,
     EquatableArray<FactModel> Facts,
-    string? Error);
+    string? Error,
+    EquatableArray<DiagnosticModel> Diagnostics);

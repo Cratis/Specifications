@@ -17,6 +17,9 @@
         <ProjectReference Include="Probes/ContractProbes.csproj" />
         <ProjectReference Include="../Runner/Runner.csproj" />
         <ProjectReference Include="../Runner.Specs.Probes/Runner.Specs.Probes.csproj" />
-        <ProjectReference Include="../Runner.Generator/Runner.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="../Runner.Generator/Runner.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     </ItemGroup>
 </Project>
