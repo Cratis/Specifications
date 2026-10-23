@@ -4,8 +4,6 @@
 using Cratis.Specifications;
 using Xunit;
 
-#pragma warning disable CRSPEC0008 // The facts mutate state on purpose to prove each one gets a fresh instance.
-
 namespace Consumer.for_Lifecycle;
 
 public class when_opting_out_of_shared_lifecycle : Specification
