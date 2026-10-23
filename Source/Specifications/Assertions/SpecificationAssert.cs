@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using static Cratis.Specifications.AssertionValues;
 
 namespace Cratis.Specifications;
 
@@ -10,20 +11,21 @@ namespace Cratis.Specifications;
 /// Framework-neutral assertions backing the "Should*" extension methods.
 /// </summary>
 /// <remarks>
-/// TUnit assertions are asynchronous, which does not fit the synchronous, one-line "should_" facts.
-/// These assertions are therefore self-contained and throw <see cref="SpecificationAssertionException"/>.
+/// Every package uses these, so the rules and the messages are the same everywhere. A failure is thrown as the exception
+/// <see cref="AssertionFailures"/> creates for the test framework in use. Messages are only built once a check has failed.
 /// </remarks>
 static class SpecificationAssert
 {
-    public static void Fail(string message) => throw new SpecificationAssertionException(message);
+    [DoesNotReturn]
+    public static void Fail(string message) => throw AssertionFailures.Create(message);
 
     [DoesNotReturn]
     public static void FailActualWasNull(string assertion, string expectation) =>
-        throw new SpecificationAssertionException($"{assertion} expected {expectation} but the actual value was null");
+        Fail($"{assertion} expected {expectation} but the actual value was null");
 
-    public static void True(bool condition, string? message = null)
+    public static void True(bool condition)
     {
-        if (!condition) Fail(message ?? $"Expected: True{Environment.NewLine}Actual:   False");
+        if (!condition) Fail($"Expected: True{Environment.NewLine}Actual:   False");
     }
 
     public static void False(bool condition)
@@ -36,7 +38,7 @@ static class SpecificationAssert
         if (actual is not null) Fail($"Expected: null{Environment.NewLine}Actual:   {Format(actual)}");
     }
 
-    public static void NotNull(object? actual)
+    public static void NotNull([NotNull] object? actual)
     {
         if (actual is null) Fail("Expected: not null" + Environment.NewLine + "Actual:   null");
     }
@@ -51,8 +53,6 @@ static class SpecificationAssert
         if (AreEqual(expected, actual)) Fail($"Expected: not {Format(expected)}{Environment.NewLine}Actual:   {Format(actual)}");
     }
 
-    public static void NotStrictEqual<T>(T expected, T actual) => NotEqual(expected, actual);
-
     public static void Same(object? expected, object? actual)
     {
         if (!ReferenceEquals(expected, actual)) Fail($"Expected the same instance as: {Format(expected)}{Environment.NewLine}Actual: {Format(actual)}");
@@ -63,14 +63,34 @@ static class SpecificationAssert
         if (ReferenceEquals(expected, actual)) Fail($"Expected a different instance than: {Format(expected)}");
     }
 
-    public static void Contains<T>(T expected, IEnumerable<T> collection)
+    public static void ContainsOnly<T>(IEnumerable<T>? expected, IEnumerable<T> collection)
     {
-        if (!collection.Any(item => AreEqual(expected, item))) Fail($"Collection does not contain {Format(expected)}{Environment.NewLine}Collection: {Format(collection)}");
+        if (expected is null) Fail($"Expected: null{Environment.NewLine}Actual:   {Format(collection)}");
+        var remaining = new List<T>(collection);
+        var allFound = true;
+        foreach (var item in expected)
+        {
+            var index = IndexOf(remaining, item);
+            if (index < 0)
+            {
+                allFound = false;
+                break;
+            }
+
+            remaining.RemoveAt(index);
+        }
+
+        if (!allFound || remaining.Count > 0) Fail($"Collection '{string.Join(",", collection)}' does not only contain '{string.Join(",", expected)}'");
     }
 
-    public static void Contains<T>(IEnumerable<T> collection, Predicate<T> filter)
+    public static void Contains<T>(T expected, IEnumerable<T> collection)
     {
-        if (!collection.Any(item => filter(item))) Fail($"Collection does not contain any item matching the filter{Environment.NewLine}Collection: {Format(collection)}");
+        if (!AssertionValues.Contains(collection, expected)) Fail($"Collection does not contain {Format(expected)}{Environment.NewLine}Collection: {Format(collection)}");
+    }
+
+    public static void Contains<T>(IEnumerable<T> collection, Func<T, bool> filter)
+    {
+        if (!ContainsMatch(collection, filter)) Fail($"Collection does not contain any item matching the filter{Environment.NewLine}Collection: {Format(collection)}");
     }
 
     public static void Contains<TKey, TValue>(TKey expected, IDictionary<TKey, TValue> actual)
@@ -81,17 +101,18 @@ static class SpecificationAssert
 
     public static void Contains(string expectedSubstring, string? actual, StringComparison comparisonType)
     {
-        if (actual is null || !actual.Contains(expectedSubstring, comparisonType)) Fail($"String does not contain {Format(expectedSubstring)}{Environment.NewLine}String: {Format(actual)}");
+        if (actual is null) FailActualWasNull("ShouldContain", "the actual value to contain the expected item");
+        if (!actual.Contains(expectedSubstring, comparisonType)) Fail($"String does not contain {Format(expectedSubstring)}{Environment.NewLine}String: {Format(actual)}");
     }
 
     public static void DoesNotContain<T>(T expected, IEnumerable<T> collection)
     {
-        if (collection.Any(item => AreEqual(expected, item))) Fail($"Collection contains {Format(expected)}{Environment.NewLine}Collection: {Format(collection)}");
+        if (AssertionValues.Contains(collection, expected)) Fail($"Collection contains {Format(expected)}{Environment.NewLine}Collection: {Format(collection)}");
     }
 
-    public static void DoesNotContain<T>(IEnumerable<T> collection, Predicate<T> filter)
+    public static void DoesNotContain<T>(IEnumerable<T> collection, Func<T, bool> filter)
     {
-        if (collection.Any(item => filter(item))) Fail($"Collection contains an item matching the filter{Environment.NewLine}Collection: {Format(collection)}");
+        if (ContainsMatch(collection, filter)) Fail($"Collection contains an item matching the filter{Environment.NewLine}Collection: {Format(collection)}");
     }
 
     public static void DoesNotContain<TKey, TValue>(TKey expected, IDictionary<TKey, TValue> actual)
@@ -108,33 +129,37 @@ static class SpecificationAssert
 
     public static void Empty(IEnumerable collection)
     {
-        if (collection.Cast<object?>().Any()) Fail($"Expected an empty collection{Environment.NewLine}Actual:   {Format(collection)}");
+        if (CountUpTo(collection, 1) != 0) Fail($"Expected an empty collection{Environment.NewLine}Actual:   {Format(collection)}");
     }
 
     public static void NotEmpty(IEnumerable collection)
     {
-        if (!collection.Cast<object?>().Any()) Fail("Expected a non-empty collection" + Environment.NewLine + "Actual:   []");
+        if (CountUpTo(collection, 1) == 0) Fail("Expected a non-empty collection" + Environment.NewLine + "Actual:   []");
     }
 
     public static void Single(IEnumerable collection)
     {
-        var count = collection.Cast<object?>().Count();
-        if (count != 1) Fail($"Expected a collection with exactly one item{Environment.NewLine}Actual:   {count} items: {Format(collection)}");
+        if (CountUpTo(collection, 2) != 1) Fail($"Expected a collection with exactly one item{Environment.NewLine}Actual:   {Count(collection)} items: {Format(collection)}");
+    }
+
+    public static void Compared(bool holds, IComparable left, string relation, IComparable? right)
+    {
+        if (!holds) Fail($"{left} should be {relation} {right}");
     }
 
     public static void InRange<T>(T actual, T low, T high)
         where T : IComparable
     {
+        if (actual is null) FailActualWasNull("ShouldBeInRange", $"a value in range ({Format(low)} - {Format(high)})");
         if (!IsInRange(actual, low, high)) Fail($"Expected: in range ({Format(low)} - {Format(high)}){Environment.NewLine}Actual:   {Format(actual)}");
     }
 
     public static void NotInRange<T>(T actual, T low, T high)
         where T : IComparable
     {
+        if (actual is null) FailActualWasNull("ShouldNotBeInRange", $"a value not in range ({Format(low)} - {Format(high)})");
         if (IsInRange(actual, low, high)) Fail($"Expected: not in range ({Format(low)} - {Format(high)}){Environment.NewLine}Actual:   {Format(actual)}");
     }
-
-    public static void IsAssignableFrom<T>(object? actual) => IsAssignableFrom(typeof(T), actual);
 
     public static void IsAssignableFrom(Type expected, object? actual)
     {
@@ -149,35 +174,4 @@ static class SpecificationAssert
     static bool IsInRange<T>(T actual, T low, T high)
         where T : IComparable =>
         Comparer<T>.Default.Compare(actual, low) >= 0 && Comparer<T>.Default.Compare(actual, high) <= 0;
-
-    static bool AreEqual<T>(T expected, T actual)
-    {
-        if (expected is string || actual is string) return Equals(expected, actual);
-        if (expected is IEnumerable expectedItems && actual is IEnumerable actualItems) return SequencesEqual(expectedItems, actualItems);
-        return EqualityComparer<T>.Default.Equals(expected, actual);
-    }
-
-    static bool SequencesEqual(IEnumerable expected, IEnumerable actual)
-    {
-        var expectedEnumerator = expected.GetEnumerator();
-        using var expectedDisposable = expectedEnumerator as IDisposable;
-        var actualEnumerator = actual.GetEnumerator();
-        using var actualDisposable = actualEnumerator as IDisposable;
-        while (true)
-        {
-            var expectedHasNext = expectedEnumerator.MoveNext();
-            var actualHasNext = actualEnumerator.MoveNext();
-            if (expectedHasNext != actualHasNext) return false;
-            if (!expectedHasNext) return true;
-            if (!AreEqual<object?>(expectedEnumerator.Current, actualEnumerator.Current)) return false;
-        }
-    }
-
-    static string Format(object? value) => value switch
-    {
-        null => "null",
-        string text => $"\"{text}\"",
-        IEnumerable items => "[" + string.Join(", ", items.Cast<object?>().Select(Format)) + "]",
-        _ => value.ToString() ?? value.GetType().ToString()
-    };
 }

@@ -18,8 +18,8 @@
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
 
-    <!-- The assertion extensions are shared with the xUnit v2 package; the xUnit v3 assertion API is compatible. -->
+    <!-- The assertions live in Cratis.Specifications; the type forwards and the failure factory are shared with the xUnit v2 package. -->
     <ItemGroup>
-        <Compile Include="../XUnit/Should*.cs" Link="%(Filename)%(Extension)" />
+        <Compile Include="../XUnit/TypeForwards.cs;../XUnit/AssertionFailureFactory.cs" Link="%(Filename)%(Extension)" />
     </ItemGroup>
 </Project>

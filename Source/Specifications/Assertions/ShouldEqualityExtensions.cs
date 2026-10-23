@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cratis.Specifications;
 
@@ -14,18 +14,18 @@ public static class ShouldEqualityExtensions
     /// Assert that an object is null.
     /// </summary>
     /// <param name="actual">Actual value.</param>
-    public static void ShouldBeNull(this object actual)
+    public static void ShouldBeNull(this object? actual)
     {
-        Assert.That(actual, Is.Null);
+        SpecificationAssert.Null(actual);
     }
 
     /// <summary>
     /// Assert that an object is not null.
     /// </summary>
     /// <param name="actual">Actual value.</param>
-    public static void ShouldNotBeNull(this object actual)
+    public static void ShouldNotBeNull([NotNull] this object? actual)
     {
-        Assert.That(actual, Is.Not.Null);
+        SpecificationAssert.NotNull(actual);
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ public static class ShouldEqualityExtensions
     /// <param name="actual">Actual value.</param>
     public static void ShouldBeFalse(this bool actual)
     {
-        Assert.That(actual, Is.False);
+        SpecificationAssert.False(actual);
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public static class ShouldEqualityExtensions
     /// <param name="actual">Actual value.</param>
     public static void ShouldBeTrue(this bool actual)
     {
-        Assert.That(actual, Is.True);
+        SpecificationAssert.True(actual);
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public static class ShouldEqualityExtensions
     /// <typeparam name="T">Type of object.</typeparam>
     public static void ShouldEqual<T>(this T actual, T expected)
     {
-        Assert.That(actual, Is.EqualTo(expected));
+        SpecificationAssert.Equal(expected, actual);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public static class ShouldEqualityExtensions
     /// <typeparam name="T">Type of object.</typeparam>
     public static void ShouldNotEqual<T>(this T actual, T expected)
     {
-        Assert.That(actual, Is.Not.EqualTo(expected));
+        SpecificationAssert.NotEqual(expected, actual);
     }
 
     /// <summary>
@@ -73,9 +73,9 @@ public static class ShouldEqualityExtensions
     /// </summary>
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
-    public static void ShouldBeSame(this object actual, object expected)
+    public static void ShouldBeSame(this object? actual, object? expected)
     {
-        Assert.That(actual, Is.SameAs(expected));
+        SpecificationAssert.Same(expected, actual);
     }
 
     /// <summary>
@@ -83,20 +83,20 @@ public static class ShouldEqualityExtensions
     /// </summary>
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
-    public static void ShouldNotBeSame(this object actual, object expected)
+    public static void ShouldNotBeSame(this object? actual, object? expected)
     {
-        Assert.That(actual, Is.Not.SameAs(expected));
+        SpecificationAssert.NotSame(expected, actual);
     }
 
     /// <summary>
-    /// Assert that two objects are not similar - a non strict equal.
+    /// Assert that two objects are not similar - a non strict equal..
     /// </summary>
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Expected value.</param>
     /// <typeparam name="T">Type of object.</typeparam>
     public static void ShouldNotBeSimilar<T>(this T actual, T expected)
     {
-        Assert.That(actual, Is.Not.EqualTo(expected));
+        SpecificationAssert.NotEqual(expected, actual);
     }
 
     /// <summary>
@@ -105,8 +105,8 @@ public static class ShouldEqualityExtensions
     /// <param name="actual">Actual value.</param>
     /// <param name="expected">Callback deciding what is expected.</param>
     /// <typeparam name="T">Type of object.</typeparam>
-    public static void ShouldMatch<T>(this T actual, Predicate<T> expected)
+    public static void ShouldMatch<T>(this T actual, Func<T, bool> expected)
     {
-        Assert.That(expected(actual), Is.True);
+        SpecificationAssert.True(expected(actual));
     }
 }

@@ -1,12 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Xunit;
-
-// Failures keep raising the TrueException (and message) of the former Assert.True(condition, message) calls;
-// the message is only built once the condition is known to have failed.
-#pragma warning disable xUnit2020
-
 namespace Cratis.Specifications;
 
 /// <summary>
@@ -24,7 +18,7 @@ public static class ShouldComparableExtensions
     public static void ShouldBeInRange<T>(this T actual, T low, T high)
         where T : IComparable
     {
-        Assert.InRange(actual, low, high);
+        SpecificationAssert.InRange(actual, low, high);
     }
 
     /// <summary>
@@ -37,7 +31,7 @@ public static class ShouldComparableExtensions
     public static void ShouldNotBeInRange<T>(this T actual, T low, T high)
         where T : IComparable
     {
-        Assert.NotInRange(actual, low, high);
+        SpecificationAssert.NotInRange(actual, low, high);
     }
 
     /// <summary>
@@ -45,12 +39,10 @@ public static class ShouldComparableExtensions
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeGreaterThan(this IComparable left, IComparable right)
+    public static void ShouldBeGreaterThan(this IComparable? left, IComparable? right)
     {
-        if (left is null) NullActual.Fail("ShouldBeGreaterThan", "a value greater than the other value");
-        if (left.CompareTo(right) > 0) return;
-
-        Assert.True(false, $"{left} should be greater than {right}");
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeGreaterThan", "a value greater than the other value");
+        SpecificationAssert.Compared(left.CompareTo(right) > 0, left, "greater than", right);
     }
 
     /// <summary>
@@ -58,12 +50,10 @@ public static class ShouldComparableExtensions
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeGreaterThanOrEqual(this IComparable left, IComparable right)
+    public static void ShouldBeGreaterThanOrEqual(this IComparable? left, IComparable? right)
     {
-        if (left is null) NullActual.Fail("ShouldBeGreaterThanOrEqual", "a value greater than or equal to the other value");
-        if (left.CompareTo(right) >= 0) return;
-
-        Assert.True(false, $"{left} should be greater than or equal to {right}");
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeGreaterThanOrEqual", "a value greater than or equal to the other value");
+        SpecificationAssert.Compared(left.CompareTo(right) >= 0, left, "greater than or equal to", right);
     }
 
     /// <summary>
@@ -71,12 +61,10 @@ public static class ShouldComparableExtensions
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeLessThan(this IComparable left, IComparable right)
+    public static void ShouldBeLessThan(this IComparable? left, IComparable? right)
     {
-        if (left is null) NullActual.Fail("ShouldBeLessThan", "a value less than the other value");
-        if (left.CompareTo(right) < 0) return;
-
-        Assert.True(false, $"{left} should be less than {right}");
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeLessThan", "a value less than the other value");
+        SpecificationAssert.Compared(left.CompareTo(right) < 0, left, "less than", right);
     }
 
     /// <summary>
@@ -84,11 +72,9 @@ public static class ShouldComparableExtensions
     /// </summary>
     /// <param name="left">Left value.</param>
     /// <param name="right">Right value.</param>
-    public static void ShouldBeLessThanOrEqual(this IComparable left, IComparable right)
+    public static void ShouldBeLessThanOrEqual(this IComparable? left, IComparable? right)
     {
-        if (left is null) NullActual.Fail("ShouldBeLessThanOrEqual", "a value less than or equal to the other value");
-        if (left.CompareTo(right) <= 0) return;
-
-        Assert.True(false, $"{left} should be less than or equal to {right}");
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeLessThanOrEqual", "a value less than or equal to the other value");
+        SpecificationAssert.Compared(left.CompareTo(right) <= 0, left, "less than or equal to", right);
     }
 }
