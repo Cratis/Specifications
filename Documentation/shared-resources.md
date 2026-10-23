@@ -48,6 +48,18 @@ public class when_reading_an_order : Specification
 
 ## Give each specification its own lease
 
+Leasing needs the test project to opt in, so a project that does not lease pays nothing for it:
+
+```xml
+<PropertyGroup>
+    <CratisSpecificationsSharedResources>true</CratisSpecificationsSharedResources>
+</PropertyGroup>
+```
+
+The property compiles a small module initializer into the test project. It makes the specifications of that project
+release their leases after `Destroy`. Without it, `Lease` throws an `InvalidOperationException` that names the
+property, before anything is created or started. `Get` and `Borrow` work without it.
+
 Implement `ISpecificationResource<TLease>` to hand each specification an isolated part of the shared resource, for
 example a fresh database on a shared server:
 

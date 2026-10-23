@@ -3,6 +3,8 @@
         <OutputType>Exe</OutputType>
         <!-- The shared resources API is experimental; consumers opt in by suppressing its diagnostic. -->
         <NoWarn>$(NoWarn);CRSPECEXP01</NoWarn>
+        <!-- Leases are released after Destroy by an observer this property registers. -->
+        <CratisSpecificationsSharedResources>true</CratisSpecificationsSharedResources>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Cratis.Specifications.XUnit.v3" Version="0.0.0-ci" />
