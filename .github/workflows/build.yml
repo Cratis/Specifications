@@ -15,6 +15,7 @@ on:
       - "main"
     paths:
       - "Source/**"
+      - "Integration/Consumers/**"
       - "Directory.Build.props"
       - "Directory.Packages.props"
       - "global.json"
@@ -23,6 +24,7 @@ on:
       - "**"
     paths:
       - "Source/**"
+      - "Integration/Consumers/**"
       - "Directory.Build.props"
       - "Directory.Packages.props"
       - "global.json"
@@ -73,3 +75,20 @@ jobs:
           dotnet test Source/XUnit.v3.DefaultBehavior.Specs/XUnit.v3.DefaultBehavior.Specs.csproj --configuration Release --no-build
           dotnet test Source/NUnit.Specs/NUnit.Specs.csproj --configuration Release --no-build
           dotnet test Source/NUnit5.Specs/NUnit5.Specs.csproj --configuration Release --no-build
+
+      - name: Test packed package consumers
+        run: |
+          set -euo pipefail
+          dotnet pack Specifications.sln -c Release --no-build -o artifacts/packages -p:Version=0.0.0-ci
+          dotnet build Integration/Consumers/XUnit/Consumer.XUnit.csproj --configuration Release
+          dotnet test Integration/Consumers/XUnit/Consumer.XUnit.csproj --configuration Release --no-build
+          dotnet build Integration/Consumers/XUnit.v3/XUnit.v3.csproj --configuration Release
+          dotnet test Integration/Consumers/XUnit.v3/XUnit.v3.csproj --configuration Release --no-build
+          dotnet build Integration/Consumers/NUnit/Consumer.NUnit.csproj --configuration Release
+          dotnet test Integration/Consumers/NUnit/Consumer.NUnit.csproj --configuration Release --no-build
+          dotnet build Integration/Consumers/NUnit5/NUnit5.csproj --configuration Release
+          dotnet test Integration/Consumers/NUnit5/NUnit5.csproj --configuration Release --no-build
+          dotnet build Integration/Consumers/TUnit/Consumer.TUnit.csproj --configuration Release
+          dotnet run --project Integration/Consumers/TUnit/Consumer.TUnit.csproj --configuration Release --no-build
+          dotnet build Integration/Consumers/Runner/Runner.csproj --configuration Release
+          dotnet run --project Integration/Consumers/Runner/Runner.csproj --configuration Release --no-build

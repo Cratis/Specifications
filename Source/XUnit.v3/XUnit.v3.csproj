@@ -3,6 +3,8 @@
         <AssemblyName>Cratis.Specifications.XUnit.v3</AssemblyName>
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
+        <EnablePackageValidation>true</EnablePackageValidation>
+        <PackageValidationBaselineVersion>4.3.0</PackageValidationBaselineVersion>
         <Description>Specification by Example (BDD) for .NET with xUnit v3 - Given/When/Then specifications in the style of Machine.Specifications, running on the xUnit v3 test framework.</Description>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -13,7 +15,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../Specifications/Specifications.csproj" />
+        <!-- Flow Cratis.Specifications buildTransitive (opt-in properties such as CratisSpecificationsReadableNames) to consumers of this package. -->
+        <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
 
     <!-- The assertion extensions are shared with the xUnit v2 package; the xUnit v3 assertion API is compatible. -->

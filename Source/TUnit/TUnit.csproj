@@ -3,6 +3,8 @@
         <AssemblyName>Cratis.Specifications.TUnit</AssemblyName>
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
+        <EnablePackageValidation>true</EnablePackageValidation>
+        <PackageValidationBaselineVersion>4.3.0</PackageValidationBaselineVersion>
         <Description>Specification by Example (BDD) for .NET with TUnit - Given/When/Then specifications in the style of Machine.Specifications, running on the TUnit test framework.</Description>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -16,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../Specifications/Specifications.csproj" />
+        <!-- Flow Cratis.Specifications buildTransitive (opt-in properties such as CratisSpecificationsReadableNames) to consumers of this package. -->
+        <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
 </Project>

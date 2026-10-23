@@ -18,6 +18,9 @@
         </MSBuild>
         <ItemGroup>
             <None Include="@(_CratisAnalyzerAssembly)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+            <!-- Explicitly include build assets at pack time: the multi-targeting outer build has no default None items. -->
+            <None Remove="buildTransitive/**/*" />
+            <None Include="buildTransitive/**/*" Pack="true" PackagePath="buildTransitive/%(RecursiveDir)" Visible="false" />
         </ItemGroup>
     </Target>
 </Project>
