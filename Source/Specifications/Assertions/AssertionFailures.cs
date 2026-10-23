@@ -21,7 +21,28 @@ static class AssertionFailures
     /// </summary>
     /// <param name="message">The message describing the failed assertion.</param>
     /// <returns>The exception to throw.</returns>
-    public static Exception Create(string message) => (_factory ??= Resolve()).Create(message);
+    public static Exception Create(string message) =>
+        AssertionValues.TryExtractExpectedActual(message, out var expected, out var actual)
+            ? Create(message, expected, actual)
+            : (_factory ??= Resolve()).Create(message);
+
+    /// <summary>
+    /// Creates the exception describing a failed assertion that compared an expected and an actual value.
+    /// </summary>
+    /// <param name="message">The message describing the failed assertion.</param>
+    /// <param name="expected">The formatted expected value.</param>
+    /// <param name="actual">The formatted actual value.</param>
+    /// <returns>The exception to throw.</returns>
+    /// <remarks>
+    /// Only the failure of the native runner and TUnit carries the values; xUnit and NUnit keep their own exception types and the formatted message.
+    /// </remarks>
+    public static Exception Create(string message, string? expected, string? actual)
+    {
+        var factory = _factory ??= Resolve();
+        return factory is SpecificationAssertionFailureFactory
+            ? new SpecificationAssertionException(message, expected, actual)
+            : factory.Create(message);
+    }
 
     static IAssertionFailureFactory Resolve()
     {
