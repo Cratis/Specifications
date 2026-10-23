@@ -47,7 +47,11 @@ namespace Cratis.Specifications;
 [ClassConstructor<SpecificationClassConstructor>]
 public class Specification
 {
+#if NET9_0_OR_GREATER
+    readonly Lock _lock = new();
+#else
     readonly object _lock = new();
+#endif
     Task? _initialization;
 
     /// <summary>

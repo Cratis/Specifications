@@ -3,7 +3,9 @@
 
 namespace Cratis.Specifications.for_Specification;
 
+#if !NUNIT5
 [Order(1)]
+#endif
 public class when_running_a_fixture_with_lifecycle_methods : given.a_context_logging_its_lifecycle
 {
     void Establish() => Calls.Add("derived.Establish");
