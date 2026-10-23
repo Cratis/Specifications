@@ -11,7 +11,8 @@ namespace Cratis.Specifications.Runner;
 /// <param name="SkipReason">The reason the fact was skipped, if it was skipped.</param>
 /// <param name="Started">When the fact started.</param>
 /// <param name="Duration">How long the fact itself took; the shared context is not included.</param>
-internal readonly record struct FactResult(FactOutcome Outcome, Exception? Exception, string? SkipReason, DateTimeOffset Started, TimeSpan Duration)
+/// <param name="Steps">The timed phases of the class the fact ran in, when phase timings are on.</param>
+internal readonly record struct FactResult(FactOutcome Outcome, Exception? Exception, string? SkipReason, DateTimeOffset Started, TimeSpan Duration, IReadOnlyList<PhaseRecord>? Steps = null)
 {
     /// <summary>
     /// Creates a passed result.

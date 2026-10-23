@@ -17,4 +17,8 @@
         <!-- Flow Cratis.Specifications buildTransitive (opt-in properties such as CratisSpecificationsReadableNames) to consumers of this package. -->
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.Specifications.XUnit.Specs" />
+    </ItemGroup>
 </Project>

@@ -20,4 +20,8 @@
         <!-- The session hook under buildTransitive compiles into consumers, not into this package. -->
         <Compile Remove="buildTransitive/**" />
     </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.Specifications.NUnit.Specs" />
+    </ItemGroup>
 </Project>

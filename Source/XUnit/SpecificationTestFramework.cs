@@ -34,5 +34,8 @@ public class SpecificationTestFramework(IMessageSink messageSink) : XunitTestFra
 
     /// <inheritdoc/>
     protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)
-        => new SpecificationTestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);
+    {
+        PhaseTimingOutput.UseDiagnosticSink(DiagnosticMessageSink);
+        return new SpecificationTestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);
+    }
 }

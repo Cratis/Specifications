@@ -37,7 +37,7 @@ internal sealed class TestNodeFactory(string assemblyFullName, TrxCapability trx
     /// <returns>The node.</returns>
     public TestNode Create(SpecificationClassDescriptor specification, FactDescriptor fact, FactResult result)
     {
-        var timing = new TimingProperty(new TimingInfo(result.Started, result.Started + result.Duration, result.Duration));
+        var timing = Timing(result);
         var shared = SharedProperties(specification, fact);
         var properties = result.Outcome switch
         {
@@ -52,6 +52,24 @@ internal sealed class TestNodeFactory(string assemblyFullName, TrxCapability trx
             DisplayName = fact.DisplayName,
             Properties = new PropertyBag(properties)
         };
+    }
+
+    static TimingProperty Timing(FactResult result)
+    {
+        var info = new TimingInfo(result.Started, result.Started + result.Duration, result.Duration);
+        return result.Steps is null ? new TimingProperty(info) : new TimingProperty(info, Steps(result.Steps));
+    }
+
+    static StepTimingInfo[] Steps(IReadOnlyList<PhaseRecord> phases)
+    {
+        var steps = new StepTimingInfo[phases.Count];
+        for (var index = 0; index < phases.Count; index++)
+        {
+            var phase = phases[index];
+            steps[index] = new StepTimingInfo(phase.Phase.ToString(), phase.Phase.ToString(), new TimingInfo(phase.StartedUtc, phase.StartedUtc + phase.Duration, phase.Duration));
+        }
+
+        return steps;
     }
 
     IProperty[] Failed(Exception exception, TimingProperty timing, IProperty[] shared, string className)
