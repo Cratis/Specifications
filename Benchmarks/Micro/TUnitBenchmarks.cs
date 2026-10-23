@@ -23,7 +23,7 @@ public class TUnitBenchmarks
         _initialized.InitializeAsync().GetAwaiter().GetResult();
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public async Task<object?> CreateRelease()
     {
         await _constructor.Create(typeof(Context), null!);

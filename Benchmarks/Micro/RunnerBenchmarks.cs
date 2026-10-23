@@ -30,7 +30,7 @@ public class RunnerBenchmarks
         })];
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public ValueTask GeneratedCall() { _instance.Fact(); return default; }
 
     [Benchmark]
