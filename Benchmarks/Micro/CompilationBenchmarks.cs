@@ -47,7 +47,7 @@ public class CompilationBenchmarks
         }
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public GeneratorDriverRunResult GenerateCold()
     {
         GeneratorDriver driver = CSharpGeneratorDriver.Create(new SpecificationGenerator());
