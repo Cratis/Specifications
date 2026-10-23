@@ -31,4 +31,7 @@
     <ItemGroup Condition="'$(CratisSpecificationsSlowPhaseThreshold)' != ''">
         <AssemblyMetadata Include="CratisSpecificationsSlowPhaseThreshold" Value="$(CratisSpecificationsSlowPhaseThreshold)" />
     </ItemGroup>
+    <ItemGroup Condition="'$(CratisSpecificationsPhaseTimingsFile)' != ''">
+        <AssemblyMetadata Include="CratisSpecificationsPhaseTimingsFile" Value="$(CratisSpecificationsPhaseTimingsFile)" />
+    </ItemGroup>
 </Project>
