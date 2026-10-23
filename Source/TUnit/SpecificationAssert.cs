@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cratis.Specifications;
 
@@ -15,6 +16,10 @@ namespace Cratis.Specifications;
 static class SpecificationAssert
 {
     public static void Fail(string message) => throw new SpecificationAssertionException(message);
+
+    [DoesNotReturn]
+    public static void FailActualWasNull(string assertion, string expectation) =>
+        throw new SpecificationAssertionException($"{assertion} expected {expectation} but the actual value was null");
 
     public static void True(bool condition, string? message = null)
     {
@@ -97,7 +102,8 @@ static class SpecificationAssert
 
     public static void DoesNotContain(string expectedSubstring, string? actual, StringComparison comparisonType)
     {
-        if (actual is not null && actual.Contains(expectedSubstring, comparisonType)) Fail($"String contains {Format(expectedSubstring)}{Environment.NewLine}String: {Format(actual)}");
+        if (actual is null) FailActualWasNull("ShouldNotContain", "the actual value not to contain the specified item");
+        if (actual.Contains(expectedSubstring, comparisonType)) Fail($"String contains {Format(expectedSubstring)}{Environment.NewLine}String: {Format(actual)}");
     }
 
     public static void Empty(IEnumerable collection)

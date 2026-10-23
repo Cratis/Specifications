@@ -19,6 +19,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContainOnly<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContainOnly", "a collection containing only the expected items");
         Assert.That(collection, Is.EquivalentTo(expected));
     }
 
@@ -30,6 +31,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContainOnly<T>(this IEnumerable<T> collection, params T[] expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContainOnly", "a collection containing only the expected items");
         Assert.That(collection, Is.EquivalentTo(expected));
     }
 
@@ -69,6 +71,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.That(expected.Except(collection), Is.Empty);
     }
 
@@ -80,6 +83,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, params T[] expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.That(expected.Except(collection), Is.Empty);
     }
 
@@ -92,6 +96,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="TValue">Type of value.</typeparam>
     public static void ShouldContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
     {
+        if (actual is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.That(actual, Contains.Key(expected!));
     }
 
@@ -104,6 +109,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="TValue">Type of value.</typeparam>
     public static void ShouldNotContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
     {
+        if (actual is null) NullActual.Fail("ShouldNotContain", "the actual value not to contain the specified item");
         Assert.That(actual.Keys, Has.No.Member(expected));
     }
 
@@ -115,6 +121,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
+        if (collection is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         // NUnit 5 declares the predicate as Predicate<T?>; the null-forgiving operator is needed there but redundant on NUnit 4.
 #pragma warning disable IDE0370
         Assert.That(collection, Has.Some.Matches<T>(item => filter(item!)));
@@ -129,6 +136,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContainSingleMatching<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
+        if (collection is null) NullActual.Fail("ShouldContainSingleMatching", "exactly one item matching the filter");
         Assert.That(collection.Where(i => filter(i)), Has.One.Items);
     }
 
@@ -140,6 +148,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldNotContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
+        if (collection is null) NullActual.Fail("ShouldNotContain", "the actual value not to contain the specified item");
         // For some reason, this does not work: Assert.That(collection, Has.No.Matches(filter));
         Assert.That(collection.Any(t => filter(t)), Is.False);
     }
@@ -152,6 +161,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, T expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.That(collection, Contains.Item(expected));
     }
 
@@ -163,6 +173,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldNotContain<T>(this IEnumerable<T> collection, T expected)
     {
+        if (collection is null) NullActual.Fail("ShouldNotContain", "the actual value not to contain the specified item");
         Assert.That(collection, Has.No.Member(expected));
     }
 
@@ -174,6 +185,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEachConformTo<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
+        if (collection is null) NullActual.Fail("ShouldEachConformTo", "every item to conform to the filter");
         // NUnit 5 declares the predicate as Predicate<T?>; the null-forgiving operator is needed there but redundant on NUnit 4.
 #pragma warning disable IDE0370
         Assert.That(collection, Has.All.Matches<T>(item => filter(item!)));
@@ -186,6 +198,7 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     public static void ShouldBeEmpty(this IEnumerable collection)
     {
+        if (collection is null) NullActual.Fail("ShouldBeEmpty", "an empty collection");
         Assert.That(collection, Is.Empty);
     }
 
@@ -195,6 +208,7 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     public static void ShouldNotBeEmpty(this IEnumerable collection)
     {
+        if (collection is null) NullActual.Fail("ShouldNotBeEmpty", "a non-empty collection");
         Assert.That(collection, Is.Not.Empty);
     }
 
@@ -204,6 +218,53 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     public static void ShouldContainSingleItem(this IEnumerable collection)
     {
+        if (collection is null) NullActual.Fail("ShouldContainSingleItem", "a collection with a single item");
         Assert.That(collection, Has.One.Items);
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements in the same sequence. Explicit, framework-independent alternative to <c>ShouldEqual</c>.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInOrder<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
+    {
+        if (collection is null) NullActual.Fail("ShouldEqualInOrder", "a collection equal to the expected items");
+        Assert.That(collection, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements in the same sequence - based on params.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInOrder<T>(this IEnumerable<T> collection, params T[] expected)
+    {
+        collection.ShouldEqualInOrder(expected as IEnumerable<T>);
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements, in any order. Duplicates are significant, so every expected element must occur as many times as expected.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInAnyOrder<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
+    {
+        if (collection is null) NullActual.Fail("ShouldEqualInAnyOrder", "a collection equal to the expected items");
+        Assert.That(collection, Is.EquivalentTo(expected));
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements, in any order - based on params.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInAnyOrder<T>(this IEnumerable<T> collection, params T[] expected)
+    {
+        collection.ShouldEqualInAnyOrder(expected as IEnumerable<T>);
     }
 }

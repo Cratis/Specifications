@@ -41,6 +41,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeGreaterThan(this IComparable left, IComparable right)
     {
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeGreaterThan", "a value greater than the other value");
         SpecificationAssert.True(left.CompareTo(right) > 0, $"{left} should be greater than {right}");
     }
 
@@ -51,6 +52,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeGreaterThanOrEqual(this IComparable left, IComparable right)
     {
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeGreaterThanOrEqual", "a value greater than or equal to the other value");
         SpecificationAssert.True(left.CompareTo(right) >= 0, $"{left} should be greater than or equal to {right}");
     }
 
@@ -61,6 +63,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeLessThan(this IComparable left, IComparable right)
     {
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeLessThan", "a value less than the other value");
         SpecificationAssert.True(left.CompareTo(right) < 0, $"{left} should be less than {right}");
     }
 
@@ -71,6 +74,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeLessThanOrEqual(this IComparable left, IComparable right)
     {
+        if (left is null) SpecificationAssert.FailActualWasNull("ShouldBeLessThanOrEqual", "a value less than or equal to the other value");
         SpecificationAssert.True(left.CompareTo(right) <= 0, $"{left} should be less than or equal to {right}");
     }
 }

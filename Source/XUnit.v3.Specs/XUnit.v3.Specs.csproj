@@ -13,6 +13,11 @@
         <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060;xUnit1000;CA1001</NoWarn>
     </PropertyGroup>
 
+    <!-- The framework-free assertion catalog is shared by every package's specs. -->
+    <ItemGroup>
+        <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="../Specifications/Specifications.csproj" />
         <ProjectReference Include="../XUnit.v3/XUnit.v3.csproj" />
@@ -34,5 +39,6 @@
     <ItemGroup>
         <Compile Include="../XUnit.Specs/for_SpecificationTestFramework/*.cs" Link="for_SpecificationTestFramework/%(Filename)%(Extension)" />
         <Compile Include="../XUnit.Specs/for_SpecificationTestClassRunner/probes/*.cs" Link="for_SpecificationTestClassRunner/probes/%(Filename)%(Extension)" />
+        <Compile Include="../XUnit.Specs/for_Should/when_running_the_assertion_catalog.cs" Link="for_Should/%(Filename)%(Extension)" />
     </ItemGroup>
 </Project>

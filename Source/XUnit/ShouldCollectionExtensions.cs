@@ -23,6 +23,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContainOnly<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContainOnly", "a collection containing only the expected items");
         var source = new List<T>(collection);
         var noContain = new List<T>();
 
@@ -62,6 +63,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEqual<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
     {
+        if (collection is null) NullActual.Fail("ShouldEqual", "a collection equal to the expected items");
         if (collection.SequenceEqual(expected)) return;
 
         Assert.True(false, $"Collection '{collection}' is not equal to '{expected}'");
@@ -86,6 +88,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         foreach (var item in expected)
         {
             Assert.Contains(item, collection);
@@ -113,6 +116,7 @@ public static class ShouldCollectionExtensions
     public static void ShouldContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
         where TKey : notnull
     {
+        if (actual is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.Contains(expected, actual);
     }
 
@@ -124,6 +128,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
+        if (collection is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.Contains(collection, filter);
     }
 
@@ -135,6 +140,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, T expected)
     {
+        if (collection is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.Contains(expected, collection);
     }
 
@@ -148,6 +154,7 @@ public static class ShouldCollectionExtensions
     public static void ShouldNotContain<TKey, TValue>(this IDictionary<TKey, TValue> actual, TKey expected)
         where TKey : notnull
     {
+        if (actual is null) NullActual.Fail("ShouldNotContain", "the actual value not to contain the specified item");
         Assert.DoesNotContain(expected, actual);
     }
 
@@ -159,6 +166,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldNotContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
+        if (collection is null) NullActual.Fail("ShouldNotContain", "the actual value not to contain the specified item");
         Assert.DoesNotContain(collection, filter);
     }
 
@@ -170,6 +178,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEachConformTo<T>(this IEnumerable<T> collection, Func<T, bool> expected)
     {
+        if (collection is null) NullActual.Fail("ShouldEachConformTo", "every item to conform to the filter");
         foreach (var item in collection)
         {
             item.ShouldMatch(expected);
@@ -184,6 +193,7 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldNotContain<T>(this IEnumerable<T> collection, T expected)
     {
+        if (collection is null) NullActual.Fail("ShouldNotContain", "the actual value not to contain the specified item");
         Assert.DoesNotContain(expected, collection);
     }
 
@@ -193,6 +203,7 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     public static void ShouldBeEmpty(this IEnumerable collection)
     {
+        if (collection is null) NullActual.Fail("ShouldBeEmpty", "an empty collection");
         Assert.Empty(collection);
     }
 
@@ -202,6 +213,7 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     public static void ShouldNotBeEmpty(this IEnumerable collection)
     {
+        if (collection is null) NullActual.Fail("ShouldNotBeEmpty", "a non-empty collection");
         Assert.NotEmpty(collection);
     }
 
@@ -211,6 +223,76 @@ public static class ShouldCollectionExtensions
     /// <param name="collection">Collection to assert.</param>
     public static void ShouldContainSingleItem(this IEnumerable collection)
     {
+        if (collection is null) NullActual.Fail("ShouldContainSingleItem", "a collection with a single item");
         Assert.Single(collection);
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements in the same sequence. Explicit, framework-independent alternative to <c>ShouldEqual</c>.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInOrder<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
+    {
+        if (collection is null) NullActual.Fail("ShouldEqualInOrder", "a collection equal to the expected items");
+        if (expected is null) Assert.Fail("ShouldEqualInOrder expected a collection equal to the expected items but the expected value was null");
+        if (collection.SequenceEqual(expected)) return;
+
+        Assert.True(false, $"Collection '{collection}' is not equal to '{expected}'");
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements in the same sequence - based on params.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInOrder<T>(this IEnumerable<T> collection, params T[] expected)
+    {
+        collection.ShouldEqualInOrder(expected as IEnumerable<T>);
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements, in any order. Duplicates are significant, so every expected element must occur as many times as expected.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInAnyOrder<T>(this IEnumerable<T> collection, IEnumerable<T> expected)
+    {
+        collection.ShouldContainOnly(expected);
+    }
+
+    /// <summary>
+    /// Assert that a collection contains exactly the expected elements, in any order - based on params.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="expected">Expected values.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldEqualInAnyOrder<T>(this IEnumerable<T> collection, params T[] expected)
+    {
+        collection.ShouldEqualInAnyOrder(expected as IEnumerable<T>);
+    }
+
+    /// <summary>
+    /// Assert that a collection contains ONE specific element based on a predicate filter.
+    /// </summary>
+    /// <param name="collection">Collection to assert.</param>
+    /// <param name="filter">Filter to apply.</param>
+    /// <typeparam name="T">Type of element.</typeparam>
+    public static void ShouldContainSingleMatching<T>(this IEnumerable<T> collection, Predicate<T> filter)
+    {
+        if (collection is null) NullActual.Fail("ShouldContainSingleMatching", "exactly one item matching the filter");
+        var matches = 0;
+        foreach (var item in collection)
+        {
+            if (filter(item)) matches++;
+        }
+
+        if (matches != 1)
+        {
+            Assert.Fail($"Expected exactly one item matching the filter but found {matches}");
+        }
     }
 }

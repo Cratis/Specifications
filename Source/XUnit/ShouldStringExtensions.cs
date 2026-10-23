@@ -18,6 +18,7 @@ public static class ShouldStringExtensions
     /// <param name="comparisonType">Optional <see cref="StringComparison">comparison type</see>.</param>
     public static void ShouldContain(this string actual, string expectedSubstring, StringComparison comparisonType = StringComparison.CurrentCulture)
     {
+        if (actual is null) NullActual.Fail("ShouldContain", "the actual value to contain the expected item");
         Assert.Contains(expectedSubstring, actual, comparisonType);
     }
 
@@ -29,6 +30,7 @@ public static class ShouldStringExtensions
     /// <param name="comparisonType">Optional <see cref="StringComparison">comparison type</see>.</param>
     public static void ShouldNotContain(this string actual, string expectedSubstring, StringComparison comparisonType = StringComparison.CurrentCulture)
     {
+        if (actual is null) NullActual.Fail("ShouldNotContain", "the actual value not to contain the specified item");
         Assert.DoesNotContain(expectedSubstring, actual, comparisonType);
     }
 }

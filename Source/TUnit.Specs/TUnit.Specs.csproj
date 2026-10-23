@@ -8,6 +8,11 @@
         <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060;CA1001;CA1861;IDE0200</NoWarn>
     </PropertyGroup>
 
+    <!-- The framework-free assertion catalog is shared by every package's specs. -->
+    <ItemGroup>
+        <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="../Specifications/Specifications.csproj" />
         <ProjectReference Include="../TUnit/TUnit.csproj" />
