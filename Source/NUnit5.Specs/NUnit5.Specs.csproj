@@ -13,6 +13,11 @@
     </PropertyGroup>
 
     <!-- The lifecycle probes are shared with the xUnit specs. -->
+    <!-- The framework-free assertion catalog is shared by every package's specs. -->
+    <ItemGroup>
+        <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+    </ItemGroup>
+
     <ItemGroup>
         <Compile Include="../XUnit.Specs/for_SpecificationMethods/probes/*.cs" Link="for_SpecificationMethods/probes/%(Filename)%(Extension)" />
     </ItemGroup>
