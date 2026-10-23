@@ -67,8 +67,11 @@ static class SpecificationAssert
     {
         if (expected is null) Fail($"Expected: null{Environment.NewLine}Actual:   {Format(collection)}");
         var remaining = new List<T>(collection);
+        var expectedItems = ShouldCountedMatch.AsCollection(expected);
+        if (ShouldCountedMatch.Matches(remaining, expectedItems)) return;
+
         var allFound = true;
-        foreach (var item in expected)
+        foreach (var item in expectedItems)
         {
             var index = IndexOf(remaining, item);
             if (index < 0)

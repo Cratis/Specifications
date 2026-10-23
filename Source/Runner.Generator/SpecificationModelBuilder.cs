@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 
 namespace Cratis.Specifications.Runner.Generator;
@@ -16,6 +17,18 @@ public static class SpecificationModelBuilder
     const string FactAttribute = "Cratis.Specifications.FactAttribute";
 
     static readonly SymbolDisplayFormat _qualified = SymbolDisplayFormat.FullyQualifiedFormat;
+    static readonly ConditionalWeakTable<Compilation, object> _runnerReferences = new();
+
+    /// <summary>
+    /// Gets whether a compilation can contain runnable specifications at all, which is when it is or references the runner assembly.
+    /// </summary>
+    /// <param name="compilation">The compilation.</param>
+    /// <returns>True when the runner assembly is part of or referenced by the compilation.</returns>
+    /// <remarks>
+    /// Checked from the assembly identities alone, so a project of another flavor skips every semantic lookup. The answer is cached per compilation.
+    /// </remarks>
+    public static bool ReferencesRunner(Compilation compilation) =>
+        (bool)_runnerReferences.GetValue(compilation, static _ => _.AssemblyName == RunnerAssembly || _.SourceModule.ReferencedAssemblies.Any(identity => identity.Name == RunnerAssembly));
 
     /// <summary>
     /// Builds the model of a class, if it is a runnable specification with at least one fact.

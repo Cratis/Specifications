@@ -24,7 +24,7 @@
         <InternalsVisibleTo Include="Cratis.Specifications.Runner.Specs" />
     </ItemGroup>
 
-    <!-- The source generator is bundled (the shared Source/Directory.Build.targets bundles the CodeAnalysis analyzers) into analyzers/dotnet/cs; the props make a referencing
+    <!-- The source generator is bundled into analyzers/dotnet/cs (the CodeAnalysis analyzers come with the Cratis.Specifications dependency); the props make a referencing
          project an executable Microsoft.Testing.Platform test application with this framework registered. -->
     <ItemGroup>
         <ProjectReference Include="../Runner.Generator/Runner.Generator.csproj"

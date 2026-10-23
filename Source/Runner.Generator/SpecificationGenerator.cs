@@ -20,9 +20,10 @@ public sealed class SpecificationGenerator : IIncrementalGenerator
         var specifications = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => node is ClassDeclarationSyntax { BaseList: not null },
-                static (syntax, _) => syntax.SemanticModel.GetDeclaredSymbol(syntax.Node) is INamedTypeSymbol type
-                    ? SpecificationModelBuilder.Build(type, syntax.SemanticModel.Compilation)
-                    : null)
+                static (syntax, _) => SpecificationModelBuilder.ReferencesRunner(syntax.SemanticModel.Compilation) &&
+                    syntax.SemanticModel.GetDeclaredSymbol(syntax.Node) is INamedTypeSymbol type
+                        ? SpecificationModelBuilder.Build(type, syntax.SemanticModel.Compilation)
+                        : null)
             .Where(static _ => _ is not null)
             .Collect();
 
