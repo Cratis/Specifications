@@ -228,7 +228,8 @@ Additive features that you do not need to adopt:
   container once per test session and give each specification its own lease. Opt in with
   `CratisSpecificationsSharedResources=true`; the API reports `CRSPECEXP01`. A source generator that writes `typeof(...)`
   for every public type of referenced assemblies can trip `CRSPECEXP01` in its generated code even when you do not use
-  the API. Update the generator, or add `CRSPECEXP01` to `NoWarn` in the specification project.
+  the API. Cratis Fundamentals' type discovery handles this from 7.26.1; for other generators, update them or add
+  `CRSPECEXP01` to `NoWarn` in the specification project.
 - [Phase timings](./Documentation/phase-timings.md): see how long `Establish`, `Because` and `Destroy` take, report slow
   phases, and write a JSON timings file.
 - [Runner output and reports](./Documentation/runner-output.md): a console tree and Markdown, JSON and GitHub summary
