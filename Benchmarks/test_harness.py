@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
-from generate import NO_RAW, SOURCES, arguments, generate, project, runner_project, suite
+from generate import NO_RAW, SOURCES, arguments, generate, project, runner_project, suite, with_nunit_parallelism
 from measurement import counts, measure, runner
 from report import aot_columns, render
 from run import prepare_project, publish_aot, rotated_order, run_interleaved
@@ -31,6 +31,22 @@ class HarnessTests(unittest.TestCase):
                     self.assertIn("_description = _description.Trim();", source)
                     self.assertEqual(not raw, "ShouldEqual" in source)
                     self.assertEqual(not raw, "Cratis.Specifications" in source)
+
+    def test_nunit_fixture_parallelism_is_explicit_and_nunit_only(self):
+        attribute = "[assembly: NUnit.Framework.Parallelizable(NUnit.Framework.ParallelScope.Fixtures)]"
+        for flavor in SOURCES:
+            for raw in (False,) if flavor in NO_RAW else (False, True):
+                with self.subTest(flavor=flavor, raw=raw):
+                    plain = suite(flavor, raw, 5, 2)
+                    self.assertEqual(plain, with_nunit_parallelism(flavor, plain, "none"))
+                    source = with_nunit_parallelism(flavor, plain, "fixtures")
+                    self.assertEqual(flavor.startswith("nunit"), attribute in source)
+                    if flavor.startswith("nunit"):
+                        self.assertLess(source.index(attribute), source.index("namespace BenchmarkSuite;"))
+        self.assertEqual("none", arguments().parse_args([]).nunit_parallel)
+        self.assertEqual("fixtures", arguments().parse_args(["--nunit-parallel", "fixtures"]).nunit_parallel)
+        with patch.dict("os.environ", {"NUNIT_PARALLEL": "fixtures"}):
+            self.assertEqual("fixtures", arguments().parse_args([]).nunit_parallel)
 
     def test_projects_are_single_tfm_non_packable_and_raw_is_independent(self):
         for flavor in SOURCES:
