@@ -4,6 +4,7 @@
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
         <EnablePackageValidation>true</EnablePackageValidation>
+        <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
         <Nullable>enable</Nullable>
         <!-- Ships inside the AOT native runner, so it must stay trim and AOT analyzable. -->
         <IsAotCompatible>true</IsAotCompatible>

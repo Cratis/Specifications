@@ -3,6 +3,8 @@
         <AssemblyName>Cratis.Specifications.Runner</AssemblyName>
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
+        <EnablePackageValidation>true</EnablePackageValidation>
+        <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
         <Description>Experimental: Specification by Example (BDD) for .NET with a native runner on Microsoft.Testing.Platform - Given/When/Then specifications with one shared context per specification class, source generated discovery and no runtime reflection.</Description>
         <Nullable>enable</Nullable>
         <IsAotCompatible>true</IsAotCompatible>

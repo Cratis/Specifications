@@ -4,6 +4,7 @@
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
         <EnablePackageValidation>true</EnablePackageValidation>
+        <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
         <Description>Specification by Example (BDD) for .NET with xUnit - Given/When/Then specifications in the style of Machine.Specifications, running on the xUnit test framework.</Description>
         <Nullable>enable</Nullable>
     </PropertyGroup>

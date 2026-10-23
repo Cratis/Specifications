@@ -183,6 +183,11 @@ The public API is annotated for nullable reference types: receivers are `object?
 carry nullable return types. Most projects see fewer warnings. If your build treats warnings as errors, a few new
 ones are possible where a value was assumed to be non-null.
 
+The NUnit 4 and NUnit 5 dictionary assertions `ShouldContain<TKey, TValue>(IDictionary<TKey, TValue>, TKey)` and
+`ShouldNotContain<TKey, TValue>(IDictionary<TKey, TValue>, TKey)` now require `where TKey : notnull`, matching the
+shared assertion implementation. Use non-nullable dictionary key types; generic helpers calling these assertions
+must also constrain `TKey` with `where TKey : notnull`.
+
 ## Native runner
 
 If you use `Cratis.Specifications.Runner`:
