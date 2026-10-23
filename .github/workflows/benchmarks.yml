@@ -1,0 +1,61 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      N:
+        description: Specification classes per suite
+        default: '500'
+        required: true
+        type: string
+      F:
+        description: Facts per class
+        default: '5'
+        required: true
+        type: string
+      R:
+        description: Measured repetitions (plus one warm-up)
+        default: '5'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Check harness
+        run: python3 -m unittest discover -s Benchmarks -p 'test_*.py' -v
+      - name: Benchmark default and disabled parallelism
+        env:
+          N: ${{ inputs.N }}
+          F: ${{ inputs.F }}
+          R: ${{ inputs.R }}
+        run: Benchmarks/run.sh
+      - name: Write summary
+        if: always()
+        shell: bash
+        run: |
+          shopt -s nullglob
+          reports=(Benchmarks/results/*.md)
+          if (( ${#reports[@]} == 0 )); then
+            echo 'Benchmark did not produce a report.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          cat "${reports[@]}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload measurements and runner logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: specifications-benchmarks
+          path: Benchmarks/results/
+          if-no-files-found: error

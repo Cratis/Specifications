@@ -54,7 +54,7 @@ public class ShouldMethodMustBeTestMethodAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (SpecificationFacts.IsTestMethod(method))
+        if (SpecificationFacts.IsTestMethod(method) || SpecificationFacts.IsRunnerSpecification(method.ContainingType))
         {
             return;
         }

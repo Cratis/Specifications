@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.Runner</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <Description>Experimental: Specification by Example (BDD) for .NET with a native runner on Microsoft.Testing.Platform - Given/When/Then specifications with one shared context per specification class, source generated discovery and no runtime reflection.</Description>
+        <Nullable>enable</Nullable>
+        <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Testing.Platform" />
+        <PackageReference Include="Microsoft.Testing.Platform.MSBuild" />
+        <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
+        <PackageReference Include="Microsoft.Testing.Extensions.TrxReport.Abstractions" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+    </ItemGroup>
+
+    <!-- The Should* assertions are framework-neutral (they throw SpecificationAssertionException) and are shared
+         with the TUnit package by linking, until the assertions get a package of their own. -->
+    <ItemGroup>
+        <Compile Include="../TUnit/Should*.cs" Link="Assertions/%(Filename)%(Extension)" />
+        <Compile Include="../TUnit/SpecificationAssert.cs" Link="Assertions/SpecificationAssert.cs" />
+        <Compile Include="../TUnit/SpecificationAssertionException.cs" Link="Assertions/SpecificationAssertionException.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.Specifications.Runner.Specs" />
+    </ItemGroup>
+
+    <!-- The source generator is bundled (the shared Source/Directory.Build.targets bundles the CodeAnalysis analyzers) into analyzers/dotnet/cs; the props make a referencing
+         project an executable Microsoft.Testing.Platform test application with this framework registered. -->
+    <ItemGroup>
+        <ProjectReference Include="../Runner.Generator/Runner.Generator.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../Runner.Generator/bin/$(Configuration)/netstandard2.0/Cratis.Specifications.Runner.Generator.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="build/Cratis.Specifications.Runner.props" Pack="true" PackagePath="build" />
+        <None Include="buildTransitive/Cratis.Specifications.Runner.props" Pack="true" PackagePath="buildTransitive" />
+    </ItemGroup>
+</Project>

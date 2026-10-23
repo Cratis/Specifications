@@ -1,0 +1,19 @@
+<Project>
+    <!-- Makes the referencing project an executable Microsoft.Testing.Platform test application and registers
+         the Cratis specification runner in the generated entry point. -->
+    <PropertyGroup>
+        <IsTestProject Condition="'$(IsTestProject)' == ''">true</IsTestProject>
+        <IsTestingPlatformApplication>true</IsTestingPlatformApplication>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+        <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
+        <OutputType>Exe</OutputType>
+        <GenerateProgramFile>false</GenerateProgramFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <TestingPlatformBuilderHook Include="4F1D2C87-9A0B-4E5C-8D1F-C5A7B3E2D901">
+            <DisplayName>Cratis Specifications</DisplayName>
+            <TypeFullName>Cratis.Specifications.Runner.TestingPlatformBuilderHook</TypeFullName>
+        </TestingPlatformBuilderHook>
+    </ItemGroup>
+</Project>

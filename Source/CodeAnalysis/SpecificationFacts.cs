@@ -18,6 +18,7 @@ public static class SpecificationFacts
     /// </summary>
     public const string SpecificationBaseTypeName = "Cratis.Specifications.Specification";
 
+    const string RunnerAssemblyName = "Cratis.Specifications.Runner";
     const string SpecificationTypeName = "Specification";
     const string SpecificationsNamespaceName = "Specifications";
     const string CratisNamespaceName = "Cratis";
@@ -65,6 +66,25 @@ public static class SpecificationFacts
             if (IsSpecificationBaseType(current))
             {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Determines whether the given type is a specification of the Cratis specification runner, which discovers
+    /// facts by convention (no test attribute) and accepts specifications of any accessibility.
+    /// </summary>
+    /// <param name="type">The type to inspect.</param>
+    /// <returns>True if the type derives from the specification base type of the runner assembly.</returns>
+    public static bool IsRunnerSpecification(INamedTypeSymbol? type)
+    {
+        for (var current = type?.BaseType; current is not null; current = current.BaseType)
+        {
+            if (IsSpecificationBaseType(current))
+            {
+                return current.ContainingAssembly?.Name == RunnerAssemblyName;
             }
         }
 
