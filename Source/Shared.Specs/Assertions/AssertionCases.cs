@@ -36,6 +36,28 @@ public static class AssertionCases
     static readonly UnhashableItem[] _largeUnhashable = [.. Enumerable.Range(0, 20).Select(index => new UnhashableItem(index))];
     static readonly UnhashableItem[] _largeUnhashableReversed = [.. _largeUnhashable.Reverse()];
     static readonly Dictionary<string, int> _dictionary = new() { ["one"] = 1 };
+    static readonly int[][] _nestedCopy = [[1], [2]];
+    static readonly int[][] _nestedReversedCopy = [[2], [1]];
+    static readonly List<List<int>> _nestedLists = [[1, 2], [3]];
+    static readonly List<List<int>> _nestedListsCopy = [[1, 2], [3]];
+    static readonly int[] _firstInnerCopy = [1];
+    static readonly int[] _secondInnerCopy = [2];
+    static readonly HashSet<int> _set = [1, 2, 3];
+    static readonly HashSet<int> _setReversed = [3, 2, 1];
+    static readonly HashSet<int> _setShorter = [1, 2];
+    static readonly HashSet<int> _setDifferent = [1, 3];
+    static readonly HashSet<int> _setSingle = [1];
+    static readonly HashSet<int> _setPairReversed = [2, 1];
+    static readonly EquatableCollection[] _nestedEquatable = [new(1, 1, 2)];
+    static readonly EquatableCollection[] _nestedEquatableSame = [new(1, 2, 1)];
+    static readonly EquatableCollection[] _nestedEquatableDifferent = [new(2, 1, 2)];
+    static readonly Dictionary<string, int>[] _nestedDictionary = [new() { ["one"] = 1, ["two"] = 2 }];
+    static readonly HashSet<int>[] _nestedSet = [_setShorter];
+
+    // Delegates typed as Func, which every predicate-taking assertion accepts.
+    static readonly Func<int, bool> _greaterThanOne = item => item > 1;
+    static readonly Func<int, bool> _greaterThanTwo = item => item > 2;
+    static readonly Func<int, bool> _positive = item => item > 0;
 
     // Null actuals: every assertion must fail with the package's own assertion exception.
     static readonly IEnumerable<int> _noCollection = null;
@@ -74,12 +96,9 @@ public static class AssertionCases
         // Existing equality and contain-only.
         Pass("equal enumerable: same sequence", () => _numbers.ShouldEqual((IEnumerable<int>)[1, 2, 3])),
         Fail("equal enumerable: reversed sequence", () => _numbers.ShouldEqual((IEnumerable<int>)_reversed)),
-#if NUNIT4
-        // The NUnit 4 package has always compared params without regard to order.
-        Pass("equal params: reversed sequence", () => _numbers.ShouldEqual(3, 2, 1)),
-#else
+        // Params are ordered in every package.
+        Pass("equal params: same sequence", () => _numbers.ShouldEqual(1, 2, 3)),
         Fail("equal params: reversed sequence", () => _numbers.ShouldEqual(3, 2, 1)),
-#endif
         Fail("equal params: different items", () => _numbers.ShouldEqual(1, 2, 4)),
         Pass("contain only: reversed sequence", () => _numbers.ShouldContainOnly(3, 2, 1)),
         Fail("contain only: duplicates that differ", () => _duplicated.ShouldContainOnly(1, 2)),
@@ -150,11 +169,120 @@ public static class AssertionCases
         Fail("less than: actual is null", () => _noComparable.ShouldBeLessThan(1)),
         Pass("in range: inside", () => 2.ShouldBeInRange(1, 3)),
         Fail("in range: outside", () => 4.ShouldBeInRange(1, 3)),
+        Fail("in range: actual is null", () => ((string)null).ShouldBeInRange("a", "z")),
+        Fail("not in range: actual is null", () => ((string)null).ShouldNotBeInRange("a", "z")),
+
+        // Nested collections compare deeply, not by reference.
+        Pass("in order: nested collections holding equal copies", () => _nested.ShouldEqualInOrder(_nestedCopy)),
+        Pass("equal: nested collections holding equal copies", () => _nested.ShouldEqual(_nestedCopy)),
+        Pass("equal params: nested collections holding equal copies", () => _nested.ShouldEqual(_firstInnerCopy, _secondInnerCopy)),
+        Fail("equal params: nested collections in a different order", () => _nested.ShouldEqual(_secondInnerCopy, _firstInnerCopy)),
+        Pass("equal: nested lists holding equal copies", () => _nestedLists.ShouldEqual(_nestedListsCopy)),
+        Fail("in order: nested collections in a different order", () => _nested.ShouldEqualInOrder(_nestedReversedCopy)),
+        Pass("any order: nested collections holding equal copies", () => _nested.ShouldEqualInAnyOrder(_nestedReversedCopy)),
+        Pass("contain only: nested collections holding equal copies", () => _nested.ShouldContainOnly(_nestedReversedCopy)),
+        Pass("contain: nested collection holding an equal copy", () => _nested.ShouldContain(_secondInnerCopy)),
+        Fail("not contain: nested collection holding an equal copy", () => _nested.ShouldNotContain(_secondInnerCopy)),
+
+        // Equality precedence and unordered collection kinds, including object-typed nested values.
+        Pass("equal: dictionaries in different insertion order", () => new Dictionary<string, int> { ["one"] = 1, ["two"] = 2 }.ShouldEqual(new Dictionary<string, int> { ["two"] = 2, ["one"] = 1 })),
+        Fail("equal: dictionaries with a different value", () => new Dictionary<string, int> { ["one"] = 1 }.ShouldEqual(new Dictionary<string, int> { ["one"] = 2 })),
+        Fail("equal: dictionaries with a different key", () => new Dictionary<string, int> { ["one"] = 1 }.ShouldEqual(new Dictionary<string, int> { ["two"] = 1 })),
+        Fail("equal: dictionaries with an extra entry", () => new Dictionary<string, int> { ["one"] = 1 }.ShouldEqual(new Dictionary<string, int> { ["one"] = 1, ["two"] = 2 })),
+        Pass("equal: non-generic dictionaries in different order", () => ((object)new System.Collections.Hashtable { ["one"] = 1, ["two"] = 2 }).ShouldEqual(new System.Collections.Specialized.OrderedDictionary { ["two"] = 2, ["one"] = 1 })),
+        Pass("equal: readonly dictionaries compare deeply in any order", () => new ReadOnlyMap([new("one", [1, 2]), new("two", [3])]).ShouldEqual(new ReadOnlyMap([new("two", [3]), new("one", [1, 2])]))),
+        Fail("equal: readonly dictionaries with different nested values", () => new ReadOnlyMap([new("one", [1, 2])]).ShouldEqual(new ReadOnlyMap([new("one", [2, 1])]))),
+        Pass("equal: hash sets in different insertion order", () => _set.ShouldEqual(_setReversed)),
+        Fail("equal: hash sets with different items", () => _setShorter.ShouldEqual(_setDifferent)),
+        Fail("equal: hash sets with an extra item", () => _setSingle.ShouldEqual(_setShorter)),
+        Pass("equal: equatable enumerable ignores element order", () => new EquatableCollection(1, 1, 2).ShouldEqual(new EquatableCollection(1, 2, 1))),
+        Fail("equal: equatable enumerable rejects identical elements", () => new EquatableCollection(1, 1, 2).ShouldEqual(new EquatableCollection(2, 1, 2))),
+        Pass("equal: object-typed equatable enumerable", () => ((object)new EquatableCollection(1, 1, 2)).ShouldEqual(new EquatableCollection(1, 2, 1))),
+        Fail("equal: object-typed equatable enumerable differs", () => ((object)new EquatableCollection(1, 1, 2)).ShouldEqual(new EquatableCollection(2, 1, 2))),
+        Pass("equal: nested equatable enumerable", () => _nestedEquatable.ShouldEqual(_nestedEquatableSame)),
+        Fail("equal: nested equatable enumerable differs", () => _nestedEquatable.ShouldEqual(_nestedEquatableDifferent)),
+        Pass("equal: list override does not reject equal elements", () => new EqualsList(1, 1, 2).ShouldEqual(new EqualsList(2, 1, 2))),
+        Fail("equal: list override does not accept reversed elements", () => new EqualsList(1, 1, 2).ShouldEqual(new EqualsList(1, 2, 1))),
+        Pass("contain: nested dictionaries ignore insertion order", () => _nestedDictionary.ShouldContain(new Dictionary<string, int> { ["two"] = 2, ["one"] = 1 })),
+        Pass("contain: nested sets ignore insertion order", () => _nestedSet.ShouldContain(_setPairReversed)),
+        Fail("not equal: equal dictionaries ignore insertion order", () => new Dictionary<string, int> { ["one"] = 1, ["two"] = 2 }.ShouldNotEqual(new Dictionary<string, int> { ["two"] = 2, ["one"] = 1 })),
+
+        // Null rules.
+        Pass("equal: null expected and null actual", () => _noString.ShouldEqual(null)),
+        Fail("equal: null actual", () => _noString.ShouldEqual("a")),
+        Fail("equal: null expected", () => "a".ShouldEqual(null)),
+        Pass("equal enumerable: null expected and null actual", () => _noCollection.ShouldEqual(_noCollection)),
+        Fail("equal enumerable: actual is null", () => _noCollection.ShouldEqual((IEnumerable<int>)_numbers)),
+        Fail("equal enumerable: expected is null", () => _numbers.ShouldEqual(_noCollection)),
+        Fail("contain only: expected is null", () => _numbers.ShouldContainOnly(_noCollection)),
+        Fail("contain: expected collection is null", () => _numbers.ShouldContain(_noCollection)),
+        Pass("null: actual is null", _noString.ShouldBeNull),
+        Fail("null: actual is not null", "a".ShouldBeNull),
+        Fail("not null: actual is null", _noString.ShouldNotBeNull),
+        Fail("assignable: actual is null", _noString.ShouldBeAssignableFrom<string>),
+        Fail("exact type: actual is null", _noString.ShouldBeOfExactType<string>),
+
+        // Func delegates.
+        Pass("contain: Func matches", () => _numbers.ShouldContain(_greaterThanTwo)),
+        Fail("not contain: Func matches", () => _numbers.ShouldNotContain(_greaterThanTwo)),
+        Pass("single matching: Func matches once", () => _numbers.ShouldContainSingleMatching(_greaterThanTwo)),
+        Fail("single matching: Func matches twice", () => _numbers.ShouldContainSingleMatching(_greaterThanOne)),
+        Pass("each conforms: Func holds for all", () => _numbers.ShouldEachConformTo(_positive)),
+        Fail("each conforms: Func fails for one", () => _numbers.ShouldEachConformTo(_greaterThanOne)),
+        Pass("match: Func holds", () => 2.ShouldMatch(_greaterThanOne)),
+        Fail("match: Func does not hold", () => 1.ShouldMatch(_greaterThanOne)),
     ];
 
     static AssertionCase Pass(string name, Action run) => new(name, run, ExpectedOutcome.Pass);
 
     static AssertionCase Fail(string name, Action run) => new(name, run, ExpectedOutcome.Fail);
+
+    sealed class EquatableCollection(int identity, params int[] items) : IEnumerable<int>, IEquatable<EquatableCollection>
+    {
+        readonly int _identity = identity;
+
+        public bool Equals(EquatableCollection? other) => other is not null && _identity == other._identity;
+
+        public override bool Equals(object? obj) => obj is EquatableCollection other && Equals(other);
+
+        public override int GetHashCode() => _identity;
+
+        public IEnumerator<int> GetEnumerator() => ((IEnumerable<int>)items).GetEnumerator();
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    sealed class EqualsList(int identity, params int[] items) : List<int>(items)
+    {
+        readonly int _identity = identity;
+
+        public override bool Equals(object? obj) => obj is EqualsList other && _identity == other._identity;
+
+        public override int GetHashCode() => _identity;
+    }
+
+    sealed class ReadOnlyMap(KeyValuePair<string, int[]>[] entries) : IReadOnlyDictionary<string, int[]>
+    {
+        public int Count => entries.Length;
+
+        public IEnumerable<string> Keys => entries.Select(entry => entry.Key);
+
+        public IEnumerable<int[]> Values => entries.Select(entry => entry.Value);
+
+        public int[] this[string key] => entries.First(entry => entry.Key == key).Value;
+
+        public bool ContainsKey(string key) => entries.Any(entry => entry.Key == key);
+
+        public bool TryGetValue(string key, out int[] value)
+        {
+            value = entries.FirstOrDefault(entry => entry.Key == key).Value;
+            return value is not null;
+        }
+
+        public IEnumerator<KeyValuePair<string, int[]>> GetEnumerator() => ((IEnumerable<KeyValuePair<string, int[]>>)entries).GetEnumerator();
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     sealed class UnhashableItem(int value)
     {

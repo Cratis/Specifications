@@ -48,12 +48,9 @@ namespace Cratis.Specifications;
 [ClassConstructor<SpecificationClassConstructor>]
 public class Specification
 {
-#if NET9_0_OR_GREATER
     readonly Lock _lock = new();
-#else
-    readonly object _lock = new();
-#endif
     Task? _initialization;
+    SpecificationScope? _scope;
 
     /// <summary>
     /// Establishes the context and performs the action. Runs the lifecycle once, no matter how many facts there are.
@@ -85,15 +82,24 @@ public class Specification
     {
         if (SpecificationClassConstructor.Release(type) is Specification { _initialization: not null } specification)
         {
-            await specification.OnDestroy();
+            try
+            {
+                await specification.OnDestroy();
+            }
+            finally
+            {
+                if (specification._scope is not null) await specification._scope.End();
+            }
         }
     }
 
     async Task EstablishAndPerformAction()
     {
-        await SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
-        await SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
+        _scope = SpecificationScope.CreateIfObserved(this);
+        if (_scope is not null) await _scope.Start();
+        await (_scope?.Establish(typeof(Specification)) ?? SpecificationLifecycle.Establish(this, GetType(), typeof(Specification)));
+        await (_scope?.Because(typeof(Specification)) ?? SpecificationLifecycle.Because(this, GetType(), typeof(Specification)));
     }
 
-    Task OnDestroy() => SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
+    Task OnDestroy() => _scope?.Destroy(typeof(Specification)) ?? SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
 }

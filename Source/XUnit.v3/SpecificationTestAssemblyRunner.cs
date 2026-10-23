@@ -24,6 +24,17 @@ public class SpecificationTestAssemblyRunner : XunitTestAssemblyRunner
     public static new SpecificationTestAssemblyRunner Instance { get; } = new();
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// Ends the specification session after the last test collection has run, before the assembly fixtures are
+    /// disposed. A failure is reported as a test assembly cleanup failure.
+    /// </remarks>
+    protected override async ValueTask<bool> OnTestAssemblyFinished(XunitTestAssemblyRunnerContext ctxt, RunSummary summary)
+    {
+        await ctxt.Aggregator.RunAsync(SpecificationSession.End);
+        return await base.OnTestAssemblyFinished(ctxt, summary);
+    }
+
+    /// <inheritdoc/>
     protected override ValueTask<RunSummary> RunTestCollection(
         XunitTestAssemblyRunnerContext ctxt,
         IXunitTestCollection testCollection,

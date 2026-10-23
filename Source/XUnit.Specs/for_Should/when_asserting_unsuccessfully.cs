@@ -21,10 +21,10 @@ public class when_asserting_unsuccessfully : Specification
         _contain_only = Catch.Exception(() => _numbers.ShouldContainOnly(1));
     }
 
-    [Fact] void should_fail_comparison_with_a_true_exception() => _greater_than.ShouldBeOfExactType<TrueException>();
+    [Fact] void should_fail_comparison_with_an_xunit_exception() => _greater_than.ShouldBeOfExactType<XunitException>();
     [Fact] void should_keep_the_comparison_message() => _greater_than.Message.ShouldContain("1 should be greater than 2");
     [Fact] void should_keep_the_less_than_or_equal_message() => _less_than_or_equal.Message.ShouldContain("3 should be less than or equal to 2");
-    [Fact] void should_fail_sequence_equality_with_a_true_exception() => _collection.ShouldBeOfExactType<TrueException>();
-    [Fact] void should_keep_the_sequence_equality_message() => _collection.Message.ShouldContain("is not equal to");
+    [Fact] void should_fail_sequence_equality_with_an_xunit_exception() => _collection.ShouldBeOfExactType<XunitException>();
+    [Fact] void should_describe_the_expected_and_actual_sequences() => _collection.Message.ShouldEqual($"Expected: [2, 1]{Environment.NewLine}Actual:   [1, 2]");
     [Fact] void should_fail_contain_only_with_the_original_message() => _contain_only.Message.ShouldContain("does not only contain '1'");
 }

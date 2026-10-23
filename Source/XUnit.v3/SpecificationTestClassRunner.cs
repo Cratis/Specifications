@@ -80,6 +80,7 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
         var type = ctxt.TestClass.Class;
         if (!typeof(Specification).IsAssignableFrom(type)) return false;
         if (type.Assembly.IsDefined(typeof(PerFactSpecificationLifecycleAttribute))) return false;
+        if (type.IsDefined(typeof(PerFactSpecificationLifecycleAttribute), inherit: true)) return false;
         if (HasCustomAsyncLifetime(type)) return false;
 
         var constructors = type.GetTypeInfo()
@@ -117,13 +118,20 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
         }
         finally
         {
-            if (HasCustomAsyncDisposal(instance.GetType()) && instance is IAsyncDisposable asyncDisposable)
+            try
             {
-                await asyncDisposable.DisposeAsync();
+                if (HasCustomAsyncDisposal(instance.GetType()) && instance is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync();
+                }
+                else
+                {
+                    (instance as IDisposable)?.Dispose();
+                }
             }
-            else
+            finally
             {
-                (instance as IDisposable)?.Dispose();
+                await instance.EndScope();
             }
         }
     }

@@ -1,11 +1,7 @@
 <Project>
-    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' == 'true'">
+    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' != 'false'">
         <AssemblyAttribute Include="Cratis.Specifications.ReadableSpecificationNamesAttribute" />
     </ItemGroup>
-    <ItemGroup Condition="'$(CratisSpecificationsWarnOnSharedContextMutation)' == 'true'">
-        <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)shared-context.globalconfig" />
-    </ItemGroup>
-
     <!-- CratisSpecificationsAnalyzers turns the bundled CRSPEC analyzers off. Only the Cratis.Specifications package carries
          Cratis.Specifications.CodeAnalysis.dll and every other package depends on it, so this one file is imported once
          for all of them. The analyzers are removed right after the SDK has added the package analyzers to @(Analyzer),
@@ -17,6 +13,14 @@
         <_CratisRemoveAnalyzers Condition="'$(CratisSpecificationsAnalyzers)' == 'ide' And '$(DesignTimeBuild)' != 'true' And '$(BuildingInsideVisualStudio)' != 'true'">true</_CratisRemoveAnalyzers>
     </PropertyGroup>
 
+    <!-- Runtime tuning is opt-in until measured gains justify a default. Explicit SDK properties always win.
+         These settings are inert in helper libraries that do not produce a runtimeconfig.
+         Web SDK projects keep their own ServerGarbageCollection setting. -->
+    <PropertyGroup Condition="'$(CratisSpecificationsRuntimeDefaults)' == 'true'">
+        <ConcurrentGarbageCollection Condition="'$(ConcurrentGarbageCollection)' == ''">false</ConcurrentGarbageCollection>
+        <TieredPGO Condition="'$(TieredPGO)' == ''">false</TieredPGO>
+    </PropertyGroup>
+
     <Target Name="CratisSpecificationsRemoveAnalyzers"
             AfterTargets="ResolveLockFileAnalyzers"
             Condition="'$(_CratisRemoveAnalyzers)' == 'true'">
@@ -24,4 +28,26 @@
             <Analyzer Remove="@(Analyzer)" Condition="'%(Filename)%(Extension)' == 'Cratis.Specifications.CodeAnalysis.dll'" />
         </ItemGroup>
     </Target>
+
+    <!--
+        Phase timings: emitted only when set, so a project that does not use them gets nothing.
+        Flows to the consumers of every adapter package through their reference to this package.
+    -->
+    <ItemGroup Condition="'$(CratisSpecificationsPhaseTimings)' == 'true'">
+        <AssemblyMetadata Include="CratisSpecificationsPhaseTimings" Value="true" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(CratisSpecificationsSlowPhaseThreshold)' != ''">
+        <AssemblyMetadata Include="CratisSpecificationsSlowPhaseThreshold" Value="$(CratisSpecificationsSlowPhaseThreshold)" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(CratisSpecificationsPhaseTimingsFile)' != ''">
+        <AssemblyMetadata Include="CratisSpecificationsPhaseTimingsFile" Value="$(CratisSpecificationsPhaseTimingsFile)" />
+    </ItemGroup>
+
+    <!--
+        Shared resource leases (experimental): compiled in only when set, so a project that does not lease keeps the
+        unobserved fast path. The module initializer registers the observer that releases leases after Destroy.
+    -->
+    <ItemGroup Condition="'$(CratisSpecificationsSharedResources)' == 'true' And '$(Language)' == 'C#'">
+        <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsSharedResources.g.cs" Visible="false" />
+    </ItemGroup>
 </Project>

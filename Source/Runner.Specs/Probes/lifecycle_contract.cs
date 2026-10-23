@@ -115,3 +115,47 @@ public class all_skipped : Specification, IDisposable
 
     [Fact(Skip = "By design")] void should_not_run() => Calls++;
 }
+
+public class failing_sync_because : lifecycle_context<failing_sync_because>, IDisposable
+{
+    public static readonly InvalidOperationException Failure = new("Synchronous Because failed");
+
+    void When() => throw Failure;
+
+    public void Dispose() => Calls.Add("Dispose");
+
+    void should_not_run() => Calls.Add("fact");
+}
+
+public class cancelling_because : lifecycle_context<cancelling_because>, IDisposable
+{
+    public static CancellationTokenSource Cancellation { get; set; }
+
+    async Task When()
+    {
+        await Cancellation.CancelAsync();
+        Calls.Add("When");
+    }
+
+    public void Dispose() => Calls.Add("Dispose");
+
+    void should_run() => Calls.Add("fact");
+}
+
+public class queued_behind_a_stop : lifecycle_context<queued_behind_a_stop>, IDisposable
+{
+    public queued_behind_a_stop() => Calls.Add("Create");
+
+    public void Dispose() => Calls.Add("Dispose");
+
+    void should_not_run() => Calls.Add("fact");
+}
+
+public class partly_skipped : lifecycle_context<partly_skipped>, IDisposable
+{
+    public void Dispose() => Calls.Add("Dispose");
+
+    void should_run() => Calls.Add("fact");
+
+    [Fact(Skip = "Not now")] void should_not_run() => Calls.Add("skipped fact");
+}

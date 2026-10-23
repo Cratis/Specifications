@@ -9,13 +9,15 @@
         <!-- NUnit 5 deprecates [Order] in favor of explicit dependencies; the shared specs pick the right one. -->
         <DefineConstants>$(DefineConstants);NUNIT5</DefineConstants>
         <!-- CA1812 is suppressed because probe specifications are only instantiated by the specs that exercise them. -->
-        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060;CA1001</NoWarn>
+        <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;NU1701;CA1812;IDE0060;CA1001;CRSPECEXP01</NoWarn>
     </PropertyGroup>
 
     <!-- The lifecycle probes are shared with the xUnit specs. -->
     <!-- The framework-free assertion catalog is shared by every package's specs. -->
     <ItemGroup>
         <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Resources/*.cs" Link="Resources/%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,4 +37,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+    <!-- Compile the session hook the package adds to its consumers. The NUnit 5 package ships the NUnit package's hook
+         file, which only exists next to that package's targets in the source tree. -->
+    <Import Project="../NUnit/buildTransitive/Cratis.Specifications.NUnit.targets" />
 </Project>

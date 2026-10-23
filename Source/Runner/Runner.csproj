@@ -3,9 +3,11 @@
         <AssemblyName>Cratis.Specifications.Runner</AssemblyName>
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
+        <EnablePackageValidation>true</EnablePackageValidation>
+        <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
         <Description>Experimental: Specification by Example (BDD) for .NET with a native runner on Microsoft.Testing.Platform - Given/When/Then specifications with one shared context per specification class, source generated discovery and no runtime reflection.</Description>
         <Nullable>enable</Nullable>
-        <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,14 +20,6 @@
     <ItemGroup>
         <!-- Flow Cratis.Specifications buildTransitive (opt-in properties such as CratisSpecificationsReadableNames) to consumers of this package. -->
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
-    </ItemGroup>
-
-    <!-- The Should* assertions are framework-neutral (they throw SpecificationAssertionException) and are shared
-         with the TUnit package by linking, until the assertions get a package of their own. -->
-    <ItemGroup>
-        <Compile Include="../TUnit/Should*.cs" Link="Assertions/%(Filename)%(Extension)" />
-        <Compile Include="../TUnit/SpecificationAssert.cs" Link="Assertions/SpecificationAssert.cs" />
-        <Compile Include="../TUnit/SpecificationAssertionException.cs" Link="Assertions/SpecificationAssertionException.cs" />
     </ItemGroup>
 
     <ItemGroup>

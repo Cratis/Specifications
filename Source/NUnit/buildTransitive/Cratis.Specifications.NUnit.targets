@@ -1,3 +1,20 @@
 <Project>
     <!-- CratisSpecificationsSharedLifecycle is accepted: this framework already shares the specification context. -->
+
+    <!-- Fixture parallelism is opt-in: contexts still run once per fixture, but shared external state may not be safe. -->
+    <ItemGroup Condition="'$(CratisSpecificationsParallelFixtures)' == 'true'">
+        <AssemblyAttribute Include="NUnit.Framework.ParallelizableAttribute">
+            <_Parameter1>NUnit.Framework.ParallelScope.Fixtures</_Parameter1>
+            <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <!-- Ends the Cratis specification session once every specification has run. Inert unless something registered for the end of the session. -->
+    <ItemGroup Condition="'$(CratisSpecificationsSessionHook)' != 'false'">
+        <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsSession.NUnit.g.cs" Visible="false" />
+    </ItemGroup>
+    <!-- Registers the assertion failure factory when the test assembly loads, ahead of any specification. -->
+    <ItemGroup Condition="'$(CratisSpecificationsAssertionFailures)' != 'false' And '$(Language)' == 'C#'">
+        <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsAssertionFailures.NUnit.g.cs" Visible="false" />
+    </ItemGroup>
 </Project>

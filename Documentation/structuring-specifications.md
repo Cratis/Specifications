@@ -183,26 +183,26 @@ public class when_registering_asynchronously : Specification, IAsyncDisposable
 }
 ```
 
-- When the instance is shared (an eligible xUnit specification with the shared lifecycle on, or the native runner),
-  `Destroy` runs once after the last fact, then disposal runs once, even if `Destroy` fails. With xUnit's default
-  lifecycle every fact gets its own instance, so `Destroy` and disposal run after each fact. On TUnit, keep cleanup in
+- When the instance is shared (an eligible xUnit specification, which is the default, or any other package),
+  `Destroy` runs once after the last fact, then disposal runs once, even if `Destroy` fails. With xUnit's per-fact
+  lifecycle (`[PerFactSpecificationLifecycle]`) every fact gets its own instance, so `Destroy` and disposal run after each fact. On TUnit, keep cleanup in
   `Destroy` and do not implement `IDisposable`/`IAsyncDisposable`: TUnit disposes the shared instance after each fact.
 - In the native runner, pass `SpecificationContext.CancellationToken` instead of `CancellationToken.None`. It flows
   across awaits and is isolated per class; outside a running class it is `CancellationToken.None`. Cancellation is
   cooperative. The other packages have no `SpecificationContext`.
 - xUnit class and collection fixtures stay owned by xUnit and can be constructor arguments of an eligible
   specification. See the README on the
-  [shared instance](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class-opt-in).
+  [shared instance](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class).
 - Under a shared lifecycle, `Establish` and `Because` run once and facts may run concurrently. Facts must be read-only:
   no assignments to fields, no `Add` or `Clear` on collections. Put every mutation in `Establish` or `Because`.
-  `CRSPEC0008` reports violations.
-- Mistake: `async void` lifecycle methods. Return `Task`.
+  `CRSPEC0008` reports violations as a build error.
+- Mistake: `async void` lifecycle methods. Return `Task`. The native runner reports them as the error `CRSPEC0010`.
 - Mistake: `Task.Delay` to wait for a result. Await the operation that produces it.
 
 ## Level 6: readable names, aliases and analyzers
 
-- Names read as sentences. With `<CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>` (and
-  always in the native runner), `for_Author.when_registering.should_keep_the_name` shows as
+- Names read as sentences. By default (turn off with `<CratisSpecificationsReadableNames>false</CratisSpecificationsReadableNames>`),
+  `for_Author.when_registering.should_keep_the_name` shows as
   `Author › when registering › should keep the name`. Names are code names, so choose them for the reader: a past or
   present-tense behavior in `when_`, an outcome in `should_`.
 - `Given` and `When` suit teams that think in given/when/then; `Establish` and `Because` suit teams coming from
@@ -211,8 +211,8 @@ public class when_registering_asynchronously : Specification, IAsyncDisposable
 - The analyzers `CRSPEC0001` to `CRSPEC0009` keep specifications honest: `should_` naming, one specification per file,
   public specification classes, no facts or `Because` on a `given` context, no explicit base lifecycle calls, no
   mutation of shared context, and no ambiguous aliases. See the README on
-  [analyzers](https://github.com/Cratis/Specifications/blob/main/README.md#analyzers), including how to raise
-  `CRSPEC0008` to a warning or error.
+  [analyzers](https://github.com/Cratis/Specifications/blob/main/README.md#analyzers), including how to lower
+  `CRSPEC0008` from an error or turn the analyzers off.
 
 ## Where next
 

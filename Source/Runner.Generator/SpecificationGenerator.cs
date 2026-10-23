@@ -27,7 +27,11 @@ public sealed class SpecificationGenerator : IIncrementalGenerator
             .Where(static _ => _ is not null)
             .Collect();
 
-        context.RegisterSourceOutput(specifications, static (output, models) => Generate(output, models));
+        // The opt-in is a bool, so a recompilation that does not change it does not regenerate anything.
+        var readable = context.CompilationProvider.Select(static (compilation, _) => SpecificationModelBuilder.HasReadableNames(compilation));
+        context.RegisterSourceOutput(
+            specifications.Combine(readable),
+            static (output, pair) => Generate(output, pair.Right ? pair.Left : pair.Left.Select(_ => DisplayNames.Raw(_!))));
     }
 
     static void Generate(SourceProductionContext output, IEnumerable<SpecificationModel> models)

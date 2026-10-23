@@ -14,6 +14,10 @@ namespace Cratis.Specifications.Runner.for_LifecycleContract;
 // Fact + teardown failure | preserve fact, Destroy and disposal errors
 // Disposal                | IAsyncDisposable preferred over IDisposable; once per class
 // All skipped             | no construction, lifecycle or disposal
+// Partly skipped          | skipped facts never run; lifecycle and disposal run once for the rest
+// Synchronous act failure | fails the facts with the original exception; Destroy and disposal still run
+// Cancellation            | the running class finishes Destroy and disposal; queued classes are never constructed
+// Stop (fail fast)        | the failing class finishes Destroy and disposal; queued classes are never constructed
 
 public class when_verifying_the_lifecycle_contract : Specification
 {
@@ -24,6 +28,12 @@ public class when_verifying_the_lifecycle_contract : Specification
     FactResult[] because_failure;
     FactResult[] duplicate_alias;
     FactResult[] skipped;
+    FactResult[] sync_because_failure;
+    FactResult[] partly_skipped_results;
+    IReadOnlyList<SpecificationWork> not_started_after_cancellation;
+    IReadOnlyList<SpecificationWork> not_started_after_stop;
+    given.a_recording_sink cancellation_sink;
+    IReadOnlyList<string> queued_calls_after_cancellation;
     SpecificationWork teardown;
 
     void Establish()
@@ -34,6 +44,10 @@ public class when_verifying_the_lifecycle_contract : Specification
         lifecycle_context<failing_teardown>.Calls.Clear();
         lifecycle_context<failing_async_because>.Calls.Clear();
         all_skipped.Calls = 0;
+        lifecycle_context<failing_sync_because>.Calls.Clear();
+        lifecycle_context<cancelling_because>.Calls.Clear();
+        lifecycle_context<queued_behind_a_stop>.Calls.Clear();
+        lifecycle_context<partly_skipped>.Calls.Clear();
     }
 
     async Task Because()
@@ -46,6 +60,30 @@ public class when_verifying_the_lifecycle_contract : Specification
         teardown_failure = await SpecificationClassRunner.Run(teardown, sequentialFacts: true);
         duplicate_alias = await Run<when_and_because>();
         skipped = await Run<all_skipped>();
+        partly_skipped_results = await Run<partly_skipped>();
+        sync_because_failure = await Run<failing_sync_because>();
+        await RunCancelled();
+        await RunStopped();
+    }
+
+    async Task RunCancelled()
+    {
+        using var cancellation = new CancellationTokenSource();
+        cancelling_because.Cancellation = cancellation;
+        cancellation_sink = new();
+        not_started_after_cancellation = await SpecificationScheduler.Run(
+            [given.contract_probes.WorkFor<cancelling_because>(), given.contract_probes.WorkFor<queued_behind_a_stop>()],
+            SpecificationRunOptions.Default with { MaxParallelClasses = 1, SequentialFacts = true }, cancellation_sink, RunCache.Empty, cancellation.Token);
+        queued_calls_after_cancellation = [.. lifecycle_context<queued_behind_a_stop>.Calls];
+        lifecycle_context<queued_behind_a_stop>.Calls.Clear();
+    }
+
+    async Task RunStopped()
+    {
+        lifecycle_context<failing_teardown>.Calls.Clear();
+        not_started_after_stop = await SpecificationScheduler.Run(
+            [given.contract_probes.WorkFor<failing_teardown>(), given.contract_probes.WorkFor<queued_behind_a_stop>()],
+            SpecificationRunOptions.Default with { MaxParallelClasses = 1, SequentialFacts = true, FailFast = true }, new given.a_recording_sink(), RunCache.Empty, CancellationToken.None);
     }
 
     static Task<FactResult[]> Run<T>() => SpecificationClassRunner.Run(given.contract_probes.WorkFor<T>(), sequentialFacts: true);
@@ -94,4 +132,30 @@ public class when_verifying_the_lifecycle_contract : Specification
     void should_not_construct_or_run_an_all_skipped_class() => all_skipped.Calls.ShouldEqual(0);
 
     void should_preserve_the_skip_reason() => skipped.Single().SkipReason.ShouldEqual("By design");
+
+    void should_never_run_a_skipped_fact_of_a_partly_skipped_class() => lifecycle_context<partly_skipped>.Calls.ShouldEqual(["Establish base", "Because base", "fact", "Destroy base", "Dispose"]);
+
+    void should_report_the_skipped_fact_of_a_partly_skipped_class() => partly_skipped_results.Select(_ => _.Outcome).ShouldEqual(FactOutcome.Passed, FactOutcome.Skipped);
+
+    void should_destroy_and_dispose_after_a_synchronous_because_failure() => lifecycle_context<failing_sync_because>.Calls.ShouldEqual(["Establish base", "Because base", "Destroy base", "Dispose"]);
+
+    void should_preserve_the_original_synchronous_because_exception() => sync_because_failure.Single().Exception.ShouldEqual(failing_sync_because.Failure);
+
+    void should_not_construct_a_class_queued_behind_a_cancellation() => queued_calls_after_cancellation.ShouldBeEmpty();
+
+    void should_report_the_class_queued_behind_a_cancellation_as_not_started() => not_started_after_cancellation.Single().Specification.Uid.ShouldEqual(typeof(queued_behind_a_stop).FullName);
+
+    void should_finish_destroy_and_disposal_of_the_class_running_during_a_cancellation()
+    {
+        var calls = lifecycle_context<cancelling_because>.Calls;
+        calls.Skip(calls.Count - 2).ShouldEqual("Destroy base", "Dispose");
+    }
+
+    void should_complete_the_class_running_during_a_cancellation_once() => cancellation_sink.Completed.Count.ShouldEqual(1);
+
+    void should_not_construct_a_class_queued_behind_a_stop() => lifecycle_context<queued_behind_a_stop>.Calls.ShouldBeEmpty();
+
+    void should_report_the_class_queued_behind_a_stop_as_not_started() => not_started_after_stop.Single().Specification.Uid.ShouldEqual(typeof(queued_behind_a_stop).FullName);
+
+    void should_finish_destroy_and_disposal_of_the_class_that_stopped_the_run() => lifecycle_context<failing_teardown>.Calls.ShouldEqual(["Establish base", "Because base", "Destroy base"]);
 }

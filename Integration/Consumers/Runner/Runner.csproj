@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <CratisSpecificationsRuntimeDefaults>true</CratisSpecificationsRuntimeDefaults>
         <DefineConstants>$(DefineConstants);RUNNER</DefineConstants>
-        <CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>
-        <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
-        <CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Cratis.Specifications.Runner" Version="0.0.0-ci" />
+        <Compile Include="../when_running_with_the_package_runtime_defaults.cs" Link="when_running_with_the_package_runtime_defaults.cs" />
         <Compile Include="../when_using_given_and_when.cs" Link="when_using_given_and_when.cs" />
     </ItemGroup>
 </Project>

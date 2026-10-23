@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Cratis. All rights reserved.
+     Licensed under the MIT license. See LICENSE file in the project root for full license information.
+     Generated against 4.5.0. Experimental APIs are still public API for ApiCompat; later breaking changes need suppressions.
+     CP0002: Documentation/upgrading-5.0.md, Assertions (Predicate<T> replaced by Func<T, bool>).
+     CP0021: Documentation/upgrading-5.0.md, Nullable annotations (dictionary keys require notnull).
+     PKV006: Documentation/upgrading-5.0.md, Target framework (net8.0 and net9.0 removed).
+     https://learn.microsoft.com/dotnet/fundamentals/package-validation/diagnostic-ids -->
+<Suppressions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Cratis.Specifications.ShouldCollectionExtensions.ShouldContain``1(System.Collections.Generic.IEnumerable{``0},System.Predicate{``0})</Target>
+    <Left>lib/net10.0/Cratis.Specifications.NUnit.dll</Left>
+    <Right>lib/net10.0/Cratis.Specifications.NUnit.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Cratis.Specifications.ShouldCollectionExtensions.ShouldContainSingleMatching``1(System.Collections.Generic.IEnumerable{``0},System.Predicate{``0})</Target>
+    <Left>lib/net10.0/Cratis.Specifications.NUnit.dll</Left>
+    <Right>lib/net10.0/Cratis.Specifications.NUnit.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Cratis.Specifications.ShouldCollectionExtensions.ShouldEachConformTo``1(System.Collections.Generic.IEnumerable{``0},System.Predicate{``0})</Target>
+    <Left>lib/net10.0/Cratis.Specifications.NUnit.dll</Left>
+    <Right>lib/net10.0/Cratis.Specifications.NUnit.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Cratis.Specifications.ShouldCollectionExtensions.ShouldNotContain``1(System.Collections.Generic.IEnumerable{``0},System.Predicate{``0})</Target>
+    <Left>lib/net10.0/Cratis.Specifications.NUnit.dll</Left>
+    <Right>lib/net10.0/Cratis.Specifications.NUnit.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Cratis.Specifications.ShouldEqualityExtensions.ShouldMatch``1(``0,System.Predicate{``0})</Target>
+    <Left>lib/net10.0/Cratis.Specifications.NUnit.dll</Left>
+    <Right>lib/net10.0/Cratis.Specifications.NUnit.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0021</DiagnosticId>
+    <Target>M:Cratis.Specifications.ShouldCollectionExtensions.ShouldContain``2(System.Collections.Generic.IDictionary{``0,``1},``0)``0:notnull</Target>
+    <Left>lib/net10.0/Cratis.Specifications.NUnit.dll</Left>
+    <Right>lib/net10.0/Cratis.Specifications.NUnit.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0021</DiagnosticId>
+    <Target>M:Cratis.Specifications.ShouldCollectionExtensions.ShouldNotContain``2(System.Collections.Generic.IDictionary{``0,``1},``0)``0:notnull</Target>
+    <Left>lib/net10.0/Cratis.Specifications.NUnit.dll</Left>
+    <Right>lib/net10.0/Cratis.Specifications.NUnit.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>PKV006</DiagnosticId>
+    <Target>net8.0</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>PKV006</DiagnosticId>
+    <Target>net9.0</Target>
+  </Suppression>
+</Suppressions>

@@ -5,8 +5,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOTNET8_VERSION: "8.0.x"
-  DOTNET9_VERSION: "9.0.x"
   DOTNET10_VERSION: "10.0.x"
 
 on:
@@ -47,8 +45,6 @@ jobs:
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
-            ${{ env.DOTNET8_VERSION }}
-            ${{ env.DOTNET9_VERSION }}
             ${{ env.DOTNET10_VERSION }}
 
       - name: Restore NuGet packages cache
@@ -131,7 +127,9 @@ jobs:
           set -euo pipefail
           consumers=(
             "test Integration/Consumers/XUnit/Consumer.XUnit.csproj"
+            "test Integration/Consumers/XUnit.PerFact/Consumer.XUnit.PerFact.csproj"
             "test Integration/Consumers/XUnit.v3/XUnit.v3.csproj"
+            "test Integration/Consumers/Resources/Resources.csproj"
             "test Integration/Consumers/NUnit/Consumer.NUnit.csproj"
             "test Integration/Consumers/NUnit5/NUnit5.csproj"
             "run Integration/Consumers/TUnit/Consumer.TUnit.csproj"

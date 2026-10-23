@@ -14,10 +14,19 @@ public static class SpecificationModelBuilder
 {
     const string SpecificationType = "Cratis.Specifications.Specification";
     const string RunnerAssembly = "Cratis.Specifications.Runner";
+    const string ReadableNamesAttribute = "Cratis.Specifications.ReadableSpecificationNamesAttribute";
     const string FactAttribute = "Cratis.Specifications.FactAttribute";
 
     static readonly SymbolDisplayFormat _qualified = SymbolDisplayFormat.FullyQualifiedFormat;
     static readonly ConditionalWeakTable<Compilation, object> _runnerReferences = new();
+
+    /// <summary>
+    /// Gets whether the assembly opted into readable specification names, which the buildTransitive targets do unless CratisSpecificationsReadableNames is false.
+    /// </summary>
+    /// <param name="compilation">The compilation.</param>
+    /// <returns>True when the assembly carries the readable names attribute.</returns>
+    public static bool HasReadableNames(Compilation compilation) =>
+        compilation.Assembly.GetAttributes().Any(_ => _.AttributeClass?.ToDisplayString() == ReadableNamesAttribute);
 
     /// <summary>
     /// Gets whether a compilation can contain runnable specifications at all, which is when it is or references the runner assembly.
@@ -192,6 +201,7 @@ public static class SpecificationModelBuilder
         var how = compilation.IsSymbolAccessibleWithin(method, compilation.Assembly) ? CallKind.Direct
             : declaring.IsGenericType ? CallKind.Reflection
             : CallKind.Accessor;
+        if (how == CallKind.Reflection) diagnostics.Add(Diagnostics.For(Diagnostics.ReflectionFallbackId, method));
         return new(declaring.ToDisplayString(_qualified), method.Name, returns.Value, how);
     }
 }

@@ -49,9 +49,13 @@ namespace Cratis.Specifications;
 [SpecificationDisplayName]
 public class Specification
 {
+    SpecificationScope? _scope;
+
     [OneTimeSetUp]
     public async Task InitializeAsync()
     {
+        _scope = SpecificationScope.CreateIfObserved(this);
+        if (_scope is not null) await _scope.Start();
         await OnEstablish();
         await OnBecause();
     }
@@ -59,14 +63,21 @@ public class Specification
     [OneTimeTearDown]
     public async Task DisposeAsync()
     {
-        await OnDestroy();
+        try
+        {
+            await OnDestroy();
+        }
+        finally
+        {
+            if (_scope is not null) await _scope.End();
+        }
     }
 
-    Task OnEstablish() => SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
+    Task OnEstablish() => _scope?.Establish(typeof(Specification)) ?? SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
 
-    Task OnBecause() => SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
+    Task OnBecause() => _scope?.Because(typeof(Specification)) ?? SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
 
-    Task OnDestroy() => SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
+    Task OnDestroy() => _scope?.Destroy(typeof(Specification)) ?? SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
 }
 
 /// <summary>

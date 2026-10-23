@@ -4,7 +4,7 @@
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
         <EnablePackageValidation>true</EnablePackageValidation>
-        <PackageValidationBaselineVersion>4.3.0</PackageValidationBaselineVersion>
+        <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
         <Description>Specification by Example (BDD) for .NET with xUnit v3 - Given/When/Then specifications in the style of Machine.Specifications, running on the xUnit v3 test framework.</Description>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -19,8 +19,17 @@
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
 
-    <!-- The assertion extensions are shared with the xUnit v2 package; the xUnit v3 assertion API is compatible. -->
+    <!-- The assertions live in Cratis.Specifications; the type forwards and the failure factory are shared with the xUnit v2 package. -->
     <ItemGroup>
-        <Compile Include="../XUnit/Should*.cs" Link="%(Filename)%(Extension)" />
+        <Compile Include="../XUnit/TypeForwards.cs;../XUnit/AssertionFailureFactory.cs" Link="%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- The assertion failure registration compiled into consumers is shared with the xUnit v2 package. -->
+        <None Include="../XUnit/buildTransitive/CratisSpecificationsAssertionFailures.XUnit.g.cs" Pack="true" PackagePath="buildTransitive/" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.Specifications.XUnit.v3.Specs" />
     </ItemGroup>
 </Project>

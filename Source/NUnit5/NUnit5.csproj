@@ -4,11 +4,11 @@
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
         <EnablePackageValidation>true</EnablePackageValidation>
-        <PackageValidationBaselineVersion>4.3.0</PackageValidationBaselineVersion>
+        <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
         <Description>Specification by Example (BDD) for .NET with NUnit 5 - Given/When/Then specifications in the style of Machine.Specifications, running on the NUnit 5 test framework. For NUnit 4 use Cratis.Specifications.NUnit.</Description>
         <Nullable>enable</Nullable>
         <DefineConstants>$(DefineConstants);NUNIT5</DefineConstants>
-        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net10.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,10 +18,17 @@
     <!-- One copy of the source: shared with the NUnit 4 package, compiled here against NUnit 5. -->
     <ItemGroup>
         <Compile Include="../NUnit/*.cs" LinkBase="Shared" />
+        <!-- The session hook compiled into consumers is NUnit 4 and 5 compatible; ship the NUnit package's copy. -->
+        <None Include="../NUnit/buildTransitive/CratisSpecificationsSession.NUnit.g.cs" Pack="true" PackagePath="buildTransitive/" Visible="false" />
+        <None Include="../NUnit/buildTransitive/CratisSpecificationsAssertionFailures.NUnit.g.cs" Pack="true" PackagePath="buildTransitive/" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- Flow Cratis.Specifications buildTransitive (opt-in properties such as CratisSpecificationsReadableNames) to consumers of this package. -->
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.Specifications.NUnit5.Specs" />
     </ItemGroup>
 </Project>

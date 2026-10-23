@@ -37,6 +37,22 @@ public static class Diagnostics
         "A fact or lifecycle method must not be async void",
         "{0} is async void, which can not be awaited and loses its failures; return Task or ValueTask instead",
         Category,
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    /// <summary>
+    /// The id of the diagnostic for a method that is called through reflection.
+    /// </summary>
+    public const string ReflectionFallbackId = "CRSPEC0011";
+
+    /// <summary>
+    /// A method on a constructed generic base type that is not accessible to the test assembly is called through reflection, which is not AOT safe.
+    /// </summary>
+    public static readonly DiagnosticDescriptor ReflectionFallback = new(
+        ReflectionFallbackId,
+        "A method on a generic base type is called through reflection",
+        "{0} is declared on a constructed generic type and is not accessible, so it is called through reflection, which is not trim or AOT safe; make it accessible to the test assembly",
+        Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
@@ -67,6 +83,7 @@ public static class Diagnostics
     static DiagnosticDescriptor DescriptorFor(string id) => id switch
     {
         AsyncVoidId => AsyncVoid,
+        ReflectionFallbackId => ReflectionFallback,
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, null)
     };
 }

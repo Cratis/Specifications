@@ -36,29 +36,33 @@ A tiny suite mostly measures startup. The gap between runners shrinks as your sp
 
 ## Share the lifecycle
 
-xUnit builds a new instance for every fact, so `Establish` and `Because` run once per fact. A shared lifecycle
-runs them once per class, which is what a specification means: one context, one action, several assertions.
+Plain xUnit builds a new instance for every fact, so `Establish` and `Because` would run once per fact. The shared
+lifecycle runs them once per class, which is what a specification means: one context, one action, several assertions.
 
-- NUnit, TUnit and the native runner already share the instance.
-- On xUnit v2 and v3, opt in with `<CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>`.
+- NUnit, TUnit and the native runner share the instance.
+- On xUnit v2 and v3 the shared lifecycle is the default since 5.0. To keep per-fact execution for a class, apply
+  `[PerFactSpecificationLifecycle]`; for the project, set `<CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>`.
   Eligibility rules are in the README's
-  [shared instance section](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class-opt-in).
+  [shared instance section](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class).
 - The saving is `Establish` plus `Because` multiplied by the facts you no longer repeat. A class with 5 facts
   and a 200 ms `Because` goes from about 1 s of setup to about 200 ms. The benchmark harness's `--work-us` option
   adds deterministic work to each context so you can see this cost on your own hardware.
-- Facts must only read the shared context. Raise `CRSPEC0008` to a warning with
-  `<CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>`
-  so a fact that mutates it is caught at build time.
+- Facts must only read the shared context. `CRSPEC0008` is an error by default, so a fact that mutates it fails the
+  build. To lower it, set the severity in an `.editorconfig`: `dotnet_diagnostic.CRSPEC0008.severity = warning`.
 
 ## Run the executable, not the full `dotnet test` pipeline
 
 `dotnet test` adds MSBuild evaluation and the VSTest host on every run. For a local loop:
 
 ```bash
-dotnet build Source/MyProject.Specs --configuration Release
-dotnet run --project Source/MyProject.Specs --configuration Release --no-build
-# or run the built apphost directly
+dotnet restore Source/MyProject.Specs
+dotnet build Source/MyProject.Specs --configuration Release --no-restore
+./Source/MyProject.Specs/bin/Release/net10.0/MyProject.Specs
 ```
+
+Restore and build once, then run the built executable for repeated runs. Without an apphost,
+use `dotnet Source/MyProject.Specs/bin/Release/net10.0/MyProject.Specs.dll`. `dotnet run --no-build`
+still starts MSBuild to resolve the project; the executable avoids that overhead.
 
 TUnit and the native runner are executables already. xUnit v3 projects set `<OutputType>Exe</OutputType>`.
 Where a repository mixes Microsoft.Testing.Platform and VSTest projects, run each project on its own, as this
@@ -98,6 +102,39 @@ as a run parameter after `--`.
 The bundled analyzers add build time. Set `<CratisSpecificationsAnalyzers>false</CratisSpecificationsAnalyzers>` to turn
 them off, or `ide` to keep them in the editor and drop them from command-line and CI builds. See
 [Turning the analyzers off](https://github.com/Cratis/Specifications/blob/main/README.md#turning-the-analyzers-off).
+
+## Optional runtime tuning
+
+Runtime tuning remains opt-in: no gain has yet been established under controlled load. To try
+batch (non-concurrent) GC and disable dynamic PGO for a short-lived spec process:
+
+```xml
+<PropertyGroup>
+    <CratisSpecificationsRuntimeDefaults>true</CratisSpecificationsRuntimeDefaults>
+</PropertyGroup>
+```
+
+Set `CratisSpecificationsRuntimeDefaults=false` to leave SDK runtime settings unchanged. Explicit
+`ConcurrentGarbageCollection` and `TieredPGO` properties always win, even with the switch enabled.
+For example, `<TieredPGO>true</TieredPGO>` retains dynamic PGO. Compare representative runs before
+opting in; allocation-heavy or long-running suites may benefit from background GC or PGO.
+The package does not change server GC (including Web SDK defaults), runtime identifiers, AOT,
+ReadyToRun, or lifecycle settings. Helper libraries without a runtimeconfig are unaffected.
+
+## NUnit fixture parallelism
+
+NUnit 4 and NUnit 5 keep their existing sequential default. Independent fixtures can opt in:
+
+```xml
+<PropertyGroup>
+    <CratisSpecificationsParallelFixtures>true</CratisSpecificationsParallelFixtures>
+</PropertyGroup>
+```
+
+This emits `[assembly: Parallelizable(ParallelScope.Fixtures)]`; `false` (or omitting the property)
+emits nothing. Do not enable it if the assembly already declares that attribute. Shared external
+resources, static state, and order-dependent fixtures must be made safe first. Contexts still run
+once per fixture. No performance gain is claimed without measurement on a quiet host.
 
 ## Keep the feedback loop short
 

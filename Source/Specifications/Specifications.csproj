@@ -4,8 +4,10 @@
         <RootNamespace>Cratis.Specifications</RootNamespace>
         <IsPackable>true</IsPackable>
         <EnablePackageValidation>true</EnablePackageValidation>
-        <PackageValidationBaselineVersion>4.1.3</PackageValidationBaselineVersion>
+        <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
         <Nullable>enable</Nullable>
+        <!-- Ships inside the AOT native runner, so it must stay trim and AOT analyzable. -->
+        <IsAotCompatible>true</IsAotCompatible>
         <!-- The only package that carries the analyzers; the flavor packages receive them through this dependency. -->
         <CratisBundleAnalyzers>true</CratisBundleAnalyzers>
     </PropertyGroup>
@@ -17,5 +19,10 @@
         <InternalsVisibleTo Include="Cratis.Specifications.NUnit" />
         <InternalsVisibleTo Include="Cratis.Specifications.NUnit5" />
         <InternalsVisibleTo Include="Cratis.Specifications.TUnit" />
+    </ItemGroup>
+
+    <!-- The shared resources module initializer under buildTransitive compiles into consumers, not into this package. -->
+    <ItemGroup>
+        <Compile Remove="buildTransitive/**" />
     </ItemGroup>
 </Project>

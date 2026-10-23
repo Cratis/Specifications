@@ -5,6 +5,10 @@ NUnit 4 and TUnit, plus the native Cratis runner, alongside plain-framework base
 when `Source/NUnit5/NUnit5.csproj` exists. Nothing is packable or included in
 `Specifications.sln`; the normal solution build and CI are unchanged.
 
+Benchmarks are for local runs. No pull request or push workflow runs them, and nothing in the build, the specs or the
+release depends on their results. The only workflow that can run them (`benchmarks.yml`) starts on demand
+(`workflow_dispatch`) and publishes nothing.
+
 ## Run
 
 Requires Python 3 (standard library only), .NET SDK 10, and `/usr/bin/time`
@@ -32,6 +36,7 @@ so the cost of running a context once per class versus once per fact shows. `--a
 publishes the `cratis-runner` suite with Native AOT and measures the native executable;
 the publish is timed separately and not included in the build columns. Reports include AOT publish seconds and the number of unique IL2xxx/IL3xxx warning lines from the publish log (the same diagnostic repeated in a build summary counts once). Warnings are retained, not suppressed. This is explicitly **Cratis runner JIT vs Cratis runner AOT**, not an AOT comparison across frameworks. Numbers must be positive; flavors are comma-separated
 with no duplicates. `--parallel` accepts `default`, `off`, or `both` (default).
+`--nunit-parallel {none,fixtures}` (`NUNIT_PARALLEL`, default `none`) opts NUnit suites into fixture parallelism.
 Run only one harness process per checkout: generation and runner configuration
 share files. On shared developer machines, run the entire multi-flavor invocation through
 your build/test admission queue. Several flavors in one `run.sh` invocation is
