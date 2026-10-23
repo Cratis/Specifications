@@ -19,6 +19,7 @@
         <Compile Include="../NUnit/*.cs" LinkBase="Shared" />
         <!-- The session hook compiled into consumers is NUnit 4 and 5 compatible; ship the NUnit package's copy. -->
         <None Include="../NUnit/buildTransitive/CratisSpecificationsSession.NUnit.g.cs" Pack="true" PackagePath="buildTransitive/" Visible="false" />
+        <None Include="../NUnit/buildTransitive/CratisSpecificationsAssertionFailures.NUnit.g.cs" Pack="true" PackagePath="buildTransitive/" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>

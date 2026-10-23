@@ -8,4 +8,8 @@
     <ItemGroup Condition="'$(CratisSpecificationsSharedLifecycle)' == 'false'">
         <AssemblyAttribute Include="Cratis.Specifications.PerFactSpecificationLifecycleAttribute" />
     </ItemGroup>
+    <!-- Registers the assertion failure factory when the test assembly loads, ahead of any specification. -->
+    <ItemGroup Condition="'$(CratisSpecificationsAssertionFailures)' != 'false' And '$(Language)' == 'C#'">
+        <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsAssertionFailures.XUnit.g.cs" Visible="false" />
+    </ItemGroup>
 </Project>

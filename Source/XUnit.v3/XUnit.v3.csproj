@@ -24,6 +24,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- The assertion failure registration compiled into consumers is shared with the xUnit v2 package. -->
+        <None Include="../XUnit/buildTransitive/CratisSpecificationsAssertionFailures.XUnit.g.cs" Pack="true" PackagePath="buildTransitive/" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
         <InternalsVisibleTo Include="Cratis.Specifications.XUnit.v3.Specs" />
     </ItemGroup>
 </Project>
