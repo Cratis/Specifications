@@ -14,9 +14,9 @@ public class when_running_a_disposable_specification : given.a_class_runner_harn
 
     [Fact] void should_pass_all_facts() => message_bus.Messages.OfType<ITestPassed>().Count().ShouldEqual(2);
 
-    [Fact] void should_fall_back_to_a_fresh_instance_per_fact() => disposable_specification_with_two_facts.instances_created.ShouldEqual(2);
+    [Fact] void should_share_one_instance() => disposable_specification_with_two_facts.instances_created.ShouldEqual(1);
 
-    [Fact] void should_run_establish_per_fact() => disposable_specification_with_two_facts.establish_count.ShouldEqual(2);
+    [Fact] void should_run_establish_once() => disposable_specification_with_two_facts.establish_count.ShouldEqual(1);
 
-    [Fact] void should_dispose_each_instance() => disposable_specification_with_two_facts.dispose_count.ShouldEqual(2);
+    [Fact] void should_dispose_the_shared_instance_once() => disposable_specification_with_two_facts.dispose_count.ShouldEqual(1);
 }

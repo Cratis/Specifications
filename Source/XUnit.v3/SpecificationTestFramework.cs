@@ -24,7 +24,7 @@ namespace Cratis.Specifications;
 /// </para>
 /// <para>
 /// A class is eligible when it derives from <see cref="Specification"/>, has a single public
-/// parameterless constructor, does not implement <see cref="IDisposable"/> and contains only plain
+/// constructor accepting only fixtures (or no parameters) and contains only plain
 /// facts. Every other class keeps the stock xUnit per-fact lifecycle.
 /// </para>
 /// </remarks>
@@ -48,6 +48,10 @@ public class SpecificationTestFramework : XunitTestFramework
     {
         _configFileName = configFileName;
     }
+
+    /// <inheritdoc/>
+    protected override ITestFrameworkDiscoverer CreateDiscoverer(Assembly assembly) =>
+        new SpecificationTestFrameworkDiscoverer(new XunitTestAssembly(assembly, configFilePath: _configFileName));
 
     /// <inheritdoc/>
     protected override ITestFrameworkExecutor CreateExecutor(Assembly assembly)
