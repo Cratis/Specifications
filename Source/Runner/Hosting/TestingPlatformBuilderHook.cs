@@ -3,6 +3,7 @@
 
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
+using Microsoft.Testing.Platform.Helpers;
 using Microsoft.Testing.Platform.Services;
 
 namespace Cratis.Specifications.Runner;
@@ -32,6 +33,7 @@ public static class TestingPlatformBuilderHook
     public static void AddCratisSpecifications(this ITestApplicationBuilder builder)
     {
         var trx = new TrxCapability();
+        builder.AddTreeNodeFilterService(new SpecificationCommandLineOptions());
         builder.CommandLine.AddProvider(static () => new SpecificationCommandLineOptions());
         builder.RegisterTestFramework(
             _ => new TestFrameworkCapabilities(trx),

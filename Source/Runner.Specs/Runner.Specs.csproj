@@ -13,6 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Remove="Probes/**/*.cs" />
+        <ProjectReference Include="Probes/ContractProbes.csproj" />
         <ProjectReference Include="../Runner/Runner.csproj" />
         <ProjectReference Include="../Runner.Specs.Probes/Runner.Specs.Probes.csproj" />
         <ProjectReference Include="../Runner.Generator/Runner.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />

@@ -48,6 +48,9 @@ def counts(path, expected):
     return total
 
 
+MTP_SERIAL_ARGUMENTS = {"cratis-runner": ["--specs-parallel", "1", "--specs-sequential-facts"], "xunit-v3-mtp": ["--parallel", "none"], "tunit": ["--maximum-parallel-tests", "1"]}
+
+
 def runner(project, flavor, route, serial, result_dir):
     directory = project.parent
     binary = directory / "bin/Release/net10.0/Benchmark"
@@ -75,5 +78,5 @@ def runner(project, flavor, route, serial, result_dir):
         command += ["--report-trx", "--report-trx-filename", "results.trx", "--results-directory", str(result_dir)]
         if serial:
             # The native Cratis runner schedules classes itself; TUnit limits tests.
-            command += ["--specs-parallel", "1", "--specs-sequential-facts"] if flavor == "cratis-runner" else ["--maximum-parallel-tests", "1"]
+            command += MTP_SERIAL_ARGUMENTS[flavor]
     return command, report

@@ -26,17 +26,20 @@ permissions:
 
 jobs:
   benchmark:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '10.0.100'
+      - name: Install Native AOT prerequisites
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
       - name: Check harness
         run: python3 -m unittest discover -s Benchmarks -p 'test_*.py' -v
       - name: Benchmark default and disabled parallelism
         env:
+          AOT: '1'
           N: ${{ inputs.N }}
           F: ${{ inputs.F }}
           R: ${{ inputs.R }}
