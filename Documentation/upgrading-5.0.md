@@ -152,8 +152,18 @@ What changes in behavior:
 - **`ShouldEqual(params)` compares in order in every package.** NUnit 4 used to ignore the order. Use
   `ShouldEqualInAnyOrder(...)` where the order does not matter.
 - **Nested collections are compared deeply.** Elements that are themselves collections (strings excluded) are compared
-  element by element, also by `ShouldEqualInAnyOrder`, `ShouldContain` and `ShouldContainOnly`. On xUnit this used
-  to compare the nested collections by reference, so checks that failed for that reason now pass.
+  recursively, also by `ShouldEqualInAnyOrder`, `ShouldContain` and `ShouldContainOnly`. Dictionaries compare as unordered
+  key/value maps; other collections compare in order except sets, as described below. On xUnit this used to compare the
+  nested collections by reference, so checks that failed for that reason now pass. A collection implementing
+  `IEquatable<TSelf>` takes precedence over element comparison; an `Equals(object)` override alone does not. When the
+  value is nested or typed as `object` or an interface, its `Equals(object)` must forward to its equatable equality.
+  Implementations whose two equality overloads disagree can therefore differ from 4.x.
+- **Sets compare without regard to enumeration order in every package.** Two `ISet<T>` or `IReadOnlySet<T>` values use
+  unordered element comparison, including nested sets. This follows xUnit's set behavior; NUnit 4 previously compared
+  sets in enumeration order. To check enumeration order instead, convert both sets to arrays before comparing them.
+- **Native AOT test hosts** recognize dictionaries through the non-generic `IDictionary` interface, which the .NET
+  dictionaries implement. A custom type that implements only the generic dictionary interfaces may compare in
+  enumeration order there.
 - **`null` is handled the same everywhere.** A `null` actual value fails with a readable message instead of throwing
   `NullReferenceException` or `ArgumentNullException`; a `null` expected value equals a `null` actual value; a `null`
   expected collection fails instead of throwing. In the TUnit package, `ShouldNotContain` on a `null` string used to
