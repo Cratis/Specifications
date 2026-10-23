@@ -304,6 +304,32 @@ xUnit v3 takes the framework type rather than its name:
 [assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
 ```
 
+## Assertion behavior per package
+
+The `Should*` assertions have the same names in every package, and every package fails with its own assertion exception
+(`XunitException`, NUnit's `AssertionException`, or `SpecificationAssertionException` for TUnit and the native runner).
+A catalog of examples is run against every package, so the behavior below is verified rather than assumed.
+
+| Behavior | xUnit v2 / v3 | NUnit 4 | NUnit 5 | TUnit / native runner |
+|---|---|---|---|---|
+| `ShouldEqual(IEnumerable)` | In order | In order | In order | In order |
+| `ShouldEqual(params)` | In order | **Any order** (unchanged) | In order | In order |
+| `ShouldContainOnly` | Any order, duplicates count | Any order, duplicates count | Any order, duplicates count | Any order, duplicates count |
+| `ShouldContain(items)` | Every item present; repeats not demanded | Same | Same | Same |
+| Nested collection elements | Compared with `Equals` | NUnit equality (deep) | NUnit equality (deep) | Deep |
+| Actual is `null` | Fails with a readable message | Fails with a readable message | Fails with a readable message | Fails with a readable message |
+
+Use the explicit names when the order matters to you, since they behave the same in every package:
+
+- `ShouldEqualInOrder(...)`: the same elements in the same order.
+- `ShouldEqualInAnyOrder(...)`: the same elements in any order; duplicates are significant.
+- `ShouldContainSingleMatching(predicate)`: exactly one element matches (now available in the xUnit and TUnit packages too).
+
+A `null` actual value fails with a message like `ShouldContain expected the actual value to contain the expected item but the actual value was null`
+instead of a `NullReferenceException` or `ArgumentNullException`. In the TUnit package `ShouldNotContain` on a `null` string used to pass and now fails.
+
+The NUnit 4 order-insensitive `ShouldEqual(params)` and the xUnit/NUnit differences for nested collections are kept for compatibility; unifying them is a breaking change tracked for 5.0 (#74).
+
 ## Analyzers
 
 The packages ship Roslyn analyzers (`CRSPEC0001`–`CRSPEC0008`) that catch common specification mistakes.
