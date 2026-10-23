@@ -1,6 +1,10 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+// TreeNodeFilter is Microsoft.Testing.Platform's public tree filter request type; it is marked experimental (TPEXP).
+// The runner depends on it to honor --treenode-filter; revisit when the API is stabilized.
+#pragma warning disable TPEXP
+
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Requests;
 

@@ -3,7 +3,7 @@
 
 namespace Cratis.Specifications.ContractProbes;
 
-public abstract class context<T> : Specification
+public abstract class lifecycle_context<T> : Specification
 {
     public static List<string> Calls { get; } = [];
 
@@ -18,7 +18,7 @@ public abstract class context<T> : Specification
     void Destroy() => Calls.Add("Destroy base");
 }
 
-public class overridden_context : context<overridden_context>, IDisposable, IAsyncDisposable
+public class overridden_context : lifecycle_context<overridden_context>, IDisposable, IAsyncDisposable
 {
     public overridden_context() => Calls.Add("Create");
 
@@ -39,14 +39,14 @@ public class overridden_context : context<overridden_context>, IDisposable, IAsy
     void should_run() => Calls.Add("fact");
 }
 
-public class hidden_context : context<hidden_context>
+public class hidden_context : lifecycle_context<hidden_context>
 {
     protected new void Because() => Calls.Add("Because hidden");
 
     void should_run() => Calls.Add("fact");
 }
 
-public class failing_establish : context<failing_establish>, IDisposable
+public class failing_establish : lifecycle_context<failing_establish>, IDisposable
 {
     public static readonly InvalidOperationException Failure = new("Establish failed");
 
@@ -57,7 +57,7 @@ public class failing_establish : context<failing_establish>, IDisposable
     void should_not_run() => Calls.Add("fact");
 }
 
-public class failing_async_because : context<failing_async_because>, IDisposable
+public class failing_async_because : lifecycle_context<failing_async_because>, IDisposable
 {
     public static readonly InvalidOperationException Failure = new("Async Because failed");
 
@@ -72,7 +72,7 @@ public class failing_async_because : context<failing_async_because>, IDisposable
     void should_not_run() => Calls.Add("fact");
 }
 
-public class failing_teardown : context<failing_teardown>, IAsyncDisposable
+public class failing_teardown : lifecycle_context<failing_teardown>, IAsyncDisposable
 {
     public static readonly InvalidOperationException DestroyFailure = new("Destroy failed");
     public static readonly InvalidOperationException DisposeFailure = new("Dispose failed");

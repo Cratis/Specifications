@@ -7,7 +7,7 @@ namespace Cratis.Specifications.Runner.for_WorkSelector;
 
 public class when_rejecting_an_unknown_filter : Specification
 {
-    Exception exception;
+    NotSupportedException exception;
 
     void Because()
     {

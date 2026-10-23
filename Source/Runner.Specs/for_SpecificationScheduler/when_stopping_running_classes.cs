@@ -8,7 +8,7 @@ public class when_stopping_running_classes : Specification
     readonly TaskCompletionSource both_running = new(TaskCreationOptions.RunContinuationsAsynchronously);
     readonly System.Collections.Concurrent.ConcurrentQueue<string> calls = new();
     CancellationToken run_token;
-    Action cancel;
+    Func<Task> cancel;
     given.a_recording_sink sink;
     IReadOnlyList<SpecificationWork> not_started;
     int running;
@@ -24,11 +24,11 @@ public class when_stopping_running_classes : Specification
     {
         using var cancellation = new CancellationTokenSource();
         run_token = cancellation.Token;
-        cancel = cancellation.Cancel;
+        cancel = cancellation.CancelAsync;
         var first = Work("first");
         var second = Work("second");
         not_started = await SpecificationScheduler.Run(
-            new[] { first, second }.Concat(given.specification_work.Many(10)).ToArray(),
+            [first, second, .. given.specification_work.Many(10)],
             SpecificationRunOptions.Default with { MaxParallelClasses = 2, SequentialFacts = true }, sink, RunCache.Empty, run_token);
     }
 
@@ -49,7 +49,7 @@ public class when_stopping_running_classes : Specification
     {
         if (Interlocked.Increment(ref running) == 2)
         {
-            cancel();
+            await cancel();
             both_running.SetResult();
         }
 
@@ -82,6 +82,11 @@ public class when_stopping_running_classes : Specification
 
     sealed class disposable_context(Func<ValueTask> dispose) : IDisposable
     {
-        public void Dispose() => dispose().GetAwaiter().GetResult();
+        public void Dispose()
+        {
+            var result = dispose();
+            if (!result.IsCompleted) throw new InvalidOperationException("The disposal probe must complete synchronously.");
+            result.GetAwaiter().GetResult();
+        }
     }
 }

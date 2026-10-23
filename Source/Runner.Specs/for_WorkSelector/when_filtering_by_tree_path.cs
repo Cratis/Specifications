@@ -1,6 +1,10 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+// TreeNodeFilter is experimental; these specs verify the runner's --treenode-filter support against the pinned MTP API.
+#pragma warning disable TPEXP
+
+using System.Runtime.CompilerServices;
 using Microsoft.Testing.Platform.Requests;
 
 namespace Cratis.Specifications.Runner.for_WorkSelector;
@@ -10,7 +14,11 @@ public class when_filtering_by_tree_path : Specification
     readonly SpecificationClassDescriptor specification = given.the_probes.Get<synchronous_specification>();
 
     IReadOnlyList<SpecificationWork> Select(string expression) =>
-        WorkSelector.Select(given.the_probes.All, TreeNodeFilter.ParseFilter(expression), "Probe.Assembly");
+        WorkSelector.Select(given.the_probes.All, CreateFilter(expression), "Probe.Assembly");
+
+    // MTP has no public constructor; keep access to its pinned internal constructor confined to this test seam.
+    [UnsafeAccessor(UnsafeAccessorKind.Constructor)]
+    static extern TreeNodeFilter CreateFilter(string filter);
 
     string PathFor(string method) => $"/Probe.Assembly/{specification.Namespace}/{specification.TypeName}/{method}";
 

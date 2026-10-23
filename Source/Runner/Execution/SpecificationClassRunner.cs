@@ -73,7 +73,7 @@ internal static class SpecificationClassRunner
 
         if (instance is not null && await TearDown(specification, instance) is Exception teardownFailure)
         {
-            FailPassed(results, teardownFailure);
+            ApplyTearDownFailure(results, teardownFailure);
         }
 
         return results;
@@ -106,7 +106,7 @@ internal static class SpecificationClassRunner
         }
         catch (Exception ex)
         {
-            failure ??= ex;
+            failure = failure is null ? ex : new AggregateException(failure, ex);
         }
 
         return failure;
@@ -132,14 +132,14 @@ internal static class SpecificationClassRunner
         }
     }
 
-    static void FailPassed(FactResult[] results, Exception exception)
+    static void ApplyTearDownFailure(FactResult[] results, Exception exception)
     {
         for (var index = 0; index < results.Length; index++)
         {
-            if (results[index].Outcome == FactOutcome.Passed)
-            {
-                results[index] = FactResult.Failed(exception, results[index].Started, results[index].Duration);
-            }
+            var result = results[index];
+            if (result.Outcome == FactOutcome.Skipped) continue;
+            var failure = result.Exception is null ? exception : new AggregateException(result.Exception, exception);
+            results[index] = FactResult.Failed(failure, result.Started, result.Duration);
         }
     }
 }
