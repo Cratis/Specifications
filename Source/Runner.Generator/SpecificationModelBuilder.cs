@@ -179,6 +179,7 @@ public static class SpecificationModelBuilder
         var how = compilation.IsSymbolAccessibleWithin(method, compilation.Assembly) ? CallKind.Direct
             : declaring.IsGenericType ? CallKind.Reflection
             : CallKind.Accessor;
+        if (how == CallKind.Reflection) diagnostics.Add(Diagnostics.For(Diagnostics.ReflectionFallbackId, method));
         return new(declaring.ToDisplayString(_qualified), method.Name, returns.Value, how);
     }
 }

@@ -41,6 +41,22 @@ public static class Diagnostics
         isEnabledByDefault: true);
 
     /// <summary>
+    /// The id of the diagnostic for a method that is called through reflection.
+    /// </summary>
+    public const string ReflectionFallbackId = "CRSPEC0011";
+
+    /// <summary>
+    /// A method on a constructed generic base type that is not accessible to the test assembly is called through reflection, which is not AOT safe.
+    /// </summary>
+    public static readonly DiagnosticDescriptor ReflectionFallback = new(
+        ReflectionFallbackId,
+        "A method on a generic base type is called through reflection",
+        "{0} is declared on a constructed generic type and is not accessible, so it is called through reflection, which is not trim or AOT safe; make it accessible to the test assembly",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
+    /// <summary>
     /// Creates the model of a diagnostic located at a method.
     /// </summary>
     /// <param name="id">The diagnostic id.</param>
@@ -67,6 +83,7 @@ public static class Diagnostics
     static DiagnosticDescriptor DescriptorFor(string id) => id switch
     {
         AsyncVoidId => AsyncVoid,
+        ReflectionFallbackId => ReflectionFallback,
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, null)
     };
 }
