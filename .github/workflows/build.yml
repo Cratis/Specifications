@@ -78,6 +78,8 @@ jobs:
           dotnet pack Specifications.sln -c Release --no-build -o artifacts/packages -p:Version=0.0.0-ci
           dotnet build Integration/Consumers/XUnit/Consumer.XUnit.csproj --configuration Release
           dotnet test Integration/Consumers/XUnit/Consumer.XUnit.csproj --configuration Release --no-build
+          dotnet build Integration/Consumers/XUnit.PerFact/Consumer.XUnit.PerFact.csproj --configuration Release
+          dotnet test Integration/Consumers/XUnit.PerFact/Consumer.XUnit.PerFact.csproj --configuration Release --no-build
           dotnet build Integration/Consumers/XUnit.v3/XUnit.v3.csproj --configuration Release
           dotnet test Integration/Consumers/XUnit.v3/XUnit.v3.csproj --configuration Release --no-build
           dotnet build Integration/Consumers/NUnit/Consumer.NUnit.csproj --configuration Release

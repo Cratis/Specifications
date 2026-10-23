@@ -1,6 +1,6 @@
 <Project>
     <!-- CratisSpecificationsSharedLifecycle is accepted: this framework already shares the specification context. -->
-    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' == 'true'">
+    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' != 'false'">
         <AssemblyAttribute Include="Cratis.Specifications.SpecificationDisplayNameAttribute" />
     </ItemGroup>
 </Project>

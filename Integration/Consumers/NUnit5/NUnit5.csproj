@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <DefineConstants>$(DefineConstants);NUNIT</DefineConstants>
-        <CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>
-        <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
-        <CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Cratis.Specifications.NUnit5" Version="0.0.0-ci" />

@@ -1,11 +1,11 @@
 <Project>
-    <ItemGroup Condition="'$(CratisSpecificationsSharedLifecycle)' == 'true' Or '$(CratisSpecificationsReadableNames)' == 'true'">
+    <ItemGroup Condition="'$(CratisSpecificationsSharedLifecycle)' != 'false' Or '$(CratisSpecificationsReadableNames)' != 'false'">
         <AssemblyAttribute Include="Xunit.TestFrameworkAttribute">
             <_Parameter1>Cratis.Specifications.SpecificationTestFramework</_Parameter1>
             <_Parameter2>Cratis.Specifications.XUnit</_Parameter2>
         </AssemblyAttribute>
     </ItemGroup>
-    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' == 'true' And '$(CratisSpecificationsSharedLifecycle)' != 'true'">
+    <ItemGroup Condition="'$(CratisSpecificationsSharedLifecycle)' == 'false'">
         <AssemblyAttribute Include="Cratis.Specifications.PerFactSpecificationLifecycleAttribute" />
     </ItemGroup>
 </Project>

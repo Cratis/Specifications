@@ -96,22 +96,20 @@ The same optional properties work for every package:
 
 ```xml
 <PropertyGroup>
-    <CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>
-    <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
-    <CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>
+    <CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>
+    <CratisSpecificationsReadableNames>false</CratisSpecificationsReadableNames>
 </PropertyGroup>
 ```
 
 | Property | Default | What it sets |
 | --- | --- | --- |
-| `CratisSpecificationsSharedLifecycle` | Unset | xUnit: generates the framework registration attribute, sharing eligible specification instances. NUnit, TUnit and the native runner already share instances; this property is accepted without changing their lifecycle. |
-| `CratisSpecificationsReadableNames` | Unset | Generates `[assembly: ReadableSpecificationNames]`. xUnit also registers the framework; if shared lifecycle is not enabled it emits `[assembly: PerFactSpecificationLifecycle]` to retain per-fact execution. TUnit additionally generates its display-name formatter attribute. The native runner already uses readable names. |
-| `CratisSpecificationsWarnOnSharedContextMutation` | Unset | Adds a global analyzer configuration raising `CRSPEC0008` from info to warning. Your repository's `.editorconfig` takes precedence. |
+| `CratisSpecificationsSharedLifecycle` | `true` | xUnit: generates the framework registration attribute, sharing eligible specification instances. Set to `false` to keep xUnit's per-fact lifecycle (the build emits `[assembly: PerFactSpecificationLifecycle]`). NUnit, TUnit and the native runner already share instances; this property is accepted without changing their lifecycle. |
+| `CratisSpecificationsReadableNames` | `true` | Generates `[assembly: ReadableSpecificationNames]`; set to `false` to keep the original display names. xUnit also registers the framework; if shared lifecycle is turned off it emits `[assembly: PerFactSpecificationLifecycle]` to retain per-fact execution. TUnit additionally generates its display-name formatter attribute. The native runner already uses readable names. |
 
-These are additive, opt-in settings: existing projects keep their current names and lifecycle
-unless a setting or the corresponding assembly attribute is added. If your xUnit project already
-has a handwritten `[assembly: Xunit.TestFramework(...)]`, **remove it before enabling either
-of the first two properties**; duplicate framework attributes cause `CS0579`.
+xUnit projects share the specification lifecycle by default: `Establish` and `Because` run once per class. If your xUnit project already
+has a handwritten `[assembly: Xunit.TestFramework(...)]`, **remove it**; duplicate framework attributes cause `CS0579`.
+To keep per-fact execution for one class or the whole assembly, apply `[PerFactSpecificationLifecycle]` to the class or assembly, or set
+`CratisSpecificationsSharedLifecycle` to `false`. `CRSPEC0008` is configured through `.editorconfig` only.
 Registering `SpecificationTestFramework` by hand continues to mean shared lifecycle. For a
 names-only manual registration, also add `[assembly: PerFactSpecificationLifecycle]` and
 `[assembly: ReadableSpecificationNames]`.
