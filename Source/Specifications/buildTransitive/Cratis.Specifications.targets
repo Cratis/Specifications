@@ -6,8 +6,8 @@
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)shared-context.globalconfig" />
     </ItemGroup>
 
-    <!-- CratisSpecificationsAnalyzers turns the bundled CRSPEC analyzers off. Every package carries its own copy of
-         Cratis.Specifications.CodeAnalysis.dll but depends on Cratis.Specifications, so this one file is imported once
+    <!-- CratisSpecificationsAnalyzers turns the bundled CRSPEC analyzers off. Only the Cratis.Specifications package carries
+         Cratis.Specifications.CodeAnalysis.dll and every other package depends on it, so this one file is imported once
          for all of them. The analyzers are removed right after the SDK has added the package analyzers to @(Analyzer),
          which also runs for design-time builds. Only the CodeAnalysis assembly is removed: other analyzers and the
          native runner's source generator (Cratis.Specifications.Runner.Generator.dll) are untouched.

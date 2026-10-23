@@ -6,6 +6,8 @@
         <EnablePackageValidation>true</EnablePackageValidation>
         <PackageValidationBaselineVersion>4.1.3</PackageValidationBaselineVersion>
         <Nullable>enable</Nullable>
+        <!-- The only package that carries the analyzers; the flavor packages receive them through this dependency. -->
+        <CratisBundleAnalyzers>true</CratisBundleAnalyzers>
     </PropertyGroup>
 
     <!-- The lifecycle invoker is shared with the framework-specific packages. -->

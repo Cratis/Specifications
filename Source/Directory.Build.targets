@@ -1,8 +1,9 @@
 <Project>
-    <!-- Every packable project bundles the Cratis Specifications Roslyn analyzers into analyzers/dotnet/cs.
-         NuGet marks analyzer assets as private by default, so analyzers do not flow transitively across package
-         dependencies; each consumer-facing package therefore carries its own copy. The analyzer path is resolved
-         from the project reference, so it does not depend on bin/$(Configuration) layout. -->
+    <!-- Every packable project is analyzed by the Cratis Specifications Roslyn analyzers while it builds here, but
+         only the core Cratis.Specifications package bundles them into analyzers/dotnet/cs. Every consumer-facing package
+         depends on Cratis.Specifications and NuGet flows a dependency's analyzers to the consumer, so a second copy in a
+         flavor package would be loaded and run twice. The analyzer path is resolved from the project reference, so it
+         does not depend on bin/$(Configuration) layout. -->
     <ItemGroup Condition="'$(IsPackable)' == 'true'">
         <ProjectReference Include="$(MSBuildThisFileDirectory)CodeAnalysis/CodeAnalysis.csproj"
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
@@ -13,11 +14,13 @@
             Condition="'$(IsPackable)' == 'true'">
         <MSBuild Projects="$(MSBuildThisFileDirectory)CodeAnalysis/CodeAnalysis.csproj"
                  Targets="GetTargetPath"
-                 RemoveProperties="TargetFramework;TargetFrameworks">
+                 RemoveProperties="TargetFramework;TargetFrameworks"
+                 Condition="'$(CratisBundleAnalyzers)' == 'true'">
             <Output TaskParameter="TargetOutputs" ItemName="_CratisAnalyzerAssembly" />
         </MSBuild>
         <ItemGroup>
-            <None Include="@(_CratisAnalyzerAssembly)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+            <None Include="@(_CratisAnalyzerAssembly)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"
+                  Condition="'$(CratisBundleAnalyzers)' == 'true'" />
             <!-- Explicitly include build assets at pack time: the multi-targeting outer build has no default None items. -->
             <None Remove="buildTransitive/**/*" />
             <None Include="buildTransitive/**/*" Pack="true" PackagePath="buildTransitive/%(RecursiveDir)" Visible="false" />
