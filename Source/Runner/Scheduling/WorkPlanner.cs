@@ -4,7 +4,7 @@
 namespace Cratis.Specifications.Runner;
 
 /// <summary>
-/// Plans a run: picks the classes of the current shard and orders them so the run finishes as early as possible.
+/// Plans a run: picks the classes of the current shard, by a hash of the unique identifier so that every process agrees on the split whatever its run cache holds, and orders them so the run finishes as early as possible.
 /// </summary>
 internal static class WorkPlanner
 {
@@ -27,7 +27,7 @@ internal static class WorkPlanner
 
         if (options.Shard is Shard shard && shard.Count > 1)
         {
-            estimated = cache.HasHistory ? BalanceByDuration(estimated, shard) : SplitByHash(estimated, shard);
+            estimated = SplitByHash(estimated, shard);
         }
 
         if (!cache.HasHistory && !options.LastFailedFirst) return estimated.ConvertAll(_ => _.Work);
@@ -62,34 +62,6 @@ internal static class WorkPlanner
         List<(SpecificationWork Work, double Estimate, bool Known, bool Failed)> estimated,
         Shard shard) =>
         estimated.FindAll(_ => (StableHash(_.Work.Specification.Uid) % (uint)shard.Count) == (uint)(shard.Index - 1));
-
-    static List<(SpecificationWork Work, double Estimate, bool Known, bool Failed)> BalanceByDuration(
-        List<(SpecificationWork Work, double Estimate, bool Known, bool Failed)> estimated,
-        Shard shard)
-    {
-        var ordered = new List<(SpecificationWork Work, double Estimate, bool Known, bool Failed)>(estimated);
-        ordered.Sort((left, right) =>
-        {
-            var byDuration = right.Estimate.CompareTo(left.Estimate);
-            return byDuration != 0 ? byDuration : string.CompareOrdinal(left.Work.Specification.Uid, right.Work.Specification.Uid);
-        });
-
-        var loads = new double[shard.Count];
-        var mine = new List<(SpecificationWork Work, double Estimate, bool Known, bool Failed)>();
-        foreach (var item in ordered)
-        {
-            var target = 0;
-            for (var index = 1; index < loads.Length; index++)
-            {
-                if (loads[index] < loads[target]) target = index;
-            }
-
-            loads[target] += item.Estimate;
-            if (target == shard.Index - 1) mine.Add(item);
-        }
-
-        return mine;
-    }
 
     static double FallbackEstimate(IReadOnlyList<SpecificationWork> work, RunCache cache)
     {

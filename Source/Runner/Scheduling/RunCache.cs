@@ -9,7 +9,7 @@ namespace Cratis.Specifications.Runner;
 
 /// <summary>
 /// Represents the small file remembering the duration and outcome of every specification class from earlier runs.
-/// It drives longest-first and last-failed-first scheduling and duration-balanced sharding.
+/// It drives longest-first and last-failed-first scheduling within a shard; it never decides which shard owns a class.
 /// </summary>
 /// <remarks>
 /// The format is one line per class: the unique identifier, the duration in milliseconds and 1 if it failed, tab separated.

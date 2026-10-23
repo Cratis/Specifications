@@ -43,8 +43,6 @@ public class when_planning_with_a_run_cache : Specification
 
     void should_start_the_classes_that_failed_last_time_first_when_asked() => last_failed_first[0].ShouldEqual("failed");
 
-    // Unknown classes are estimated at the median known duration (50 ms), so the estimated loads are 102 and 101 ms.
-    void should_balance_the_first_shard_by_duration() => shards[0].ShouldContainOnly("slow", "failed");
-
-    void should_balance_the_second_shard_by_duration() => shards[1].ShouldContainOnly("new", "medium", "fast");
+    void should_split_the_shards_by_hash_regardless_of_the_cache() =>
+        shards.SelectMany(_ => _).Order(StringComparer.Ordinal).ShouldEqual(all.Uids().Order(StringComparer.Ordinal));
 }
