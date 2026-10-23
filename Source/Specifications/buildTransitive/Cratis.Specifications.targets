@@ -2,4 +2,15 @@
     <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' != 'false'">
         <AssemblyAttribute Include="Cratis.Specifications.ReadableSpecificationNamesAttribute" />
     </ItemGroup>
+
+    <!--
+        Phase timings: emitted only when set, so a project that does not use them gets nothing.
+        Flows to the consumers of every adapter package through their reference to this package.
+    -->
+    <ItemGroup Condition="'$(CratisSpecificationsPhaseTimings)' == 'true'">
+        <AssemblyMetadata Include="CratisSpecificationsPhaseTimings" Value="true" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(CratisSpecificationsSlowPhaseThreshold)' != ''">
+        <AssemblyMetadata Include="CratisSpecificationsSlowPhaseThreshold" Value="$(CratisSpecificationsSlowPhaseThreshold)" />
+    </ItemGroup>
 </Project>
