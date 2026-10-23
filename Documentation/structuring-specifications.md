@@ -12,7 +12,7 @@ public class Author(string name)
 {
     public string Name { get; } = name;
     public bool IsRegistered { get; private set; }
-    public void Register() => IsRegistered = true;
+    public void Register() => IsRegistered = !string.IsNullOrWhiteSpace(Name);
 }
 ```
 
@@ -175,7 +175,7 @@ public class when_registering_asynchronously : Specification, IAsyncDisposable
         return Task.CompletedTask;
     }
 
-    async Task Because() => _result = await _registrar.Register("Jane", SpecificationContext.CancellationToken);
+    async Task Because() => _result = await _registrar.Register("Jane", CancellationToken.None);
 
     [Fact] void should_return_the_author() => _result.ShouldNotBeNull();
 
@@ -183,9 +183,13 @@ public class when_registering_asynchronously : Specification, IAsyncDisposable
 }
 ```
 
-- `Destroy` runs once after the last fact, then disposal runs once, even if `Destroy` fails.
-- `SpecificationContext.CancellationToken` is part of the native runner. It flows across awaits and is isolated per
-  class; outside a running class it is `CancellationToken.None`. Cancellation is cooperative.
+- When the instance is shared (an eligible xUnit specification with the shared lifecycle on, or the native runner),
+  `Destroy` runs once after the last fact, then disposal runs once, even if `Destroy` fails. With xUnit's default
+  lifecycle every fact gets its own instance, so `Destroy` and disposal run after each fact. On TUnit, keep cleanup in
+  `Destroy` and do not implement `IDisposable`/`IAsyncDisposable`: TUnit disposes the shared instance after each fact.
+- In the native runner, pass `SpecificationContext.CancellationToken` instead of `CancellationToken.None`. It flows
+  across awaits and is isolated per class; outside a running class it is `CancellationToken.None`. Cancellation is
+  cooperative. The other packages have no `SpecificationContext`.
 - xUnit class and collection fixtures stay owned by xUnit and can be constructor arguments of an eligible
   specification. See the README on the
   [shared instance](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class-opt-in).
