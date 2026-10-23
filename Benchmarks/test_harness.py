@@ -9,10 +9,10 @@ from pathlib import Path
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
-from generate import NO_RAW, SOURCES, arguments, generate, project, suite
+from generate import NO_RAW, SOURCES, arguments, generate, project, runner_project, suite
 from measurement import counts, measure, runner
 from report import render
-from run import prepare_project, rotated_order, run_interleaved
+from run import prepare_project, publish_aot, rotated_order, run_interleaved
 
 
 class HarnessTests(unittest.TestCase):
@@ -96,6 +96,14 @@ class HarnessTests(unittest.TestCase):
                 command, report = runner(project_path, flavor, route, True, Path(directory))
                 self.assertIn(setting, command)
                 self.assertIn(str(report) if route == "executable" and flavor == "xunit-v3" else str(Path(directory)), command)
+
+    def test_aot_is_toggled_by_a_benchmark_specific_property_not_a_global_one(self):
+        with patch("run.measure", return_value={"exit": 0}) as measure:
+            publish_aot(Path("Cratis/Benchmark.csproj"), Path("logs"))
+        command = measure.call_args.args[0]
+        self.assertIn("-p:BenchmarkAot=true", command)
+        self.assertNotIn("-p:PublishAot=true", command)
+        self.assertIn("BenchmarkAot", runner_project())
 
     def test_time_wrapper_preserves_child_failure_and_records_rss(self):
         with tempfile.TemporaryDirectory() as directory:

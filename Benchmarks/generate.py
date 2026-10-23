@@ -53,6 +53,8 @@ def runner_project():
     <IsTestProject>false</IsTestProject>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Only this project opts in: a global -p:PublishAot=true would also reach the netstandard2.0 reference projects (NETSDK1207). -->
+    <PublishAot Condition="'$(BenchmarkAot)' == 'true'">true</PublishAot>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../../Source/Runner/Runner.csproj" />

@@ -28,7 +28,7 @@ def runtime_identifier():
 def publish_aot(project, logs):
     # Native AOT publish of the native Cratis runner; timed like a clean build, measured separately.
     result = measure(["dotnet", "publish", str(project), "-c", "Release", "-f", "net10.0", "-r", runtime_identifier(),
-                      "-p:PublishAot=true", "-o", str(project.parent / "bin/aot")], logs / "aot-publish")
+                      "-p:BenchmarkAot=true", "-o", str(project.parent / "bin/aot")], logs / "aot-publish")
     if result["exit"]:
         raise RuntimeError(f"AOT publish failed: {result['log']}")
     return result
