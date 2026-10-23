@@ -36,19 +36,19 @@ A tiny suite mostly measures startup. The gap between runners shrinks as your sp
 
 ## Share the lifecycle
 
-xUnit builds a new instance for every fact, so `Establish` and `Because` run once per fact. A shared lifecycle
-runs them once per class, which is what a specification means: one context, one action, several assertions.
+Plain xUnit builds a new instance for every fact, so `Establish` and `Because` would run once per fact. The shared
+lifecycle runs them once per class, which is what a specification means: one context, one action, several assertions.
 
-- NUnit, TUnit and the native runner already share the instance.
-- On xUnit v2 and v3, opt in with `<CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>`.
+- NUnit, TUnit and the native runner share the instance.
+- On xUnit v2 and v3 the shared lifecycle is the default since 5.0. To keep per-fact execution for a class, apply
+  `[PerFactSpecificationLifecycle]`; for the project, set `<CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>`.
   Eligibility rules are in the README's
-  [shared instance section](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class-opt-in).
+  [shared instance section](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class).
 - The saving is `Establish` plus `Because` multiplied by the facts you no longer repeat. A class with 5 facts
   and a 200 ms `Because` goes from about 1 s of setup to about 200 ms. The benchmark harness's `--work-us` option
   adds deterministic work to each context so you can see this cost on your own hardware.
-- Facts must only read the shared context. Raise `CRSPEC0008` to a warning with
-  `<CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>`
-  so a fact that mutates it is caught at build time.
+- Facts must only read the shared context. `CRSPEC0008` is an error by default, so a fact that mutates it fails the
+  build. To lower it, set the severity in an `.editorconfig`: `dotnet_diagnostic.CRSPEC0008.severity = warning`.
 
 ## Run the executable, not the full `dotnet test` pipeline
 

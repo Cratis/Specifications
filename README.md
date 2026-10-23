@@ -23,7 +23,12 @@ Packages:
 - [Cratis.Specifications.XUnit.v3](https://www.nuget.org/packages/cratis.specifications.xunit.v3) — for xUnit v3
 - [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit) — for NUnit 4
 - [Cratis.Specifications.NUnit5](https://www.nuget.org/packages/cratis.specifications.nunit5) — for NUnit 5
-- [Cratis.Specifications.TUnit](https://www.nuget.org/packages/cratis.specifications.tunit)
+- [Cratis.Specifications.TUnit](https://www.nuget.org/packages/cratis.specifications.tunit) — for TUnit
+- [Cratis.Specifications.Runner](https://www.nuget.org/packages/cratis.specifications.runner) — the native runner on Microsoft.Testing.Platform (experimental)
+- [Cratis.Specifications](https://www.nuget.org/packages/cratis.specifications) — the shared core (the `Specification` base, assertions and analyzers); every package above depends on it
+
+All packages target `net10.0`; specification projects that must target .NET 8 or .NET 9 stay on 4.x. Use the same version of
+`Cratis.Specifications` and of your framework package. Coming from 4.x? Read the [5.0 upgrade guide](./UPGRADING-5.0.md).
 
 ## What does it do?
 
@@ -85,31 +90,35 @@ for the `Specification` base and assertions; keep the framework's own attribute 
 
 | Framework | Specification package | Runner packages | Project defaults supplied |
 | --- | --- | --- | --- |
-| xUnit v2 | `Cratis.Specifications.XUnit` | `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` | No additional defaults |
-| xUnit v3 | `Cratis.Specifications.XUnit.v3` | `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` (or the MTP-enabled `xunit.v3` runner) | None; set `<OutputType>Exe</OutputType>` |
-| NUnit 4 | `Cratis.Specifications.NUnit` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | No additional defaults |
-| NUnit 5 | `Cratis.Specifications.NUnit5` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | No additional defaults |
-| TUnit | `Cratis.Specifications.TUnit` | `TUnit` | None; the `TUnit` package makes it an executable |
-| Native runner | `Cratis.Specifications.Runner` | None | Executable Microsoft.Testing.Platform test project with generated entry point |
+| xUnit v2 | `Cratis.Specifications.XUnit` | `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` | Shared lifecycle and readable names on; the framework registration is generated |
+| xUnit v3 | `Cratis.Specifications.XUnit.v3` | `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` (or the MTP-enabled `xunit.v3` runner) | Same as xUnit v2; set `<OutputType>Exe</OutputType>` yourself |
+| NUnit 4 | `Cratis.Specifications.NUnit` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | Readable names on |
+| NUnit 5 | `Cratis.Specifications.NUnit5` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | Readable names on |
+| TUnit | `Cratis.Specifications.TUnit` | `TUnit` | Readable names on; the `TUnit` package makes it an executable |
+| Native runner | `Cratis.Specifications.Runner` | None | Executable Microsoft.Testing.Platform test project with generated entry point; readable names |
 
-The same optional properties work for every package:
+The same optional properties work for every package. The values below turn a default **off**:
 
 ```xml
 <PropertyGroup>
     <CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>
     <CratisSpecificationsReadableNames>false</CratisSpecificationsReadableNames>
+    <CratisSpecificationsAnalyzers>false</CratisSpecificationsAnalyzers>
 </PropertyGroup>
 ```
 
 | Property | Default | What it sets |
 | --- | --- | --- |
 | `CratisSpecificationsSharedLifecycle` | `true` | xUnit: generates the framework registration attribute, sharing eligible specification instances. Set to `false` to keep xUnit's per-fact lifecycle (the build emits `[assembly: PerFactSpecificationLifecycle]`). NUnit, TUnit and the native runner already share instances; this property is accepted without changing their lifecycle. |
-| `CratisSpecificationsReadableNames` | `true` | Generates `[assembly: ReadableSpecificationNames]`; set to `false` to keep the original display names. xUnit also registers the framework; if shared lifecycle is turned off it emits `[assembly: PerFactSpecificationLifecycle]` to retain per-fact execution. TUnit additionally generates its display-name formatter attribute. The native runner already uses readable names. |
+| `CratisSpecificationsReadableNames` | `true` | Generates `[assembly: ReadableSpecificationNames]`; set to `false` to keep the original display names, in every package including the native runner. xUnit also registers the framework; if shared lifecycle is turned off it emits `[assembly: PerFactSpecificationLifecycle]` to retain per-fact execution. TUnit additionally generates its display-name formatter attribute. |
+| `CratisSpecificationsAnalyzers` | `true` | `false` turns the bundled analyzers off, `ide` keeps them in the IDE only. See [Turning the analyzers off](#turning-the-analyzers-off). |
+| `CratisSpecificationsSharedResources` | `false` | Experimental; set to `true` to lease isolated parts of [shared resources](./Documentation/shared-resources.md). |
+| `CratisSpecificationsPhaseTimings` | `false` | Set to `true` to record [phase timings](./Documentation/phase-timings.md); `CratisSpecificationsSlowPhaseThreshold` (milliseconds) and `CratisSpecificationsPhaseTimingsFile` refine it. |
 
 xUnit projects share the specification lifecycle by default: `Establish` and `Because` run once per class. If your xUnit project already
 has a handwritten `[assembly: Xunit.TestFramework(...)]`, **remove it**; duplicate framework attributes cause `CS0579`.
 To keep per-fact execution for one class or the whole assembly, apply `[PerFactSpecificationLifecycle]` to the class or assembly, or set
-`CratisSpecificationsSharedLifecycle` to `false`. `CRSPEC0008` is configured through `.editorconfig` only.
+`CratisSpecificationsSharedLifecycle` to `false`. `CRSPEC0008` (an error by default) is configured through `.editorconfig` only; see [Analyzers](#analyzers).
 Registering `SpecificationTestFramework` by hand continues to mean shared lifecycle. For a
 names-only manual registration, also add `[assembly: PerFactSpecificationLifecycle]` and
 `[assembly: ReadableSpecificationNames]`.
@@ -173,9 +182,7 @@ the same namespace, so switching is only a package change:
 | 4.x | `Cratis.Specifications.NUnit` |
 | 5.x | `Cratis.Specifications.NUnit5` |
 
-One difference: `collection.ShouldEqual(1, 2, 3)` compares the sequence, including order, in the NUnit 5
-package (as in the xUnit and TUnit packages), while the NUnit 4 package has always ignored the order and
-keeps doing so for compatibility.
+The assertions behave the same in both; see [Assertions](#assertions).
 
 The difference between XUnit and NUnit is on the signature of the tests.
 Instead of `[Fact]` for XUnit, you'll have to adorn with `[Test]`, in addition to that, NUnit
@@ -304,23 +311,17 @@ On the .NET 10 SDK, `dotnet test` for a TUnit project requires opting in to the 
 repository. Use `dotnet run --project <spec project>` when the repository also has xUnit or NUnit projects on VSTest,
 as this repository does.
 
-## Shared instance per specification class (opt-in)
+## Shared instance per specification class
 
-By default, xUnit constructs a fresh instance of the test class for every `[Fact]`, which means
-`Establish` and `Because` run once **per fact** rather than once per behavior. For specs whose
-`Because` drives real machinery, that multiplies the cost of the action by the number of facts —
-and a behavior described by several facts ends up being executed several times.
+xUnit constructs a fresh instance of the test class for every `[Fact]`, which would make `Establish` and `Because` run once
+**per fact** rather than once per behavior. For specs whose `Because` drives real machinery, that multiplies the cost of the
+action by the number of facts, and a behavior described by several facts ends up being executed several times.
 
-The xUnit package ships an opt-in execution mode with MSpec-style semantics. Add the standard
-xUnit assembly attribute to your test assembly:
-
-```csharp
-[assembly: Xunit.TestFramework("Cratis.Specifications.SpecificationTestFramework", "Cratis.Specifications.XUnit")]
-```
-
-With this in place, every eligible specification class is constructed **once**, `Establish` and
-`Because` run **once**, all its facts run against that shared instance, and `Destroy` runs **once**
-after the last fact.
+The xUnit packages therefore share the instance by default, with MSpec-style semantics: every eligible
+specification class is constructed **once**, `Establish` and `Because` run **once**, all its facts run against that shared
+instance, and `Destroy` runs **once** after the last fact. NUnit, TUnit and the native runner work the same way. The
+package build generates the framework registration; you write nothing. A hand-written
+`[assembly: Xunit.TestFramework(...)]` for Cratis Specifications must be removed, otherwise the build fails with `CS0579`.
 
 A class is eligible when it derives from `Specification`, has a single public constructor
 with no arguments or only framework-managed fixture arguments, and contains only plain facts.
@@ -332,7 +333,10 @@ constructors and unsupported constructor arguments keep the stock per-fact lifec
 The same rules apply on v3, including its assembly fixtures.
 
 The one rule to honor: facts must not mutate the shared context. They are assertions about the
-single execution the class describes — which is the BDD model to begin with.
+single execution the class describes, which is the BDD model to begin with. The `CRSPEC0008` analyzer enforces it as a build error.
+
+To keep xUnit's per-fact lifecycle, apply `[PerFactSpecificationLifecycle]` to a class or to the assembly, or set
+`<CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>` for the whole project.
 
 ## xUnit v2 and xUnit v3
 
@@ -348,52 +352,57 @@ and `Should*` assertion extensions, so specifications move between them unchange
 project is an executable, so set `<OutputType>Exe</OutputType>` as described in the
 [xUnit v3 migration guide](https://xunit.net/docs/getting-started/v3/migration).
 
-The shared instance per specification class is opt-in on xUnit v3 too, with the same eligibility rules.
-xUnit v3 takes the framework type rather than its name:
+The shared instance per specification class is the default on xUnit v3 too, with the same eligibility rules and the
+same opt-outs.
 
-```csharp
-[assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
-```
+## Assertions
 
-## Assertion behavior per package
+The `Should*` assertions live in `Cratis.Specifications` and behave the same in every package: the same names, rules and
+failure messages. Only the exception type differs, because each package fails the way its test framework expects:
 
-The `Should*` assertions have the same names in every package, and every package fails with its own assertion exception
-(`XunitException`, NUnit's `AssertionException`, or `SpecificationAssertionException` for TUnit and the native runner).
-A catalog of examples is run against every package, so the behavior below is verified rather than assumed.
+| Package | Exception thrown by a failed assertion |
+| --- | --- |
+| xUnit v2 and v3 | `XunitException` |
+| NUnit 4 and 5 | NUnit's `AssertionException` |
+| TUnit and the native runner | `SpecificationAssertionException` (carries `Expected` and `Actual` for a comparison) |
 
-| Behavior | xUnit v2 / v3 | NUnit 4 | NUnit 5 | TUnit / native runner |
-|---|---|---|---|---|
-| `ShouldEqual(IEnumerable)` | In order | In order | In order | In order |
-| `ShouldEqual(params)` | In order | **Any order** (unchanged) | In order | In order |
-| `ShouldContainOnly` | Any order, duplicates count | Any order, duplicates count | Any order, duplicates count | Any order, duplicates count |
-| `ShouldContain(items)` | Every item present; repeats not demanded | Same | Same | Same |
-| Nested collection elements | Compared with `Equals` | NUnit equality (deep) | NUnit equality (deep) | Deep |
-| Actual is `null` | Fails with a readable message | Fails with a readable message | Fails with a readable message | Fails with a readable message |
+| Behavior | Rule in every package |
+| --- | --- |
+| `ShouldEqual(IEnumerable)` and `ShouldEqual(params)` | Same elements in the same order. |
+| `ShouldEqualInOrder(...)` | Same as `ShouldEqual` for collections, by name. |
+| `ShouldEqualInAnyOrder(...)` | Same elements in any order; duplicates are significant. |
+| `ShouldContainOnly` | Any order; duplicates count. |
+| `ShouldContain(items)` | Every item is present; repeats are not demanded. |
+| `ShouldContainSingleMatching(predicate)` | Exactly one element matches. |
+| Nested collection elements | Compared deeply, element by element (strings are compared as strings). |
+| Actual is `null` | Fails with a readable message instead of throwing a `NullReferenceException`. |
+| Expected is `null` | Equal to a `null` actual; a `null` expected collection fails. |
+| Predicates (`ShouldMatch`, `ShouldEachConformTo`, containment by predicate) | Take `Func<T, bool>`. |
 
-Use the explicit names when the order matters to you, since they behave the same in every package:
+A failed `null` check reads like `ShouldContain expected the actual value to contain the expected item but the actual value was null`.
+`ShouldNotBeNull` is annotated `[NotNull]`, so the compiler knows the value is not null afterwards.
 
-- `ShouldEqualInOrder(...)`: the same elements in the same order.
-- `ShouldEqualInAnyOrder(...)`: the same elements in any order; duplicates are significant.
-- `ShouldContainSingleMatching(predicate)`: exactly one element matches (now available in the xUnit and TUnit packages too).
-
-A `null` actual value fails with a message like `ShouldContain expected the actual value to contain the expected item but the actual value was null`
-instead of a `NullReferenceException` or `ArgumentNullException`. In the TUnit package `ShouldNotContain` on a `null` string used to pass and now fails.
-
-The NUnit 4 order-insensitive `ShouldEqual(params)` and the xUnit/NUnit differences for nested collections are kept for compatibility; unifying them is a breaking change tracked for 5.0 (#74).
+In NUnit, a failing `Should*` assertion inside `Assert.Multiple` stops the block at that assertion; later assertions in the
+block do not report. Moving from 4.x? See the [5.0 upgrade guide](./UPGRADING-5.0.md#assertions).
 
 ## Analyzers
 
-The packages ship Roslyn analyzers (`CRSPEC0001`–`CRSPEC0009`) that catch common specification mistakes.
+`Cratis.Specifications` ships Roslyn analyzers (`CRSPEC0001`–`CRSPEC0009`) that catch common specification mistakes; the
+framework packages receive them through their dependency on it. The native runner's source generator adds `CRSPEC0010`
+(an `async void` fact or lifecycle method, an error) and `CRSPEC0011` (a method called through reflection, a warning).
 
 `CRSPEC0008` — *facts should not modify the shared specification context* — reports a `should_*`
 fact that assigns to, increments, or calls `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on
-an instance field or property of the specification. Because it would otherwise break builds that treat
-warnings as errors, it is reported as **info** by default. Raise it in an `.editorconfig`:
+an instance field or property of the specification. Facts share one context by default, so it is an **error**.
+It does not report in classes or assemblies marked `[PerFactSpecificationLifecycle]`, in theories, or on calls whose
+result is used or that target immutable collections. Lower it for a project or folder in an `.editorconfig`:
 
 ```ini
 [*.cs]
-dotnet_diagnostic.CRSPEC0008.severity = warning   # or error
+dotnet_diagnostic.CRSPEC0008.severity = warning   # or suggestion, or none
 ```
+
+The `CratisSpecificationsWarnOnSharedContextMutation` property from 4.x is gone.
 
 ### Turning the analyzers off
 
@@ -416,8 +425,9 @@ Standard SDK switches also work:
 
 - `RunAnalyzersDuringBuild=false` or `RunAnalyzers=false` turns off **all** analyzers, not only ours.
 - Set a single rule's severity in `.editorconfig`: `dotnet_diagnostic.CRSPEC0008.severity = none`.
-- `ExcludeAssets="analyzers"` on the `PackageReference` drops the analyzers. Do not use it on `Cratis.Specifications.Runner`:
-  that also drops its source generator and the specifications are no longer registered.
+- Do not use `ExcludeAssets="analyzers"` to drop them. The analyzers come from the `Cratis.Specifications` dependency, so
+  excluding assets on a framework package does not remove them, and on `Cratis.Specifications.Runner` it also drops the
+  source generator, so the specifications are no longer registered. Use the property.
 
 ## Native runner on Microsoft.Testing.Platform (experimental)
 
@@ -462,6 +472,11 @@ behavior may change without notice while it is experimental.
 
 ## Guides
 
+- [Upgrading to 5.0](./UPGRADING-5.0.md) — what changes from 4.x and a checklist.
+- [The native runner](./Documentation/runner.md) — IDE support, options, limits and migrating from xUnit.
+- [Runner output and reports](./Documentation/runner-output.md) — the console tree and Markdown, JSON and GitHub reports.
+- [Phase timings](./Documentation/phase-timings.md) — where the time of a run goes, and slow-phase reporting.
+- [Shared resources](./Documentation/shared-resources.md) (experimental, opt in with `CratisSpecificationsSharedResources=true`) — share a database or container across specifications and lease isolated parts of it.
 - [Running specifications fast](./Documentation/running-fast.md) — package and runner choice, shared lifecycle, filtering, sharding and a short feedback loop.
 - [Structuring specifications](./Documentation/structuring-specifications.md) — from a single behavior to shared contexts, doubles, async work and readable names.
 - [Integration specifications](./Documentation/integration-specifications.md) — in-process scenarios, shared fixtures and keeping infrastructure-backed specifications fast.
