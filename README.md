@@ -86,10 +86,10 @@ for the `Specification` base and assertions; keep the framework's own attribute 
 | Framework | Specification package | Runner packages | Project defaults supplied |
 | --- | --- | --- | --- |
 | xUnit v2 | `Cratis.Specifications.XUnit` | `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` | No additional defaults |
-| xUnit v3 | `Cratis.Specifications.XUnit.v3` | `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` (or the MTP-enabled `xunit.v3` runner) | Executable test project |
+| xUnit v3 | `Cratis.Specifications.XUnit.v3` | `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` (or the MTP-enabled `xunit.v3` runner) | None; set `<OutputType>Exe</OutputType>` |
 | NUnit 4 | `Cratis.Specifications.NUnit` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | No additional defaults |
 | NUnit 5 | `Cratis.Specifications.NUnit5` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | No additional defaults |
-| TUnit | `Cratis.Specifications.TUnit` | `TUnit` | Executable test project |
+| TUnit | `Cratis.Specifications.TUnit` | `TUnit` | None; the `TUnit` package makes it an executable |
 | Native runner | `Cratis.Specifications.Runner` | None | Executable Microsoft.Testing.Platform test project with generated entry point |
 
 The same optional properties work for every package:

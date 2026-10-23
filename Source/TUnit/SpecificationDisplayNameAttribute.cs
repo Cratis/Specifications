@@ -13,6 +13,9 @@ public sealed class SpecificationDisplayNameAttribute : DisplayNameFormatterAttr
     {
         var type = context.TestDetails.Class.ClassType;
         if (!typeof(Specification).IsAssignableFrom(type) || !type.Assembly.IsDefined(typeof(ReadableSpecificationNamesAttribute), false)) return context.GetDisplayName();
-        return SpecificationDisplayNames.ForFact(SpecificationDisplayNames.ForType(type), context.TestName);
+        var name = SpecificationDisplayNames.ForFact(SpecificationDisplayNames.ForType(type), context.TestName);
+        var frameworkName = context.GetDisplayName();
+        var arguments = frameworkName.IndexOf('(');
+        return arguments < 0 ? name : string.Concat(name.AsSpan(), frameworkName.AsSpan(arguments));
     }
 }

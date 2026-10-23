@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <OutputType>Exe</OutputType>
         <DefineConstants>$(DefineConstants);XUNIT</DefineConstants>
         <CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>
         <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
