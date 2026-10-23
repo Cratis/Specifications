@@ -31,4 +31,12 @@
     <ItemGroup Condition="'$(CratisSpecificationsSlowPhaseThreshold)' != ''">
         <AssemblyMetadata Include="CratisSpecificationsSlowPhaseThreshold" Value="$(CratisSpecificationsSlowPhaseThreshold)" />
     </ItemGroup>
+
+    <!--
+        Shared resource leases (experimental): compiled in only when set, so a project that does not lease keeps the
+        unobserved fast path. The module initializer registers the observer that releases leases after Destroy.
+    -->
+    <ItemGroup Condition="'$(CratisSpecificationsSharedResources)' == 'true' And '$(Language)' == 'C#'">
+        <Compile Include="$(MSBuildThisFileDirectory)CratisSpecificationsSharedResources.g.cs" Visible="false" />
+    </ItemGroup>
 </Project>

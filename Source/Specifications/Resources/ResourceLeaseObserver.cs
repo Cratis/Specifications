@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 namespace Cratis.Specifications.Resources;
 
@@ -10,9 +9,8 @@ namespace Cratis.Specifications.Resources;
 /// Releases the leases a specification holds when its scope ends, after Destroy.
 /// </summary>
 /// <remarks>
-/// Registered when the assembly loads, so every specification instance gets a scope to lease in: a lease is taken
-/// during Establish, after the adapter decided whether to observe the instance. It is the first observer, so the
-/// lease release is reported before the other observers see the scope end.
+/// Registered by <see cref="SpecificationResourcesHook.Enable"/> when the test assembly loads, and only for a test
+/// project that opted in, so every specification instance of that project gets a scope to lease in.
 /// </remarks>
 [Experimental(SpecificationResources.DiagnosticId)]
 internal sealed class ResourceLeaseObserver : ISpecificationObserver
@@ -27,9 +25,4 @@ internal sealed class ResourceLeaseObserver : ISpecificationObserver
 
     /// <inheritdoc/>
     public ValueTask ScopeEnded(SpecificationScope scope) => ScopeLeases.Release(scope);
-
-#pragma warning disable CA2255 // The observer must be registered before the first specification runs, from the core assembly itself.
-    [ModuleInitializer]
-    internal static void Register() => SpecificationObservers.Add(new ResourceLeaseObserver());
-#pragma warning restore CA2255
 }

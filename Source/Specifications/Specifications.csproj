@@ -17,4 +17,9 @@
         <InternalsVisibleTo Include="Cratis.Specifications.NUnit5" />
         <InternalsVisibleTo Include="Cratis.Specifications.TUnit" />
     </ItemGroup>
+
+    <!-- The shared resources module initializer under buildTransitive compiles into consumers, not into this package. -->
+    <ItemGroup>
+        <Compile Remove="buildTransitive/**" />
+    </ItemGroup>
 </Project>

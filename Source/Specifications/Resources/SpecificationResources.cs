@@ -20,6 +20,10 @@ namespace Cratis.Specifications.Resources;
 /// </code>
 /// </para>
 /// <para>
+/// Leasing needs the test project to set the MSBuild property <c>CratisSpecificationsSharedResources</c> to <c>true</c>;
+/// <see cref="Get{T}(CancellationToken)"/> works without it.
+/// </para>
+/// <para>
 /// Nothing starts until a specification asks for it, so skipped and unselected specifications start nothing.
 /// Every resource started is stopped when the test session ends; a failure to stop is reported by the test framework
 /// as a cleanup failure of the run.
@@ -68,7 +72,7 @@ public static class SpecificationResources
     /// <typeparam name="TLease">The type of the lease.</typeparam>
     /// <param name="cancellationToken">Cancels waiting for the resource or for a free lease.</param>
     /// <returns>The lease, disposed after the specification's Destroy.</returns>
-    /// <exception cref="InvalidOperationException">When called outside Establish or Because.</exception>
+    /// <exception cref="InvalidOperationException">When the test project has not set CratisSpecificationsSharedResources to true, or when called outside Establish or Because.</exception>
     /// <exception cref="SpecificationResourceOrderException">When leasing would break the ordinal key order of limited groups.</exception>
     /// <exception cref="SpecificationCancelledException">When cancelled while waiting.</exception>
     public static ValueTask<TLease> Lease<T, TLease>(CancellationToken cancellationToken = default)
@@ -85,7 +89,7 @@ public static class SpecificationResources
     /// <param name="factory">Creates the resource; only used when the resource has not been created yet.</param>
     /// <param name="cancellationToken">Cancels waiting for the resource or for a free lease.</param>
     /// <returns>The lease, disposed after the specification's Destroy.</returns>
-    /// <exception cref="InvalidOperationException">When called outside Establish or Because.</exception>
+    /// <exception cref="InvalidOperationException">When the test project has not set CratisSpecificationsSharedResources to true, or when called outside Establish or Because.</exception>
     /// <exception cref="SpecificationResourceOrderException">When leasing would break the ordinal key order of limited groups.</exception>
     /// <exception cref="SpecificationCancelledException">When cancelled while waiting.</exception>
     public static ValueTask<TLease> Lease<T, TLease>(Func<T> factory, CancellationToken cancellationToken = default)

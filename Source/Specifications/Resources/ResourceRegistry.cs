@@ -16,13 +16,17 @@ namespace Cratis.Specifications.Resources;
 /// of the test session; stopping clears the registry, so a resource asked for afterwards starts again.
 /// </remarks>
 /// <param name="registerSessionEnd">Registers the stop with the end of the test session; defaults to <see cref="SpecificationSession.Register"/>.</param>
+/// <param name="leasesEnabled">Tells whether the test project opted in to leases; defaults to <see cref="SpecificationResourcesHook.IsEnabled"/>.</param>
 [Experimental(SpecificationResources.DiagnosticId)]
 [SuppressMessage("Design", "CA1001", Justification = "The registry lives until the test session ends; Stop disposes the token source it replaces.")]
-internal sealed class ResourceRegistry(Action<Func<ValueTask>>? registerSessionEnd = null)
+internal sealed class ResourceRegistry(Action<Func<ValueTask>>? registerSessionEnd = null, Func<bool>? leasesEnabled = null)
 {
+    static readonly Func<bool> _hookEnabled = static () => SpecificationResourcesHook.IsEnabled;
+
     static long _leaseIds;
 
     readonly Action<Func<ValueTask>> _registerSessionEnd = registerSessionEnd ?? SpecificationSession.Register;
+    readonly Func<bool> _leasesEnabled = leasesEnabled ?? _hookEnabled;
     readonly Lock _lock = new();
     Dictionary<Type, ResourceEntry> _entries = [];
     Dictionary<string, ResourceGroup> _groups = new(StringComparer.Ordinal);
@@ -58,6 +62,13 @@ internal sealed class ResourceRegistry(Action<Func<ValueTask>>? registerSessionE
         where T : class, ISpecificationResource<TLease>
         where TLease : IAsyncDisposable
     {
+        if (!_leasesEnabled())
+        {
+            throw new InvalidOperationException(
+                $"Leasing shared resources needs the test project to opt in, so the lease can be released after Destroy. " +
+                $"Set the MSBuild property {SpecificationResourcesHook.OptInProperty} to true in the test project.");
+        }
+
         var scope = SpecificationScope.Current ??
             throw new InvalidOperationException("Lease shared resources from the Establish or Because of a specification, so the lease can be released after Destroy.");
         var entry = EntryFor(factory);
