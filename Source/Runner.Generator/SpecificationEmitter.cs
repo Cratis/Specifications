@@ -112,7 +112,7 @@ public static class SpecificationEmitter
         }
 
         body.AppendLine("        }");
-        return $"new {Runtime}.FactDescriptor({Literal(fact.Call.Name)}, {Literal(fact.DisplayName)}, {(fact.FilePath is null ? "null" : Literal(fact.FilePath))}, {fact.Line}, {name}, {(fact.SkipReason is null ? "null" : Literal(fact.SkipReason))})";
+        return $"new {Runtime}.FactDescriptor({Literal(fact.Call.Name)}, {Literal(fact.DisplayName)}, {(fact.FilePath is null ? "null" : Literal(fact.FilePath))}, {fact.Line}, {name}, {(fact.SkipReason is null ? "null" : Literal(fact.SkipReason))}, {Literal(ReturnTypeName(fact.Call.Returns))})";
     }
 
     static string Call(StringBuilder accessors, MethodCall call, ref int counter)
@@ -132,6 +132,13 @@ public static class SpecificationEmitter
                 return $"{Runtime}.ReflectionInvoker.Invoke(_method{index}, specification)";
         }
     }
+
+    static string ReturnTypeName(ReturnKind kind) => kind switch
+    {
+        ReturnKind.Task => "System.Threading.Tasks.Task",
+        ReturnKind.ValueTask => "System.Threading.Tasks.ValueTask",
+        _ => "System.Void"
+    };
 
     static string ReturnType(ReturnKind kind) => kind switch
     {

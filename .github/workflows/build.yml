@@ -136,6 +136,7 @@ jobs:
             "test Integration/Consumers/NUnit5/NUnit5.csproj"
             "run Integration/Consumers/TUnit/Consumer.TUnit.csproj"
             "run Integration/Consumers/Runner/Runner.csproj"
+            "test Integration/Consumers/AnalyzersOff/AnalyzersOff.csproj"
           )
           for consumer in "${consumers[@]}"; do
             dotnet restore "${consumer#* }"

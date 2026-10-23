@@ -1,0 +1,17 @@
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks />
+    <IsPackable>false</IsPackable>
+    <DefineConstants>$(DefineConstants);NUNIT4_ONLY</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <ProjectReference Include="../../../Source/NUnit/NUnit.csproj" Aliases="n4" />
+    <Compile Include="../Program.cs" Link="Program.cs" />
+    <Compile Include="../AssertionBenchmarks.cs" Link="AssertionBenchmarks.cs" />
+  </ItemGroup>
+</Project>

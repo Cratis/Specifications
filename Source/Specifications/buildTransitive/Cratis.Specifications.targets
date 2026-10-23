@@ -5,4 +5,23 @@
     <ItemGroup Condition="'$(CratisSpecificationsWarnOnSharedContextMutation)' == 'true'">
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)shared-context.globalconfig" />
     </ItemGroup>
+
+    <!-- CratisSpecificationsAnalyzers turns the bundled CRSPEC analyzers off. Only the Cratis.Specifications package carries
+         Cratis.Specifications.CodeAnalysis.dll and every other package depends on it, so this one file is imported once
+         for all of them. The analyzers are removed right after the SDK has added the package analyzers to @(Analyzer),
+         which also runs for design-time builds. Only the CodeAnalysis assembly is removed: other analyzers and the
+         native runner's source generator (Cratis.Specifications.Runner.Generator.dll) are untouched.
+         false = off everywhere; ide = keep them in IDE design-time builds, off in command-line builds. -->
+    <PropertyGroup>
+        <_CratisRemoveAnalyzers Condition="'$(CratisSpecificationsAnalyzers)' == 'false'">true</_CratisRemoveAnalyzers>
+        <_CratisRemoveAnalyzers Condition="'$(CratisSpecificationsAnalyzers)' == 'ide' And '$(DesignTimeBuild)' != 'true' And '$(BuildingInsideVisualStudio)' != 'true'">true</_CratisRemoveAnalyzers>
+    </PropertyGroup>
+
+    <Target Name="CratisSpecificationsRemoveAnalyzers"
+            AfterTargets="ResolveLockFileAnalyzers"
+            Condition="'$(_CratisRemoveAnalyzers)' == 'true'">
+        <ItemGroup>
+            <Analyzer Remove="@(Analyzer)" Condition="'%(Filename)%(Extension)' == 'Cratis.Specifications.CodeAnalysis.dll'" />
+        </ItemGroup>
+    </Target>
 </Project>

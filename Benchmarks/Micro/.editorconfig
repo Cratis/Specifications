@@ -1,0 +1,7 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+# BenchmarkDotNet's generated host and xUnit discovery require public benchmark/fixture classes.
+[*.cs]
+dotnet_diagnostic.CA1515.severity = none
+# Lifecycle methods are invoked by convention/reflection, not direct source calls.
+dotnet_diagnostic.IDE0051.severity = none

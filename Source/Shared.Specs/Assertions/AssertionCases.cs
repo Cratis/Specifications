@@ -26,6 +26,15 @@ public static class AssertionCases
     static readonly int[][] _nested = [_firstInner, _secondInner];
     static readonly int[][] _nestedSame = [_firstInner, _secondInner];
     static readonly int[][] _nestedDifferent = [_firstInner, _otherInner];
+    static readonly int[] _large = [.. Enumerable.Range(0, 40).Select(index => index % 10)];
+    static readonly int[] _largeReversed = [.. _large.Reverse()];
+    static readonly int[] _largeOneDifferent = [.. _large.Take(39), 10];
+    static readonly int[] _largeLonger = [.. _large, 0];
+    static readonly string?[] _largeWithNulls = [.. Enumerable.Repeat("a", 30), null, null];
+    static readonly string?[] _largeWithNullsShuffled = [null, .. Enumerable.Repeat("a", 30), null];
+    static readonly string?[] _largeWithOneNull = [.. Enumerable.Repeat("a", 31), null];
+    static readonly UnhashableItem[] _largeUnhashable = [.. Enumerable.Range(0, 20).Select(index => new UnhashableItem(index))];
+    static readonly UnhashableItem[] _largeUnhashableReversed = [.. _largeUnhashable.Reverse()];
     static readonly Dictionary<string, int> _dictionary = new() { ["one"] = 1 };
 
     // Null actuals: every assertion must fail with the package's own assertion exception.
@@ -76,6 +85,12 @@ public static class AssertionCases
         Fail("contain only: duplicates that differ", () => _duplicated.ShouldContainOnly(1, 2)),
         Fail("contain only: extra item", () => _numbers.ShouldContainOnly(1, 2)),
         Fail("contain only: actual is null", () => _noCollection.ShouldContainOnly(1)),
+        Pass("contain only: many items with duplicates in another order", () => _large.ShouldContainOnly(_largeReversed)),
+        Fail("contain only: many items with one different item", () => _large.ShouldContainOnly(_largeOneDifferent)),
+        Fail("contain only: many items with one extra item", () => _large.ShouldContainOnly(_largeLonger)),
+        Pass("contain only: many items with nulls in another place", () => _largeWithNulls.ShouldContainOnly(_largeWithNullsShuffled)),
+        Fail("contain only: many items with a different number of nulls", () => _largeWithNulls.ShouldContainOnly(_largeWithOneNull)),
+        Pass("contain only: many items whose hash code throws", () => _largeUnhashable.ShouldContainOnly(_largeUnhashableReversed)),
 
         // Containment.
         Pass("contain: item present", () => _numbers.ShouldContain(2)),
@@ -140,4 +155,13 @@ public static class AssertionCases
     static AssertionCase Pass(string name, Action run) => new(name, run, ExpectedOutcome.Pass);
 
     static AssertionCase Fail(string name, Action run) => new(name, run, ExpectedOutcome.Fail);
+
+    sealed class UnhashableItem(int value)
+    {
+        public int Value { get; } = value;
+
+        public override bool Equals(object? obj) => obj is UnhashableItem other && other.Value == Value;
+
+        public override int GetHashCode() => throw new NotSupportedException("Not hashable");
+    }
 }

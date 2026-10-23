@@ -74,7 +74,7 @@ internal sealed class TestNodeFactory(string assemblyFullName, TrxCapability trx
             fact.MethodName,
             0,
             [],
-            "System.Void");
+            fact.ReturnTypeFullName);
 
         properties = fact.FilePath is null
             ? [method]

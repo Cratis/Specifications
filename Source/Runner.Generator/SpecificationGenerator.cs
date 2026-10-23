@@ -20,9 +20,10 @@ public sealed class SpecificationGenerator : IIncrementalGenerator
         var specifications = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => node is ClassDeclarationSyntax { BaseList: not null },
-                static (syntax, _) => syntax.SemanticModel.GetDeclaredSymbol(syntax.Node) is INamedTypeSymbol type
-                    ? SpecificationModelBuilder.Build(type, syntax.SemanticModel.Compilation)
-                    : null)
+                static (syntax, _) => SpecificationModelBuilder.ReferencesRunner(syntax.SemanticModel.Compilation) &&
+                    syntax.SemanticModel.GetDeclaredSymbol(syntax.Node) is INamedTypeSymbol type
+                        ? SpecificationModelBuilder.Build(type, syntax.SemanticModel.Compilation)
+                        : null)
             .Where(static _ => _ is not null)
             .Collect();
 
@@ -36,6 +37,7 @@ public sealed class SpecificationGenerator : IIncrementalGenerator
             .Select(_ => _.First())
             .OrderBy(_ => _.Uid, StringComparer.Ordinal)
             .ToList();
+        foreach (var diagnostic in unique.SelectMany(_ => _.Diagnostics).Distinct()) Diagnostics.Report(output, diagnostic);
         if (unique.Count == 0) return;
 
         var builder = new StringBuilder();
