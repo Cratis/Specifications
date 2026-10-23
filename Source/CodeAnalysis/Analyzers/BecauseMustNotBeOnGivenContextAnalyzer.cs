@@ -40,7 +40,7 @@ public class BecauseMustNotBeOnGivenContextAnalyzer : DiagnosticAnalyzer
     {
         var method = (IMethodSymbol)context.Symbol;
 
-        if (method.MethodKind != MethodKind.Ordinary || method.Name != BecauseMethodName)
+        if (method.MethodKind != MethodKind.Ordinary || method.Name is not (BecauseMethodName or "When"))
         {
             return;
         }

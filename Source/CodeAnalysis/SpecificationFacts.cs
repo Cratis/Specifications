@@ -41,7 +41,7 @@ public static class SpecificationFacts
     /// <summary>
     /// The convention-discovered lifecycle method names.
     /// </summary>
-    public static readonly ImmutableArray<string> LifecycleMethodNames = ["Establish", "Because", "Destroy"];
+    public static readonly ImmutableArray<string> LifecycleMethodNames = ["Establish", "Given", "Because", "When", "Destroy"];
 
     static readonly HashSet<string> _testMethodAttributeNames = new(System.StringComparer.Ordinal)
     {
