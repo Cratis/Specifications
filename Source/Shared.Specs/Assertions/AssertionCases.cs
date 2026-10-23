@@ -29,10 +29,10 @@ public static class AssertionCases
     static readonly Dictionary<string, int> _dictionary = new() { ["one"] = 1 };
 
     // Null actuals: every assertion must fail with the package's own assertion exception.
-    static readonly IEnumerable<int> _noCollection = null!;
-    static readonly IDictionary<string, int> _noDictionary = null!;
-    static readonly string _noString = null!;
-    static readonly IComparable _noComparable = null!;
+    static readonly IEnumerable<int> _noCollection = null;
+    static readonly IDictionary<string, int> _noDictionary = null;
+    static readonly string _noString = null;
+    static readonly IComparable _noComparable = null;
 
     /// <summary>
     /// Gets every catalogued assertion.
@@ -101,19 +101,19 @@ public static class AssertionCases
         Fail("not contain: dictionary is null", () => _noDictionary.ShouldNotContain("one")),
 
         // Single, empty and conforming.
-        Pass("single item: one item", () => _single.ShouldContainSingleItem()),
-        Fail("single item: two items", () => _shorter.ShouldContainSingleItem()),
-        Fail("single item: actual is null", () => _noCollection.ShouldContainSingleItem()),
+        Pass("single item: one item", _single.ShouldContainSingleItem),
+        Fail("single item: two items", _shorter.ShouldContainSingleItem),
+        Fail("single item: actual is null", _noCollection.ShouldContainSingleItem),
         Pass("single matching: exactly one match", () => _numbers.ShouldContainSingleMatching(item => item == 2)),
         Fail("single matching: no match", () => _numbers.ShouldContainSingleMatching(item => item == 4)),
         Fail("single matching: two matches", () => _numbers.ShouldContainSingleMatching(item => item > 1)),
         Fail("single matching: actual is null", () => _noCollection.ShouldContainSingleMatching(item => item > 1)),
-        Pass("empty: no items", () => _empty.ShouldBeEmpty()),
-        Fail("empty: has items", () => _numbers.ShouldBeEmpty()),
-        Fail("empty: actual is null", () => _noCollection.ShouldBeEmpty()),
-        Pass("not empty: has items", () => _numbers.ShouldNotBeEmpty()),
-        Fail("not empty: no items", () => _empty.ShouldNotBeEmpty()),
-        Fail("not empty: actual is null", () => _noCollection.ShouldNotBeEmpty()),
+        Pass("empty: no items", _empty.ShouldBeEmpty),
+        Fail("empty: has items", _numbers.ShouldBeEmpty),
+        Fail("empty: actual is null", _noCollection.ShouldBeEmpty),
+        Pass("not empty: has items", _numbers.ShouldNotBeEmpty),
+        Fail("not empty: no items", _empty.ShouldNotBeEmpty),
+        Fail("not empty: actual is null", _noCollection.ShouldNotBeEmpty),
         Pass("each conforms: all conform", () => _numbers.ShouldEachConformTo(item => item > 0)),
         Fail("each conforms: one does not", () => _numbers.ShouldEachConformTo(item => item > 1)),
         Fail("each conforms: actual is null", () => _noCollection.ShouldEachConformTo(item => item > 0)),

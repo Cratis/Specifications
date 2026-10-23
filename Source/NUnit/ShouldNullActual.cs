@@ -12,6 +12,11 @@ namespace Cratis.Specifications;
 static class NullActual
 {
     [DoesNotReturn]
-    public static void Fail(string assertion, string expectation) =>
-        Assert.Fail($"{assertion} expected {expectation} but the actual value was null");
+    public static void Fail(string assertion, string expectation)
+    {
+        var message = $"{assertion} expected {expectation} but the actual value was null";
+        Assert.Fail(message);
+        // Assert.Fail can return inside a multiple-assert scope; never continue with a null actual.
+        throw new AssertionException(message);
+    }
 }

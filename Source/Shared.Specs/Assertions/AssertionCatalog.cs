@@ -34,7 +34,7 @@ public static class AssertionCatalog
             }
             else if (assertion.Expected == ExpectedOutcome.Fail && !failureType.IsInstanceOfType(thrown))
             {
-                mismatches.Add($"{assertion.Name}: expected to fail with {failureType.Name} but threw {thrown!.GetType().Name}: {thrown.Message}");
+                mismatches.Add($"{assertion.Name}: expected to fail with {failureType.Name} but threw {thrown.GetType().Name}: {thrown.Message}");
             }
         }
 

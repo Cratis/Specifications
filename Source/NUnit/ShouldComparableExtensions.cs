@@ -20,6 +20,7 @@ public static class ShouldComparableExtensions
     public static void ShouldBeInRange<T>(this T actual, T low, T high)
         where T : IComparable
     {
+        if (actual is null) NullActual.Fail("ShouldBeInRange", "a value within the range");
         Assert.That(actual, Is.InRange(low, high));
     }
 
@@ -33,6 +34,7 @@ public static class ShouldComparableExtensions
     public static void ShouldNotBeInRange<T>(this T actual, T low, T high)
         where T : IComparable
     {
+        if (actual is null) NullActual.Fail("ShouldNotBeInRange", "a value outside the range");
         Assert.That(actual, Is.Not.InRange(low, high));
     }
 
@@ -43,6 +45,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeGreaterThan(this IComparable left, IComparable right)
     {
+        if (left is null) NullActual.Fail("ShouldBeGreaterThan", "a value greater than the other value");
         Assert.That(left, Is.GreaterThan(right));
     }
 
@@ -53,6 +56,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeGreaterThanOrEqual(this IComparable left, IComparable right)
     {
+        if (left is null) NullActual.Fail("ShouldBeGreaterThanOrEqual", "a value greater than or equal to the other value");
         Assert.That(left, Is.GreaterThanOrEqualTo(right));
     }
 
@@ -63,6 +67,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeLessThan(this IComparable left, IComparable right)
     {
+        if (left is null) NullActual.Fail("ShouldBeLessThan", "a value less than the other value");
         Assert.That(left, Is.LessThan(right));
     }
 
@@ -73,6 +78,7 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeLessThanOrEqual(this IComparable left, IComparable right)
     {
+        if (left is null) NullActual.Fail("ShouldBeLessThanOrEqual", "a value less than or equal to the other value");
         Assert.That(left, Is.LessThanOrEqualTo(right));
     }
 }
