@@ -21,6 +21,7 @@
         <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
         <Compile Include="../Shared.Specs/Resources/*.cs" Link="Resources/%(Filename)%(Extension)" />
         <None Remove="Probes/bin/**;Probes/obj/**" />
+        <None Update="for_Reporting/Snapshots/**" CopyToOutputDirectory="PreserveNewest" />
         <ProjectReference Include="Probes/ContractProbes.csproj" />
         <ProjectReference Include="../Runner/Runner.csproj" />
         <ProjectReference Include="../Runner.Specs.Probes/Runner.Specs.Probes.csproj" />
