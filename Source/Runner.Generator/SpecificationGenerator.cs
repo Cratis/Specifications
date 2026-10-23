@@ -36,6 +36,7 @@ public sealed class SpecificationGenerator : IIncrementalGenerator
             .Select(_ => _.First())
             .OrderBy(_ => _.Uid, StringComparer.Ordinal)
             .ToList();
+        foreach (var diagnostic in unique.SelectMany(_ => _.Diagnostics).Distinct()) Diagnostics.Report(output, diagnostic);
         if (unique.Count == 0) return;
 
         var builder = new StringBuilder();
