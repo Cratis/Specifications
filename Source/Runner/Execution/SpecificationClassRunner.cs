@@ -14,8 +14,23 @@ internal static class SpecificationClassRunner
     /// </summary>
     /// <param name="work">The specification class and its selected facts.</param>
     /// <param name="sequentialFacts">Whether to await each fact before starting the next.</param>
+    /// <param name="cancellationToken">The cooperative cancellation token of the run.</param>
     /// <returns>The result of every selected fact, in order.</returns>
-    public static async Task<FactResult[]> Run(SpecificationWork work, bool sequentialFacts)
+    public static async Task<FactResult[]> Run(SpecificationWork work, bool sequentialFacts, CancellationToken cancellationToken = default)
+    {
+        var previous = SpecificationContext.CancellationToken;
+        SpecificationContext.CancellationToken = cancellationToken;
+        try
+        {
+            return await RunCore(work, sequentialFacts);
+        }
+        finally
+        {
+            SpecificationContext.CancellationToken = previous;
+        }
+    }
+
+    static async Task<FactResult[]> RunCore(SpecificationWork work, bool sequentialFacts)
     {
         var specification = work.Specification;
         var facts = work.Facts;

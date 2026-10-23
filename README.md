@@ -323,7 +323,8 @@ dotnet_diagnostic.CRSPEC0008.severity = warning   # or error
 `Cratis.Specifications.Runner` is an experimental, native specification runner on
 [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro),
 without xUnit, NUnit or TUnit underneath. Reference the package and the test project becomes an executable test
-application; a source generator registers the specifications at compile time, so there is no reflection at run time.
+application; a source generator registers the specifications at compile time. Ordinary methods use generated
+invocation; inaccessible methods on constructed generic base types use a reflection fallback.
 
 ```csharp
 public class when_registering : Specification
@@ -341,6 +342,15 @@ public class when_registering : Specification
 - `Given`/`When` are aliases for `Establish`/`Because`; a class may not declare both forms of the same step.
 - One instance per class: `Establish` and `Because` run once, facts may run concurrently and must only read the
   shared context, then `Destroy` and disposal (`IDisposable`/`IAsyncDisposable`) run once.
+- Stop/cancellation stops scheduling new classes, then waits for running classes to finish all their facts, `Destroy`
+  and disposal. Unstarted facts are reported as skipped. Running code can cooperate through
+  `SpecificationContext.CancellationToken`, which flows across awaits and is isolated per class; outside a class it
+  is `CancellationToken.None`. Cancellation does not forcibly interrupt running code.
+- `--treenode-filter '/<assembly>/<namespace>/<class>/<fact>'` selects methods by their code names, not their
+  readable display names. Segments support the platform's wildcards and alternatives; for example
+  `--treenode-filter '/*/*/when_registering/*'`. Use the assembly's simple name and URL-encode special characters
+  in path segments. There are no trait properties. `--filter-uid` still accepts class or fact UIDs; other filter
+  types fail explicitly rather than running an unfiltered suite.
 - Test names read as sentences: `for_Author.when_registering.should_be_registered` shows as
   `Author › when registering › should be registered`.
 - Options: `--specs-parallel <n>`, `--specs-sequential-facts`, `--fail-fast`, `--last-failed-first`,
