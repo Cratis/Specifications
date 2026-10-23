@@ -6,16 +6,16 @@ can do today and what is planned.
 
 ## Start by not needing infrastructure
 
-Many "integration" behaviors do not need a container. Arc and Chronicle ship in-process scenarios that run the real
+Many "integration" behaviors do not need a container. Arc and Chronicle ship in-process scenarios in their own repositories that run the real
 command pipeline, projections, reducers and append path in memory. They are specifications in the sense of this
 repository: fast, isolated and run with the same runners.
 
-| Scenario | Package | What it runs |
+| Scenario | Assembly | What it runs |
 | --- | --- | --- |
-| `CommandScenario<TCommand>` | Arc `Testing` (`Cratis.Arc.Testing.Commands`) | An Arc command through its pipeline, with validation, authorization and operations. |
-| `ReadModelScenario<TReadModel>` | Chronicle `Testing` (`Cratis.Chronicle.Testing.ReadModels`) | A projection or reducer, auto-detected, fed by events. |
-| `EventScenario` | Chronicle `Testing` (`Cratis.Chronicle.Testing.EventSequences`) | The kernel append path on in-memory storage: constraints, serialization, migrations, PII. Observers do not run. |
-| `ReactorScenario<TReactor>` | Chronicle `Testing` | A reactor and its recorded side effects. |
+| `CommandScenario<TCommand>` | `Cratis.Arc.Testing` (`Cratis.Arc.Testing.Commands`) | An Arc command through its pipeline, with validation, authorization and operations. |
+| `ReadModelScenario<TReadModel>` | `Cratis.Chronicle.Testing` (`Cratis.Chronicle.Testing.ReadModels`) | A projection or reducer, auto-detected, fed by events. |
+| `EventScenario` | `Cratis.Chronicle.Testing` (`Cratis.Chronicle.Testing.EventSequences`) | The kernel append path on in-memory storage: constraints, serialization, migrations, PII. Observers do not run. |
+| `ReactorScenario<TReactor>` | `Cratis.Chronicle.Testing` | A reactor and its recorded side effects. |
 
 ```csharp
 using Cratis.Arc.Testing.Commands;
