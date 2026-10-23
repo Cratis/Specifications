@@ -25,9 +25,12 @@ public static class ShouldCollectionExtensions
     {
         if (collection is null) NullActual.Fail("ShouldContainOnly", "a collection containing only the expected items");
         var source = new List<T>(collection);
+        var expectedItems = ShouldCountedMatch.AsCollection(expected);
+        if (ShouldCountedMatch.Matches(source, expectedItems)) return;
+
         var noContain = new List<T>();
 
-        foreach (var item in expected)
+        foreach (var item in expectedItems)
         {
             if (!source.Remove(item))
             {
@@ -38,9 +41,9 @@ public static class ShouldCollectionExtensions
         if (noContain.Count > 0 || source.Count > 0)
         {
             var sourceItems = string.Join(",", collection);
-            var expectedItems = string.Join(",", expected);
+            var expectedText = string.Join(",", expected);
 
-            Assert.Fail($"Collection '{sourceItems}' does not only contain '{expectedItems}'");
+            Assert.Fail($"Collection '{sourceItems}' does not only contain '{expectedText}'");
         }
     }
 
