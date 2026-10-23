@@ -1,0 +1,19 @@
+Account
+  when depositing
+    ✓ should increase balance (12 ms)
+        Establish 3 ms
+        Because 1.50 s (slow)
+    ✗ should record deposit (5 ms)
+        Expected: 1
+        Actual:   2
+        at /src/Account.cs:41
+    ○ should notify (skipped: not yet)
+  when closing
+    and the balance is positive
+      ✗ The context failed
+        The database was not available
+      ✗ should refund (<1 ms)
+      ✗ should close (<1 ms)
+Customer
+  when registering
+    ✓ should be created (800 ms)

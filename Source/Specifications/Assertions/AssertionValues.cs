@@ -72,6 +72,27 @@ static class AssertionValues
         _ => value.ToString() ?? value.GetType().ToString()
     };
 
+    /// <summary>
+    /// Extracts the expected and actual values from a message in the "Expected: ... / Actual: ..." shape the assertions format.
+    /// </summary>
+    /// <param name="message">The failure message.</param>
+    /// <param name="expected">The expected value, without its label.</param>
+    /// <param name="actual">The actual value, without its label.</param>
+    /// <returns>True when the message has both values.</returns>
+    public static bool TryExtractExpectedActual(string message, out string? expected, out string? actual)
+    {
+        expected = null;
+        actual = null;
+        if (!message.StartsWith("Expected", StringComparison.Ordinal)) return false;
+        var separator = message.IndexOf(Environment.NewLine + "Actual:", StringComparison.Ordinal);
+        if (separator < 0) return false;
+
+        var expectedText = message.Substring(0, separator);
+        expected = expectedText.StartsWith("Expected: ", StringComparison.Ordinal) ? expectedText.Substring("Expected: ".Length) : expectedText;
+        actual = message.Substring(separator + Environment.NewLine.Length + "Actual:".Length).TrimStart();
+        return true;
+    }
+
     static bool SequencesEqual(IEnumerable expected, IEnumerable actual)
     {
         var expectedEnumerator = expected.GetEnumerator();

@@ -31,6 +31,21 @@ internal sealed class SpecificationCommandLineOptions : ICommandLineOptionsProvi
     /// <summary>The path of the run cache file, or "none".</summary>
     public const string Cache = "specs-cache";
 
+    /// <summary>How much the console tree prints: quiet, normal or detailed.</summary>
+    public const string Output = "specs-output";
+
+    /// <summary>Prints without color.</summary>
+    public const string NoColor = "specs-no-color";
+
+    /// <summary>Records and shows phase timings.</summary>
+    public const string Timings = "specs-timings";
+
+    /// <summary>The duration in milliseconds from which a phase is shown as slow.</summary>
+    public const string Slow = "specs-slow";
+
+    /// <summary>Writes a report: md or json with a path, or github.</summary>
+    public const string Report = "specs-report";
+
     /// <summary>The environment variable giving the maximum number of specification classes running at the same time.</summary>
     public const string ParallelEnvironmentVariable = "CRATIS_SPECS_PARALLEL";
 
@@ -57,7 +72,12 @@ internal sealed class SpecificationCommandLineOptions : ICommandLineOptionsProvi
         new(FailFast, "Stops starting new specification classes after the first failure.", ArgumentArity.Zero, false),
         new(LastFailedFirst, "Starts the specification classes that failed in the previous run first.", ArgumentArity.Zero, false),
         new(Shard, "Runs one shard of the specification classes, as index/count (for instance 2/4). Balanced by the durations in the run cache when present, otherwise split by a stable hash.", ArgumentArity.ExactlyOne, false),
-        new(Cache, "The path of the run cache remembering durations and failures, or 'none'. Defaults to .specs-cache next to the test assembly.", ArgumentArity.ExactlyOne, false)
+        new(Cache, "The path of the run cache remembering durations and failures, or 'none'. Defaults to .specs-cache next to the test assembly.", ArgumentArity.ExactlyOne, false),
+        new(Output, "How much the console tree prints: quiet, normal (the default) or detailed. Quiet registers no reporter; server mode (IDEs) never prints the tree.", ArgumentArity.ExactlyOne, false),
+        new(NoColor, "Prints the console tree without color. The NO_COLOR environment variable has the same effect.", ArgumentArity.Zero, false),
+        new(Timings, "Records phase timings and shows the phases of each fact in the console tree. Settings that already enable timings win.", ArgumentArity.Zero, false),
+        new(Slow, "The duration in milliseconds from which a phase is shown as slow in the console tree. Implies --specs-timings.", ArgumentArity.ExactlyOne, false),
+        new(Report, "Writes a report after the run: 'md <path>' (Markdown), 'json <path>' or 'github' (Markdown appended to the file named by GITHUB_STEP_SUMMARY, when set). Can name several reports.", ArgumentArity.OneOrMore, false)
     ];
 
     /// <inheritdoc/>
@@ -65,6 +85,9 @@ internal sealed class SpecificationCommandLineOptions : ICommandLineOptionsProvi
     {
         Parallel when !IsPositiveInteger(arguments[0]) => ValidationResult.InvalidTask($"--{Parallel} must be a positive integer."),
         Shard when !Runner.Shard.TryParse(arguments[0], out _) => ValidationResult.InvalidTask($"--{Shard} must be index/count, for instance 2/4."),
+        Output when !SpecificationReportOptions.TryParseLevel(arguments[0], out _) => ValidationResult.InvalidTask($"--{Output} must be quiet, normal or detailed."),
+        Slow when !IsPositiveInteger(arguments[0]) => ValidationResult.InvalidTask($"--{Slow} must be a positive number of milliseconds."),
+        Report when !ReportRequest.TryParse(arguments, out _) => ValidationResult.InvalidTask($"--{Report} must be 'md <path>', 'json <path>' or 'github'."),
         _ => ValidationResult.ValidTask
     };
 
@@ -93,7 +116,8 @@ internal sealed class SpecificationCommandLineOptions : ICommandLineOptionsProvi
             commandLine.IsOptionSet(FailFast),
             commandLine.IsOptionSet(LastFailedFirst),
             shard,
-            string.Equals(cache, "none", StringComparison.OrdinalIgnoreCase) ? null : cache);
+            string.Equals(cache, "none", StringComparison.OrdinalIgnoreCase) ? null : cache,
+            SpecificationReportOptions.Read(commandLine, Environment.GetEnvironmentVariable));
     }
 
     static bool IsPositiveInteger(string? value) =>

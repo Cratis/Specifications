@@ -40,7 +40,7 @@ public static class TestingPlatformBuilderHook
             (_, services) =>
             {
                 var commandLine = services.GetCommandLineOptions();
-                return new SpecificationFramework(SpecificationCommandLineOptions.Read(commandLine), trx, commandLine.IsOptionSet("server"));
+                return new SpecificationFramework(SpecificationCommandLineOptions.Read(commandLine), trx, commandLine.IsOptionSet("server"), new OutputDeviceSpecificationOutput(services.GetOutputDevice()));
             });
     }
 }
