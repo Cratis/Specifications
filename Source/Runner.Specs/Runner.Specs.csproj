@@ -13,6 +13,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Project references skip the buildTransitive targets, so opt into readable names the way they do. -->
+        <AssemblyAttribute Include="Cratis.Specifications.ReadableSpecificationNamesAttribute" />
+    </ItemGroup>
+    <ItemGroup>
         <Compile Remove="Probes/**/*.cs" />
         <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
         <Compile Include="../Shared.Specs/Resources/*.cs" Link="Resources/%(Filename)%(Extension)" />

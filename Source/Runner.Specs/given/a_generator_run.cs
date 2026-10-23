@@ -17,11 +17,13 @@ internal static class a_generator_run
         .Split(Path.PathSeparator)
         .Select(_ => MetadataReference.CreateFromFile(_))];
 
-    public static (ImmutableArray<Diagnostic> Diagnostics, string Source) Over(string source)
+    public static (ImmutableArray<Diagnostic> Diagnostics, string Source) Over(string source, bool readableNames = false)
     {
+        var trees = new List<SyntaxTree> { CSharpSyntaxTree.ParseText(source) };
+        if (readableNames) trees.Add(CSharpSyntaxTree.ParseText("[assembly: Cratis.Specifications.ReadableSpecificationNamesAttribute]"));
         var compilation = CSharpCompilation.Create(
             "GeneratorProbe",
-            [CSharpSyntaxTree.ParseText(source)],
+            trees,
             _references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Disable));
         var driver = CSharpGeneratorDriver.Create(new SpecificationGenerator()).RunGenerators(compilation);

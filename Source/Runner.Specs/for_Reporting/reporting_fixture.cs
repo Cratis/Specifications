@@ -56,7 +56,7 @@ internal static class reporting_fixture
     static (SpecificationWork Work, FactResult[] Results) Class(string displayName, string[] methods, FactResult[] results)
     {
         var facts = methods
-            .Select((method, index) => new FactDescriptor(method, displayName + " " + method, "/src/Account.cs", 40 + index, _ => ValueTask.CompletedTask))
+            .Select((method, index) => new FactDescriptor(method, displayName + SpecificationDisplayNames.Separator + SpecificationDisplayNames.Readable(method), "/src/Account.cs", 40 + index, _ => ValueTask.CompletedTask))
             .ToArray();
         var specification = new SpecificationClassDescriptor(displayName, "Specs", displayName, displayName, null, null, null, null, facts);
         return (new SpecificationWork(specification, facts), results);
