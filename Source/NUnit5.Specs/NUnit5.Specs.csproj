@@ -16,6 +16,7 @@
     <!-- The framework-free assertion catalog is shared by every package's specs. -->
     <ItemGroup>
         <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,4 +36,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+    <!-- Compile the session hook the package adds to its consumers. The NUnit 5 package ships the NUnit package's hook
+         file, which only exists next to that package's targets in the source tree. -->
+    <Import Project="../NUnit/buildTransitive/Cratis.Specifications.NUnit.targets" />
 </Project>

@@ -128,13 +128,20 @@ public class SpecificationTestClassRunner(
         }
         finally
         {
-            if (instance is IAsyncDisposable asyncDisposable)
+            try
             {
-                await asyncDisposable.DisposeAsync();
+                if (instance is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync();
+                }
+                else
+                {
+                    (instance as IDisposable)?.Dispose();
+                }
             }
-            else
+            finally
             {
-                (instance as IDisposable)?.Dispose();
+                await instance.EndScope();
             }
         }
     }

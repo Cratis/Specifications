@@ -118,13 +118,20 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
         }
         finally
         {
-            if (HasCustomAsyncDisposal(instance.GetType()) && instance is IAsyncDisposable asyncDisposable)
+            try
             {
-                await asyncDisposable.DisposeAsync();
+                if (HasCustomAsyncDisposal(instance.GetType()) && instance is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync();
+                }
+                else
+                {
+                    (instance as IDisposable)?.Dispose();
+                }
             }
-            else
+            finally
             {
-                (instance as IDisposable)?.Dispose();
+                await instance.EndScope();
             }
         }
     }

@@ -15,4 +15,9 @@
         <!-- Flow Cratis.Specifications buildTransitive (opt-in properties such as CratisSpecificationsReadableNames) to consumers of this package. -->
         <ProjectReference Include="../Specifications/Specifications.csproj" PrivateAssets="contentfiles;analyzers" />
     </ItemGroup>
+
+    <ItemGroup>
+        <!-- The session hook under buildTransitive compiles into consumers, not into this package. -->
+        <Compile Remove="buildTransitive/**" />
+    </ItemGroup>
 </Project>

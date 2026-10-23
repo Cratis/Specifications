@@ -45,6 +45,7 @@ namespace Cratis.Specifications;
 public class Specification : IAsyncLifetime
 {
     bool _initialized;
+    SpecificationScope? _scope;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Specification"/> class.
@@ -75,6 +76,8 @@ public class Specification : IAsyncLifetime
         if (_initialized) return;
         _initialized = true;
 
+        _scope = SpecificationScope.CreateIfObserved(this);
+        if (_scope is not null) await _scope.Start();
         await OnEstablish();
         await OnBecause();
     }
@@ -83,7 +86,7 @@ public class Specification : IAsyncLifetime
     /// <remarks>
     /// xUnit v3 only calls <see cref="IAsyncDisposable.DisposeAsync"/> on a test class that is also
     /// <see cref="IDisposable"/>, whereas xUnit v2 called both. To keep the xUnit v2 semantics, a specification that
-    /// implements <see cref="IDisposable"/> is disposed here, after Destroy.
+    /// implements <see cref="IDisposable"/> is disposed here, after Destroy. An observed scope ends after that disposal.
     /// </remarks>
     public async ValueTask DisposeAsync()
     {
@@ -95,7 +98,14 @@ public class Specification : IAsyncLifetime
         }
         finally
         {
-            (this as IDisposable)?.Dispose();
+            try
+            {
+                (this as IDisposable)?.Dispose();
+            }
+            finally
+            {
+                await EndScope();
+            }
         }
     }
 
@@ -105,9 +115,15 @@ public class Specification : IAsyncLifetime
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     internal Task DestroyAsync() => OnDestroy();
 
-    Task OnEstablish() => SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
+    /// <summary>
+    /// Ends the observed scope of the instance, if it has one.
+    /// </summary>
+    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    internal ValueTask EndScope() => _scope?.End() ?? default;
 
-    Task OnBecause() => SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
+    Task OnEstablish() => _scope?.Establish(typeof(Specification)) ?? SpecificationLifecycle.Establish(this, GetType(), typeof(Specification));
 
-    Task OnDestroy() => SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
+    Task OnBecause() => _scope?.Because(typeof(Specification)) ?? SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
+
+    Task OnDestroy() => _scope?.Destroy(typeof(Specification)) ?? SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
 }

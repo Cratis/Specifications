@@ -14,6 +14,7 @@
     <!-- The framework-free assertion catalog is shared by every package's specs. -->
     <ItemGroup>
         <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>

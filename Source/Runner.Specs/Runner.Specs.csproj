@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <Compile Remove="Probes/**/*.cs" />
+        <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
         <ProjectReference Include="Probes/ContractProbes.csproj" />
         <ProjectReference Include="../Runner/Runner.csproj" />
         <ProjectReference Include="../Runner.Specs.Probes/Runner.Specs.Probes.csproj" />
