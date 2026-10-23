@@ -436,6 +436,12 @@ public class when_registering : Specification
 Run it with `dotnet run --project <spec project>` or the built executable. The package, its options and its
 behavior may change without notice while it is experimental.
 
+## Guides
+
+- [Running specifications fast](./Documentation/running-fast.md) — package and runner choice, shared lifecycle, filtering, sharding and a short feedback loop.
+- [Structuring specifications](./Documentation/structuring-specifications.md) — from a single behavior to shared contexts, doubles, async work and readable names.
+- [Integration specifications](./Documentation/integration-specifications.md) — in-process scenarios, shared fixtures and keeping infrastructure-backed specifications fast.
+
 ## Related projects
 
 Specifications pairs naturally with [Synopsis](https://github.com/Cratis/Synopsis), which turns
