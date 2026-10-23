@@ -2,8 +2,8 @@
 <!-- Copyright (c) Cratis. All rights reserved.
      Licensed under the MIT license. See LICENSE file in the project root for full license information.
      Generated against 4.5.0. Experimental APIs are still public API for ApiCompat; later breaking changes need suppressions.
-     CP0002: UPGRADING-5.0.md, Assertions (Predicate<T> replaced by Func<T, bool>).
-     PKV006: UPGRADING-5.0.md, Target framework (net8.0 and net9.0 removed).
+     CP0002: Documentation/upgrading-5.0.md, Assertions (Predicate<T> replaced by Func<T, bool>).
+     PKV006: Documentation/upgrading-5.0.md, Target framework (net8.0 and net9.0 removed).
      https://learn.microsoft.com/dotnet/fundamentals/package-validation/diagnostic-ids -->
 <Suppressions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Suppression>

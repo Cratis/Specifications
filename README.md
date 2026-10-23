@@ -28,7 +28,7 @@ Packages:
 - [Cratis.Specifications](https://www.nuget.org/packages/cratis.specifications) — the shared core (the `Specification` base, assertions and analyzers); every package above depends on it
 
 All packages target `net10.0`; specification projects that must target .NET 8 or .NET 9 stay on 4.x. Use the same version of
-`Cratis.Specifications` and of your framework package. Coming from 4.x? Read the [5.0 upgrade guide](./UPGRADING-5.0.md).
+`Cratis.Specifications` and of your framework package. Coming from 4.x? Read the [5.0 upgrade guide](./Documentation/upgrading-5.0.md).
 
 ## What does it do?
 
@@ -383,7 +383,7 @@ A failed `null` check reads like `ShouldContain expected the actual value to con
 `ShouldNotBeNull` is annotated `[NotNull]`, so the compiler knows the value is not null afterwards.
 
 In NUnit, a failing `Should*` assertion inside `Assert.Multiple` stops the block at that assertion; later assertions in the
-block do not report. Moving from 4.x? See the [5.0 upgrade guide](./UPGRADING-5.0.md#assertions).
+block do not report. Moving from 4.x? See the [5.0 upgrade guide](./Documentation/upgrading-5.0.md#assertions).
 
 ## Analyzers
 
@@ -481,7 +481,7 @@ behavior may change without notice while it is experimental.
 
 ## Guides
 
-- [Upgrading to 5.0](./UPGRADING-5.0.md) — what changes from 4.x and a checklist.
+- [Upgrading to 5.0](./Documentation/upgrading-5.0.md) — what changes from 4.x and a checklist.
 - [The native runner](./Documentation/runner.md) — IDE support, options, limits and migrating from xUnit.
 - [Runner output and reports](./Documentation/runner-output.md) — the console tree and Markdown, JSON and GitHub reports.
 - [Phase timings](./Documentation/phase-timings.md) — where the time of a run goes, and slow-phase reporting.

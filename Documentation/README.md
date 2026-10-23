@@ -15,4 +15,4 @@ packages, lifecycle conventions, assertions and analyzers; these guides assume y
 | [Phase timings](./phase-timings.md) | See where the time of a run goes and report slow phases. |
 | [Shared resources](./shared-resources.md) | Share an expensive resource across specifications and lease an isolated part of it (experimental). |
 
-Upgrading from 4.x? See the [5.0 upgrade guide](https://github.com/Cratis/Specifications/blob/main/UPGRADING-5.0.md).
+Upgrading from 4.x? See the [5.0 upgrade guide](https://github.com/Cratis/Specifications/blob/main/Documentation/upgrading-5.0.md).

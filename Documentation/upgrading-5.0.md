@@ -45,7 +45,7 @@ changes in the specification code.
 Which classes are eligible is unchanged: the class derives from `Specification`, has a single public constructor
 with no arguments (or only framework-managed fixture arguments) and contains plain facts. Theories, `ITestOutputHelper`
 constructors, custom `IAsyncLifetime` implementations and unsupported constructor arguments keep xUnit's per-fact
-lifecycle. The eligibility rules are in the [README](./README.md#shared-instance-per-specification-class).
+lifecycle. The eligibility rules are in the [README](../README.md#shared-instance-per-specification-class).
 
 ### Remove a hand-written framework attribute
 
@@ -203,7 +203,7 @@ If you use `Cratis.Specifications.Runner`:
   the lifecycle methods through reflection. Trimmed or AOT callers should use the native runner, whose generated code calls
   the lifecycle methods directly.
 - The runner prints a console tree and can write Markdown, JSON and GitHub summary reports; see
-  [runner output and reports](./Documentation/runner-output.md).
+  [runner output and reports](./runner-output.md).
 
 ## Analyzers: one switch, one package
 
@@ -219,7 +219,7 @@ every package:
 | `ide` | The analyzers run in IDE design-time builds only. |
 
 `ExcludeAssets="analyzers"` on the adapter package reference no longer removes them, because they come from the
-`Cratis.Specifications` dependency; use the property. See [Analyzers](./README.md#analyzers).
+`Cratis.Specifications` dependency; use the property. See [Analyzers](../README.md#analyzers).
 
 ## Keep package versions aligned
 
@@ -241,14 +241,14 @@ for trade-offs and executable launch guidance.
 
 Additive features that you do not need to adopt:
 
-- [Shared resources and isolation leases](./Documentation/shared-resources.md) (experimental): start a database or a
+- [Shared resources and isolation leases](./shared-resources.md) (experimental): start a database or a
   container once per test session and give each specification its own lease. Opt in with
   `CratisSpecificationsSharedResources=true`; the API reports `CRSPECEXP01`. A source generator that writes `typeof(...)`
   for every public type of referenced assemblies can trip `CRSPECEXP01` in its generated code even when you do not use
   the API. Cratis Fundamentals' type discovery handles this from 7.26.1; for other generators, update them or add
   `CRSPECEXP01` to `NoWarn` in the specification project.
-- [Phase timings](./Documentation/phase-timings.md): see how long `Establish`, `Because` and `Destroy` take, report slow
+- [Phase timings](./phase-timings.md): see how long `Establish`, `Because` and `Destroy` take, report slow
   phases, and write a JSON timings file.
-- [Runner output and reports](./Documentation/runner-output.md): a console tree and Markdown, JSON and GitHub summary
+- [Runner output and reports](./runner-output.md): a console tree and Markdown, JSON and GitHub summary
   reports for the native runner.
-- [The native runner](./Documentation/runner.md): IDE support, options, limits and migrating from xUnit.
+- [The native runner](./runner.md): IDE support, options, limits and migrating from xUnit.
