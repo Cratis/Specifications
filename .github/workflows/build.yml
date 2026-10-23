@@ -19,6 +19,7 @@ on:
       - "Directory.Build.props"
       - "Directory.Packages.props"
       - "global.json"
+      - ".github/workflows/build.yml"
   pull_request:
     branches:
       - "**"
@@ -28,26 +29,31 @@ on:
       - "Directory.Build.props"
       - "Directory.Packages.props"
       - "global.json"
+      - ".github/workflows/build.yml"
+
+permissions:
+  contents: read
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup .Net
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
             ${{ env.DOTNET8_VERSION }}
             ${{ env.DOTNET9_VERSION }}
             ${{ env.DOTNET10_VERSION }}
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
+      - name: Restore NuGet packages cache
+        id: nuget-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
@@ -58,39 +64,125 @@ jobs:
         run: dotnet restore Specifications.sln
 
       - name: Build
-        run: dotnet build Specifications.sln --configuration Release --no-restore
+        run: dotnet build Specifications.sln --configuration Release --no-restore -bl:artifacts/logs/build.binlog
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: build-binlog
+          path: artifacts/logs/build.binlog
+          if-no-files-found: ignore
 
       # TUnit and the native Cratis runner (Runner.Specs) run on Microsoft.Testing.Platform, which on the .NET 10 SDK cannot be mixed with the VSTest based xUnit and NUnit
       # projects under `dotnet test` (it requires a repository-wide runner switch in global.json), so they are run directly.
       # Only the spec projects are run here. The Sample projects intentionally contain
       # failing specs to demonstrate the framework, so they are not part of the CI test run.
+      # The spec processes are independent (--no-build), so they run in parallel with one log each.
       - name: Test
+        shell: bash
         run: |
-          dotnet test Source/CodeAnalysis.Specs/CodeAnalysis.Specs.csproj --configuration Release --no-build
-          dotnet test Source/XUnit.Specs/XUnit.Specs.csproj --configuration Release --no-build
-          dotnet test Source/XUnit.DefaultBehavior.Specs/XUnit.DefaultBehavior.Specs.csproj --configuration Release --no-build
-          dotnet run --project Source/TUnit.Specs/TUnit.Specs.csproj --configuration Release --no-build
-          dotnet run --project Source/Runner.Specs/Runner.Specs.csproj --configuration Release --no-build
-          dotnet test Source/XUnit.v3.Specs/XUnit.v3.Specs.csproj --configuration Release --no-build
-          dotnet test Source/XUnit.v3.DefaultBehavior.Specs/XUnit.v3.DefaultBehavior.Specs.csproj --configuration Release --no-build
-          dotnet test Source/NUnit.Specs/NUnit.Specs.csproj --configuration Release --no-build
-          dotnet test Source/NUnit5.Specs/NUnit5.Specs.csproj --configuration Release --no-build
+          set -uo pipefail
+          mkdir -p artifacts/logs/specs
+          commands=(
+            "dotnet test Source/CodeAnalysis.Specs/CodeAnalysis.Specs.csproj --configuration Release --no-build"
+            "dotnet test Source/XUnit.Specs/XUnit.Specs.csproj --configuration Release --no-build"
+            "dotnet test Source/XUnit.DefaultBehavior.Specs/XUnit.DefaultBehavior.Specs.csproj --configuration Release --no-build"
+            "dotnet run --project Source/TUnit.Specs/TUnit.Specs.csproj --configuration Release --no-build"
+            "dotnet run --project Source/Runner.Specs/Runner.Specs.csproj --configuration Release --no-build"
+            "dotnet test Source/XUnit.v3.Specs/XUnit.v3.Specs.csproj --configuration Release --no-build"
+            "dotnet test Source/XUnit.v3.DefaultBehavior.Specs/XUnit.v3.DefaultBehavior.Specs.csproj --configuration Release --no-build"
+            "dotnet test Source/NUnit.Specs/NUnit.Specs.csproj --configuration Release --no-build"
+            "dotnet test Source/NUnit5.Specs/NUnit5.Specs.csproj --configuration Release --no-build"
+          )
+          pids=()
+          for index in "${!commands[@]}"; do
+            bash -c "${commands[$index]}" > "artifacts/logs/specs/$index.log" 2>&1 &
+            pids[index]=$!
+          done
+          failed=()
+          for index in "${!commands[@]}"; do
+            status=0
+            wait "${pids[$index]}" || status=$?
+            echo "::group::[exit $status] ${commands[$index]}"
+            cat "artifacts/logs/specs/$index.log"
+            echo "::endgroup::"
+            if [ "$status" -ne 0 ]; then
+              failed+=("${commands[$index]} (exit $status)")
+            fi
+          done
+          if [ "${#failed[@]}" -ne 0 ]; then
+            echo "::error::${#failed[@]} spec process(es) failed:"
+            printf '  %s\n' "${failed[@]}"
+            exit 1
+          fi
 
-      - name: Test packed package consumers
+      - name: Pack packages for consumers
+        shell: bash
         run: |
           set -euo pipefail
+          # The cached packages folder may hold 0.0.0-ci from an earlier run; make sure consumers restore the fresh pack.
+          rm -rf "${NUGET_PACKAGES:-$HOME/.nuget/packages}"/cratis.specifications*/0.0.0-ci
           dotnet pack Specifications.sln -c Release --no-build -o artifacts/packages -p:Version=0.0.0-ci
-          dotnet build Integration/Consumers/XUnit/Consumer.XUnit.csproj --configuration Release
-          dotnet test Integration/Consumers/XUnit/Consumer.XUnit.csproj --configuration Release --no-build
-          dotnet build Integration/Consumers/XUnit.v3/XUnit.v3.csproj --configuration Release
-          dotnet test Integration/Consumers/XUnit.v3/XUnit.v3.csproj --configuration Release --no-build
-          dotnet build Integration/Consumers/NUnit/Consumer.NUnit.csproj --configuration Release
-          dotnet test Integration/Consumers/NUnit/Consumer.NUnit.csproj --configuration Release --no-build
-          dotnet build Integration/Consumers/NUnit5/NUnit5.csproj --configuration Release
-          dotnet test Integration/Consumers/NUnit5/NUnit5.csproj --configuration Release --no-build
-          dotnet build Integration/Consumers/TUnit/Consumer.TUnit.csproj --configuration Release
-          dotnet run --project Integration/Consumers/TUnit/Consumer.TUnit.csproj --configuration Release --no-build
-          dotnet build Integration/Consumers/Runner/Runner.csproj --configuration Release
-          dotnet run --project Integration/Consumers/Runner/Runner.csproj --configuration Release --no-build
-          dotnet build Integration/Consumers/AnalyzersOff/AnalyzersOff.csproj --configuration Release
-          dotnet test Integration/Consumers/AnalyzersOff/AnalyzersOff.csproj --configuration Release --no-build
+
+      - name: Test packed package consumers
+        shell: bash
+        run: |
+          set -euo pipefail
+          consumers=(
+            "test Integration/Consumers/XUnit/Consumer.XUnit.csproj"
+            "test Integration/Consumers/XUnit.v3/XUnit.v3.csproj"
+            "test Integration/Consumers/NUnit/Consumer.NUnit.csproj"
+            "test Integration/Consumers/NUnit5/NUnit5.csproj"
+            "run Integration/Consumers/TUnit/Consumer.TUnit.csproj"
+            "run Integration/Consumers/Runner/Runner.csproj"
+            "test Integration/Consumers/AnalyzersOff/AnalyzersOff.csproj"
+          )
+          for consumer in "${consumers[@]}"; do
+            dotnet restore "${consumer#* }"
+          done
+          for consumer in "${consumers[@]}"; do
+            dotnet build "${consumer#* }" --configuration Release --no-restore
+          done
+
+          # Prove the consumers restored the freshly packed packages and not stale ones from the cache.
+          packages="${NUGET_PACKAGES:-$HOME/.nuget/packages}"
+          checked=0
+          for nupkg in artifacts/packages/*.0.0.0-ci.nupkg; do
+            name="$(basename "$nupkg" .nupkg)"
+            id="${name%.0.0.0-ci}"
+            lower="$(echo "$id" | tr "[:upper:]" "[:lower:]")"
+            restored="$packages/$lower/0.0.0-ci/$lower.0.0.0-ci.nupkg.sha512"
+            if [ -f "$restored" ]; then
+              expected="$(openssl dgst -sha512 -binary "$nupkg" | openssl base64 -A)"
+              if [ "$(cat "$restored")" != "$expected" ]; then
+                echo "::error::Restored $id 0.0.0-ci differs from the freshly packed package"
+                exit 1
+              fi
+              checked=$((checked + 1))
+            fi
+          done
+          if [ "$checked" -eq 0 ]; then
+            echo "::error::No freshly packed package was restored by the consumers"
+            exit 1
+          fi
+          echo "Verified $checked restored package(s) match artifacts/packages"
+
+          for consumer in "${consumers[@]}"; do
+            if [ "${consumer%% *}" = "test" ]; then
+              dotnet test "${consumer#* }" --configuration Release --no-build
+            else
+              dotnet run --project "${consumer#* }" --configuration Release --no-build
+            fi
+          done
+
+      - name: Remove packed packages from the NuGet cache
+        if: always()
+        run: rm -rf ~/.nuget/packages/cratis.specifications*/0.0.0-ci
+
+      - name: Save NuGet packages cache
+        if: success() && steps.nuget-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.nuget/packages
+          key: ${{ steps.nuget-cache.outputs.cache-primary-key }}

@@ -1,5 +1,5 @@
 {
-  "SourceRevision": "1d2716dc0c252c602002f177c6791cdff1328bf1",
+  "SourceRevision": "276ebf7f0da84fed8c644501e0d1a1bc76ced928",
   "Files": [
     {
       "Source": "agents/backend-developer.md",
@@ -300,6 +300,11 @@
       "Source": "harnesses/copilot/instructions/rtk.instructions.md",
       "Destination": "harnesses/copilot/instructions/rtk.instructions.md",
       "Hash": "D44CEC3612C78D89B2AB2E7BCE2F4B35F68335007791C57FD8574400D33F7EF3"
+    },
+    {
+      "Source": "harnesses/copilot/instructions/scripting.instructions.md",
+      "Destination": "harnesses/copilot/instructions/scripting.instructions.md",
+      "Hash": "E82F40EE395FF32E6F2855FE1D6E31F7CCEFB73A21E909706DDF7453EA5325AB"
     },
     {
       "Source": "harnesses/copilot/instructions/secrets.instructions.md",
@@ -1019,7 +1024,7 @@
     {
       "Source": "rules/general.md",
       "Destination": "rules/general.md",
-      "Hash": "4BE20D935C82F08EACEA788D023CE75F42C941C2D934CB8F2AE2872E984A0F51"
+      "Hash": "97B128067BB888DF669421FC8C2DE11C2ECA6CB1CEF0615273B2980830F63423"
     },
     {
       "Source": "rules/git-commits.md",
@@ -1095,6 +1100,11 @@
       "Source": "rules/review-reports.md",
       "Destination": "rules/review-reports.md",
       "Hash": "187117C278DC0C3D5365303615DDDB03427BDF16A659A52C5F4EF7F4B4CAADE3"
+    },
+    {
+      "Source": "rules/scripting.md",
+      "Destination": "rules/scripting.md",
+      "Hash": "2EC1F360D7062CB6B815E750C14D1EA605D586104C572D1EE02234E6D168D4F0"
     },
     {
       "Source": "rules/secrets.md",
@@ -1347,6 +1357,16 @@
       "Hash": "ADD1D2BBB6C3750A14A024D214FCC1D6471F0F76217667408FFAA13D726F1369"
     },
     {
+      "Source": "skills/cratis-code-review/LICENSE",
+      "Destination": "skills/cratis-code-review/LICENSE",
+      "Hash": "5F3C0351BDC2F6D2FFB27445039883F945B8353AA728894140824138161C7BBC"
+    },
+    {
+      "Source": "skills/cratis-code-review/SKILL.md",
+      "Destination": "skills/cratis-code-review/SKILL.md",
+      "Hash": "72517DCCF4E1435D60D27BF08965AB1DA06F6B6F4253F07D01CE6FC1525828A0"
+    },
+    {
       "Source": "skills/cratis-discoverability/LICENSE",
       "Destination": "skills/cratis-discoverability/LICENSE",
       "Hash": "19E15750A833B35A6F14296EF93340116A8B5380D0052901930BBBD4ECB765BE"
@@ -1572,6 +1592,16 @@
       "Hash": "D10BD99DAE0C9CE964E84686B6974EAB3E0B0A5A41A27A9C2487ECD62E22E38F"
     },
     {
+      "Source": "skills/cratis-performance-review/LICENSE",
+      "Destination": "skills/cratis-performance-review/LICENSE",
+      "Hash": "7D72F0E533742976305D8D4D0C4344F78195E5692055C60AAA1DF07AF0592CC0"
+    },
+    {
+      "Source": "skills/cratis-performance-review/SKILL.md",
+      "Destination": "skills/cratis-performance-review/SKILL.md",
+      "Hash": "C2CA004396619284F41FEB4989692F31C1D21B777DAFCC12A84EBDF2AD5F2AAB"
+    },
+    {
       "Source": "skills/cratis-release-notes/LICENSE",
       "Destination": "skills/cratis-release-notes/LICENSE",
       "Hash": "BA7AC4CBE084A2098E5222F75CF4C8981A700D8DB8EDA1DB93905EB46F91D3D3"
@@ -1580,6 +1610,21 @@
       "Source": "skills/cratis-release-notes/SKILL.md",
       "Destination": "skills/cratis-release-notes/SKILL.md",
       "Hash": "2C01178BD8A96D168CAF3F6285995D82F355CF1D069BD6CFEE6BC1F526B14AFB"
+    },
+    {
+      "Source": "skills/cratis-security-review/LICENSE",
+      "Destination": "skills/cratis-security-review/LICENSE",
+      "Hash": "48C71F4CA012BCCE21299F4E35ABF2422BE316617E9A28ADA65D4142547C0350"
+    },
+    {
+      "Source": "skills/cratis-security-review/SKILL.md",
+      "Destination": "skills/cratis-security-review/SKILL.md",
+      "Hash": "A1FA87DBFF6EE0D2C33DC97945CC6A4AF65247942BCF29F31792A2CC0A7B9118"
+    },
+    {
+      "Source": "skills/cratis-security-review/references/arc-boundaries.md",
+      "Destination": "skills/cratis-security-review/references/arc-boundaries.md",
+      "Hash": "48BFC8881D28AA860B3E024518AAF9753F2FA43CEF8738E31B4F72D63997EBE4"
     },
     {
       "Source": "skills/cratis-technical-examples/LICENSE",
