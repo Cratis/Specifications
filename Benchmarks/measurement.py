@@ -1,7 +1,9 @@
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 """Runner-independent wall/CPU/RSS measurement and strict structured result validation."""
+import os
 import platform
+import shlex
 import re
 import resource
 import subprocess
@@ -79,4 +81,7 @@ def runner(project, flavor, route, serial, result_dir):
         if serial:
             # The native Cratis runner schedules classes itself; TUnit limits tests.
             command += MTP_SERIAL_ARGUMENTS[flavor]
+        if flavor == "cratis-runner":
+            # Extra native runner options, e.g. BENCH_RUNNER_ARGS="--specs-output quiet".
+            command += shlex.split(os.environ.get("BENCH_RUNNER_ARGS", ""))
     return command, report
