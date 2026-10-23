@@ -12,8 +12,9 @@ namespace Cratis.Specifications.Runner;
 /// </summary>
 /// <param name="options">The run options.</param>
 /// <param name="trx">The TRX capability.</param>
-/// <param name="publishInProgress">Whether to publish in-progress updates.</param>
-internal sealed class SpecificationFramework(SpecificationRunOptions options, TrxCapability trx, bool publishInProgress) : ITestFramework, IDataProducer
+/// <param name="publishInProgress">Whether to publish in-progress updates; true in server mode, where an IDE shows the results.</param>
+/// <param name="output">Where the console tree prints; null when there is none.</param>
+internal sealed class SpecificationFramework(SpecificationRunOptions options, TrxCapability trx, bool publishInProgress, ISpecificationOutput? output = null) : ITestFramework, IDataProducer
 {
     /// <inheritdoc/>
     public string Uid => nameof(SpecificationFramework);
@@ -93,11 +94,20 @@ internal sealed class SpecificationFramework(SpecificationRunOptions options, Tr
 
     static string AssemblyName() => System.Reflection.Assembly.GetEntryAssembly()?.FullName ?? string.Empty;
 
+    ReportingResultSink? StartReporting(ISpecificationResultSink sink)
+    {
+        var reporting = options.Reporting;
+        if (reporting is null) return null;
+        if (reporting.Timings || reporting.Slow is not null) PhaseTimings.Start(new PhaseTimingOptions(true, reporting.SlowThreshold, null), null);
+        return ReportingResultSink.Create(sink, reporting, publishInProgress, output, Environment.GetEnvironmentVariable);
+    }
+
     async Task Run(IReadOnlyList<SpecificationWork> work, MessageBusResultSink sink, CancellationToken cancellationToken)
     {
         var cache = options.CachePath is null ? RunCache.Empty : RunCache.Load(options.CachePath);
         var plan = WorkPlanner.Plan(work, options, cache);
-        var notStarted = await SpecificationScheduler.Run(plan, options, sink, cache, cancellationToken);
+        using var reporting = StartReporting(sink);
+        var notStarted = await SpecificationScheduler.Run(plan, options, reporting ?? (ISpecificationResultSink)sink, cache, cancellationToken);
         var reason = cancellationToken.IsCancellationRequested ? "The run was cancelled." : "The run stopped after the first failure (--fail-fast).";
         foreach (var item in notStarted)
         {
@@ -105,7 +115,11 @@ internal sealed class SpecificationFramework(SpecificationRunOptions options, Tr
             {
                 await sink.NotRun(item.Specification, fact, reason);
             }
+
+            if (reporting is not null) await reporting.NotRun(item, reason);
         }
+
+        if (reporting is not null) await reporting.Finish();
 
         if (options.CachePath is not null) cache.Save(options.CachePath);
     }

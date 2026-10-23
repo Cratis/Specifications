@@ -1,0 +1,18 @@
+Account
+  when depositing
+    + should increase balance
+        Because 1.50 s (slow)
+    x should record deposit
+        Expected: 1
+        Actual:   2
+        at /src/Account.cs:41
+    - should notify (skipped: not yet)
+  when closing
+    and the balance is positive
+      x The context failed
+        The database was not available
+      x should refund
+      x should close
+Customer
+  when registering
+    + should be created

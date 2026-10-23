@@ -12,13 +12,15 @@ namespace Cratis.Specifications.Runner;
 /// <param name="LastFailedFirst">Whether classes that failed in the previous run are started first.</param>
 /// <param name="Shard">The shard of the classes to run, if the run is sharded.</param>
 /// <param name="CachePath">The path of the run cache file holding durations and failures; null when disabled.</param>
+/// <param name="Reporting">The options of the console tree and the reports; null for none.</param>
 internal sealed record SpecificationRunOptions(
     int MaxParallelClasses,
     bool SequentialFacts,
     bool FailFast,
     bool LastFailedFirst,
     Shard? Shard,
-    string? CachePath)
+    string? CachePath,
+    SpecificationReportOptions? Reporting = null)
 {
     /// <summary>
     /// Gets the default options.

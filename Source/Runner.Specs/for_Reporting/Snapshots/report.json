@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "summary": {
+    "passed": 2,
+    "failed": 3,
+    "skipped": 1,
+    "durationMs": 817
+  },
+  "specifications": [
+    {
+      "name": "Account",
+      "kind": "group",
+      "children": [
+        {
+          "name": "when closing",
+          "kind": "group",
+          "children": [
+            {
+              "name": "and the balance is positive",
+              "kind": "group",
+              "contextFailure": {
+                "message": "The database was not available"
+              },
+              "children": [
+                {
+                  "name": "should refund",
+                  "kind": "fact",
+                  "outcome": "failed",
+                  "durationMs": 0,
+                  "file": "/src/Account.cs",
+                  "line": 40
+                },
+                {
+                  "name": "should close",
+                  "kind": "fact",
+                  "outcome": "failed",
+                  "durationMs": 0,
+                  "file": "/src/Account.cs",
+                  "line": 41
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "when depositing",
+          "kind": "group",
+          "children": [
+            {
+              "name": "should increase balance",
+              "kind": "fact",
+              "outcome": "passed",
+              "durationMs": 12,
+              "file": "/src/Account.cs",
+              "line": 40,
+              "phases": [
+                {
+                  "phase": "Establish",
+                  "owner": "spec",
+                  "specification": "Account",
+                  "startedUtc": "2026-01-01T12:00:00+00:00",
+                  "durationMs": 3,
+                  "failed": false
+                },
+                {
+                  "phase": "Because",
+                  "owner": "spec",
+                  "specification": "Account",
+                  "startedUtc": "2026-01-01T12:00:00+00:00",
+                  "durationMs": 1500,
+                  "failed": false
+                }
+              ]
+            },
+            {
+              "name": "should record deposit",
+              "kind": "fact",
+              "outcome": "failed",
+              "durationMs": 5,
+              "file": "/src/Account.cs",
+              "line": 41,
+              "failure": {
+                "message": "Expected: 1\nActual:   2",
+                "expected": "1",
+                "actual": "2"
+              }
+            },
+            {
+              "name": "should notify",
+              "kind": "fact",
+              "outcome": "skipped",
+              "durationMs": 0,
+              "file": "/src/Account.cs",
+              "line": 42,
+              "skipReason": "not yet"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "kind": "group",
+      "children": [
+        {
+          "name": "when registering",
+          "kind": "group",
+          "children": [
+            {
+              "name": "should be created",
+              "kind": "fact",
+              "outcome": "passed",
+              "durationMs": 800,
+              "file": "/src/Account.cs",
+              "line": 40
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
