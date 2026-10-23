@@ -7,14 +7,14 @@ namespace Cratis.Specifications;
 /// Creates the exception thrown when a "Should*" assertion does not hold, in the shape the test framework in use expects.
 /// </summary>
 /// <remarks>
-/// The factory is resolved once, on the first failed assertion, so a passing assertion never pays for it. Resolution works the same
-/// whether or not the asserting class derives from a package's Specification: the assertions live in this assembly, so the package
-/// assembly may never have been loaded. Each package name is looked up with a constant string, which keeps the lookup trim and AOT
-/// analyzable; when no package is present (TUnit and the native runner) the failure is a <see cref="SpecificationAssertionException"/>.
+/// The xUnit and NUnit packages register their factory from a module initializer when their assembly loads, which keeps the
+/// lookup free of reflection and so trim and AOT safe. When no package has registered one (TUnit and the native runner) the
+/// failure is a <see cref="SpecificationAssertionException"/>.
 /// </remarks>
 static class AssertionFailures
 {
-    static IAssertionFailureFactory? _factory;
+    static readonly SpecificationAssertionFailureFactory _default = new();
+    static volatile IAssertionFailureFactory? _factory;
 
     /// <summary>
     /// Creates the exception describing a failed assertion.
@@ -24,7 +24,7 @@ static class AssertionFailures
     public static Exception Create(string message) =>
         AssertionValues.TryExtractExpectedActual(message, out var expected, out var actual)
             ? Create(message, expected, actual)
-            : (_factory ??= Resolve()).Create(message);
+            : (_factory ?? _default).Create(message);
 
     /// <summary>
     /// Creates the exception describing a failed assertion that compared an expected and an actual value.
@@ -38,24 +38,20 @@ static class AssertionFailures
     /// </remarks>
     public static Exception Create(string message, string? expected, string? actual)
     {
-        var factory = _factory ??= Resolve();
+        var factory = _factory ?? _default;
         return factory is SpecificationAssertionFailureFactory
             ? new SpecificationAssertionException(message, expected, actual)
             : factory.Create(message);
     }
 
-    static IAssertionFailureFactory Resolve()
-    {
-        var factoryType =
-            Type.GetType("Cratis.Specifications.AssertionFailureFactory, Cratis.Specifications.XUnit", throwOnError: false) ??
-            Type.GetType("Cratis.Specifications.AssertionFailureFactory, Cratis.Specifications.XUnit.v3", throwOnError: false) ??
-            Type.GetType("Cratis.Specifications.AssertionFailureFactory, Cratis.Specifications.NUnit", throwOnError: false) ??
-            Type.GetType("Cratis.Specifications.AssertionFailureFactory, Cratis.Specifications.NUnit5", throwOnError: false);
-
-        return factoryType is not null && Activator.CreateInstance(factoryType) is IAssertionFailureFactory factory
-            ? factory
-            : new SpecificationAssertionFailureFactory();
-    }
+    /// <summary>
+    /// Registers the factory a package uses to create assertion failures in the shape its test framework expects.
+    /// </summary>
+    /// <param name="factory">The factory.</param>
+    /// <remarks>
+    /// Called by the module initializer of a package, so the first failed assertion does no probing for assemblies.
+    /// </remarks>
+    internal static void Register(IAssertionFailureFactory factory) => _factory = factory;
 
     sealed class SpecificationAssertionFailureFactory : IAssertionFailureFactory
     {

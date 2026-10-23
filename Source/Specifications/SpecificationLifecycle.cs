@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Cratis.Specifications;
@@ -17,6 +18,7 @@ namespace Cratis.Specifications;
 /// Exceptions thrown by the methods are surfaced as is, without being wrapped in a
 /// <see cref="TargetInvocationException"/>, and cancellations are reported as a <see cref="SpecificationCancelledException"/>.
 /// </remarks>
+[RequiresUnreferencedCode("Discovers the lifecycle methods of a specification type and its base types through reflection. The native runner never reaches it: its generated code calls the lifecycle methods directly.")]
 internal static class SpecificationLifecycle
 {
     const string EstablishName = "Establish";
