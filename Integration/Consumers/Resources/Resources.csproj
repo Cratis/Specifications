@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <!-- The shared resources API is experimental; consumers opt in by suppressing its diagnostic. -->
+        <NoWarn>$(NoWarn);CRSPECEXP01</NoWarn>
+        <!-- Leases are released after Destroy by an observer this property registers. -->
+        <CratisSpecificationsSharedResources>true</CratisSpecificationsSharedResources>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Cratis.Specifications.XUnit.v3" Version="0.0.0-ci" />
+        <PackageReference Include="xunit.v3.mtp-off" Version="4.0.2" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0" />
+    </ItemGroup>
+</Project>
