@@ -3,6 +3,10 @@
 
 using Xunit;
 
+// Failures keep raising the TrueException (and message) of the former Assert.True(condition, message) calls;
+// the message is only built once the condition is known to have failed.
+#pragma warning disable xUnit2020
+
 namespace Cratis.Specifications;
 
 /// <summary>
@@ -43,7 +47,9 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeGreaterThan(this IComparable left, IComparable right)
     {
-        Assert.True(left.CompareTo(right) > 0, $"{left} should be greater than {right}");
+        if (left.CompareTo(right) > 0) return;
+
+        Assert.True(false, $"{left} should be greater than {right}");
     }
 
     /// <summary>
@@ -53,7 +59,9 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeGreaterThanOrEqual(this IComparable left, IComparable right)
     {
-        Assert.True(left.CompareTo(right) >= 0, $"{left} should be greater than or equal to {right}");
+        if (left.CompareTo(right) >= 0) return;
+
+        Assert.True(false, $"{left} should be greater than or equal to {right}");
     }
 
     /// <summary>
@@ -63,7 +71,9 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeLessThan(this IComparable left, IComparable right)
     {
-        Assert.True(left.CompareTo(right) < 0, $"{left} should be less than {right}");
+        if (left.CompareTo(right) < 0) return;
+
+        Assert.True(false, $"{left} should be less than {right}");
     }
 
     /// <summary>
@@ -73,6 +83,8 @@ public static class ShouldComparableExtensions
     /// <param name="right">Right value.</param>
     public static void ShouldBeLessThanOrEqual(this IComparable left, IComparable right)
     {
-        Assert.True(left.CompareTo(right) <= 0, $"{left} should be less than or equal to {right}");
+        if (left.CompareTo(right) <= 0) return;
+
+        Assert.True(false, $"{left} should be less than or equal to {right}");
     }
 }

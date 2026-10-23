@@ -44,9 +44,22 @@ jobs:
             ${{ env.DOTNET9_VERSION }}
             ${{ env.DOTNET10_VERSION }}
 
-      - name: Build
-        run: dotnet build --configuration Release
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
 
+      - name: Restore
+        run: dotnet restore Specifications.sln
+
+      - name: Build
+        run: dotnet build Specifications.sln --configuration Release --no-restore
+
+      # TUnit runs on Microsoft.Testing.Platform, which on the .NET 10 SDK cannot be mixed with the VSTest based xUnit and NUnit
+      # projects under `dotnet test` (it requires a repository-wide runner switch in global.json), so it is run directly.
       # Only the spec projects are run here. The Sample projects intentionally contain
       # failing specs to demonstrate the framework, so they are not part of the CI test run.
       - name: Test
@@ -54,3 +67,8 @@ jobs:
           dotnet test Source/CodeAnalysis.Specs/CodeAnalysis.Specs.csproj --configuration Release --no-build
           dotnet test Source/XUnit.Specs/XUnit.Specs.csproj --configuration Release --no-build
           dotnet test Source/XUnit.DefaultBehavior.Specs/XUnit.DefaultBehavior.Specs.csproj --configuration Release --no-build
+          dotnet run --project Source/TUnit.Specs/TUnit.Specs.csproj --configuration Release --no-build
+          dotnet test Source/XUnit.v3.Specs/XUnit.v3.Specs.csproj --configuration Release --no-build
+          dotnet test Source/XUnit.v3.DefaultBehavior.Specs/XUnit.v3.DefaultBehavior.Specs.csproj --configuration Release --no-build
+          dotnet test Source/NUnit.Specs/NUnit.Specs.csproj --configuration Release --no-build
+          dotnet test Source/NUnit5.Specs/NUnit5.Specs.csproj --configuration Release --no-build

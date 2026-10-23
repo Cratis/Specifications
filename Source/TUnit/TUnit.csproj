@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.TUnit</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <Description>Specification by Example (BDD) for .NET with TUnit - Given/When/Then specifications in the style of Machine.Specifications, running on the TUnit test framework.</Description>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="TUnit.Core" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.Specifications.TUnit.Specs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+    </ItemGroup>
+</Project>

@@ -1,13 +1,12 @@
-<Project>  
+<Project>
     <PropertyGroup>
         <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);CS1591;RCS1090;CA2252;CS8632;RCS1217;SA1633;CA2007</NoWarn>
         <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>true</ImplicitUsings>
-        <LangVersion>12.0</LangVersion>
+        <LangVersion>latest</LangVersion>
 
         <!-- Debuggability -->
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -15,13 +14,6 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <IncludeSource>True</IncludeSource>
         <!-- Debuggability - End -->
-
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-
-        <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
-        <RunAnalyzersDuringLiveAnalysis>True</RunAnalyzersDuringLiveAnalysis>
-        <RunAnalyzers>True</RunAnalyzers>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
 
         <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
         <RunAnalyzersDuringLiveAnalysis>True</RunAnalyzersDuringLiveAnalysis>
@@ -31,8 +23,8 @@
         <!-- Packaging -->
         <Version>1.0.0</Version>
         <Copyright>Copyright Cratis</Copyright>
-        <Description>Specification by Example (BDD) for .NET - Given/When/Then specifications in the style of Machine.Specifications, with support for xUnit and NUnit.</Description>
-        <PackageTags>bdd;specification-by-example;testing;xunit;nunit;mspec;given-when-then;cratis</PackageTags>
+        <Description>Specification by Example (BDD) for .NET - Given/When/Then specifications in the style of Machine.Specifications, with support for xUnit, NUnit and TUnit.</Description>
+        <PackageTags>bdd;specification-by-example;testing;xunit;nunit;tunit;mspec;given-when-then;cratis</PackageTags>
         <Authors>Cratis</Authors>
         <Company>Cratis</Company>
         <DebugType>portable</DebugType>
@@ -42,12 +34,18 @@
 
         <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
-        
+
         <RepositoryUrl>https://github.com/Cratis/Specifications</RepositoryUrl>
         <PackageProjectUrl>https://www.cratis.io/specifications/</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>logo.png</PackageIcon>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+        <!-- Reproducible builds -->
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(CI)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'==''">

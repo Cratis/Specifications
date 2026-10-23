@@ -1,24 +1,29 @@
 # Cratis Specifications
 
-**Specification by Example (BDD) for .NET — Given/When/Then specs with xUnit and NUnit, in the style of [Machine.Specifications](https://github.com/machine/machine.specifications).**
+**Specification by Example (BDD) for .NET — Given/When/Then specs with xUnit, NUnit and TUnit, in the style of [Machine.Specifications](https://github.com/machine/machine.specifications).**
 
 [![Build](https://github.com/Cratis/Specifications/actions/workflows/build.yml/badge.svg)](https://github.com/Cratis/Specifications/actions/workflows/build.yml)
 [![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit?label=Cratis.Specifications.XUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.xunit)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.xunit.v3?label=Cratis.Specifications.XUnit.v3&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.xunit.v3)
 [![Nuget](https://img.shields.io/nuget/v/cratis.specifications.nunit?label=Cratis.Specifications.NUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.nunit)
+[![Nuget](https://img.shields.io/nuget/v/cratis.specifications.tunit?label=Cratis.Specifications.TUnit&logo=nuget)](https://www.nuget.org/packages/cratis.specifications.tunit)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/discord/1182595891576717413?label=Discord&logo=discord&logoColor=white)](https://discord.gg/kt4AMpV8WV)
 
 Cratis Specifications brings Specification by Example — behavior-driven development (BDD) with
 **given**, **when**, **then** — to .NET test projects, keeping the concise structure and syntax
 popularized by Machine.Specifications while running on standard test frameworks. That means full
-tooling support across IDEs, editors, and CI, with your choice of xUnit or NUnit as the runner.
+tooling support across IDEs, editors, and CI, with your choice of xUnit, NUnit or TUnit as the runner.
 The background and motivation are described in
 [this article](https://web.archive.org/web/20210922202940/https://www.ingebrigtsen.info/2021/09/05/specifications-in-xunit/).
 
 Packages:
 
-- [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit)
-- [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit)
+- [Cratis.Specifications.XUnit](https://www.nuget.org/packages/cratis.specifications.xunit) — for xUnit v2
+- [Cratis.Specifications.XUnit.v3](https://www.nuget.org/packages/cratis.specifications.xunit.v3) — for xUnit v3
+- [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit) — for NUnit 4
+- [Cratis.Specifications.NUnit5](https://www.nuget.org/packages/cratis.specifications.nunit5) — for NUnit 5
+- [Cratis.Specifications.TUnit](https://www.nuget.org/packages/cratis.specifications.tunit)
 
 ## What does it do?
 
@@ -109,11 +114,25 @@ Depending on your solution, you might want to consider suppressing the following
 
 ## Example
 
-In the [sample](./Sample) folder you'll find samples of using it both for XUnit and NUnit.
+In the [sample](./Sample) folder you'll find samples of using it XUnit, NUnit and TUnit.
+
+### NUnit 4 or NUnit 5
+
+Pick the package that matches the NUnit version your test project uses. Both offer the same API and
+the same namespace, so switching is only a package change:
+
+| NUnit version | Package |
+| ------------- | ------- |
+| 4.x | `Cratis.Specifications.NUnit` |
+| 5.x | `Cratis.Specifications.NUnit5` |
+
+One difference: `collection.ShouldEqual(1, 2, 3)` compares the sequence, including order, in the NUnit 5
+package (as in the xUnit and TUnit packages), while the NUnit 4 package has always ignored the order and
+keeps doing so for compatibility.
 
 The difference between XUnit and NUnit is on the signature of the tests.
 Instead of `[Fact]` for XUnit, you'll have to adorn with `[Test]`, in addition to that, NUnit
-requires methods to be public to run them.
+requires methods to be public to run them. TUnit uses `[Test]` as well, and also requires public methods.
 
 Basically, building on the Machine.Specifications sample - this would become:
 
@@ -198,6 +217,46 @@ class no_user_authenticated
 }
 ```
 
+## Using TUnit
+
+Add the `Cratis.Specifications.TUnit` package next to the [`TUnit`](https://tunit.dev) package in your test project:
+
+```bash
+dotnet add package TUnit
+dotnet add package Cratis.Specifications.TUnit
+```
+
+Specifications derive from `Specification` exactly as with the other frameworks, and facts are public `[Test]` methods:
+
+```csharp
+public class when_adding_an_item : Specification
+{
+    List<string> _items;
+
+    void Establish() => _items = [];
+    void Because() => _items.Add("item");
+
+    [Test] public void should_contain_the_item() => _items.ShouldContain("item");
+}
+```
+
+The lifecycle matches the xUnit shared mode and NUnit: each specification class is constructed **once**,
+`Establish` and `Because` run **once** before the first fact, all facts share that instance, and `Destroy`
+runs **once** after the last fact. If `Establish` or `Because` fails, every fact of the class fails.
+TUnit may run the facts of a class in parallel, so facts must only read from the shared context. Because the
+instance is shared, do not implement `IDisposable` on a specification: TUnit would dispose it after every
+fact. Use `Destroy` instead.
+
+TUnit assertions are asynchronous, so the `Should*` extension methods in this package are implemented
+without them and throw a `SpecificationAssertionException` with the expected and actual values. They have the
+same names and signatures as in the xUnit package.
+
+TUnit runs on [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro).
+On the .NET 10 SDK, `dotnet test` for a TUnit project requires opting in to the Microsoft.Testing.Platform runner in
+`global.json` (`"test": { "runner": "Microsoft.Testing.Platform" }`), which applies to every test project in the
+repository. Use `dotnet run --project <spec project>` when the repository also has xUnit or NUnit projects on VSTest,
+as this repository does.
+
 ## Shared instance per specification class (opt-in)
 
 By default, xUnit constructs a fresh instance of the test class for every `[Fact]`, which means
@@ -223,6 +282,41 @@ stock per-fact lifecycle, so the attribute is safe to add to an existing spec as
 
 The one rule to honor: facts must not mutate the shared context. They are assertions about the
 single execution the class describes — which is the BDD model to begin with.
+
+## xUnit v2 and xUnit v3
+
+Pick the package that matches the xUnit version of your test project:
+
+| xUnit version | Package | Test framework packages |
+| --- | --- | --- |
+| v2 (`xunit` 2.x) | `Cratis.Specifications.XUnit` | `xunit`, `xunit.runner.visualstudio` |
+| v3 (`xunit.v3` 4.x) | `Cratis.Specifications.XUnit.v3` | `xunit.v3` (or `xunit.v3.mtp-off`), `xunit.runner.visualstudio` |
+
+Both packages expose the same `Specification` base class, `Establish`/`Because`/`Destroy` conventions
+and `Should*` assertion extensions, so specifications move between them unchanged. An xUnit v3 test
+project is an executable, so set `<OutputType>Exe</OutputType>` as described in the
+[xUnit v3 migration guide](https://xunit.net/docs/getting-started/v3/migration).
+
+The shared instance per specification class is opt-in on xUnit v3 too, with the same eligibility rules.
+xUnit v3 takes the framework type rather than its name:
+
+```csharp
+[assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
+```
+
+## Analyzers
+
+The packages ship Roslyn analyzers (`CRSPEC0001`–`CRSPEC0008`) that catch common specification mistakes.
+
+`CRSPEC0008` — *facts should not modify the shared specification context* — reports a `should_*`
+fact that assigns to, increments, or calls `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on
+an instance field or property of the specification. Because it would otherwise break builds that treat
+warnings as errors, it is reported as **info** by default. Raise it in an `.editorconfig`:
+
+```ini
+[*.cs]
+dotnet_diagnostic.CRSPEC0008.severity = warning   # or error
+```
 
 ## Related projects
 

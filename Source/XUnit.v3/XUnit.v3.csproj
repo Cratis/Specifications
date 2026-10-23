@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.Specifications.XUnit.v3</AssemblyName>
+        <RootNamespace>Cratis.Specifications</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <Description>Specification by Example (BDD) for .NET with xUnit v3 - Given/When/Then specifications in the style of Machine.Specifications, running on the xUnit v3 test framework.</Description>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.extensibility.core" />
+        <PackageReference Include="xunit.v3.assert" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Specifications/Specifications.csproj" />
+    </ItemGroup>
+
+    <!-- The assertion extensions are shared with the xUnit v2 package; the xUnit v3 assertion API is compatible. -->
+    <ItemGroup>
+        <Compile Include="../XUnit/Should*.cs" Link="%(Filename)%(Extension)" />
+    </ItemGroup>
+</Project>

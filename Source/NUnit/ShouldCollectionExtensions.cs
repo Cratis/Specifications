@@ -52,7 +52,13 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEqual<T>(this IEnumerable<T> collection, params T[] expected)
     {
+#if NUNIT5
+        Assert.That(collection, Is.EqualTo(expected));
+#else
+        // The NUnit 4 package has always compared without regard to order. Kept for compatibility;
+        // the NUnit 5 package compares the sequence, like the xUnit and TUnit packages.
         Assert.That(collection, Is.EquivalentTo(expected));
+#endif
     }
 
     /// <summary>
@@ -109,7 +115,10 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldContain<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
-        Assert.That(collection, Has.Some.Matches(filter));
+        // NUnit 5 declares the predicate as Predicate<T?>; the null-forgiving operator is needed there but redundant on NUnit 4.
+#pragma warning disable IDE0370
+        Assert.That(collection, Has.Some.Matches<T>(item => filter(item!)));
+#pragma warning restore IDE0370
     }
 
     /// <summary>
@@ -165,7 +174,10 @@ public static class ShouldCollectionExtensions
     /// <typeparam name="T">Type of element.</typeparam>
     public static void ShouldEachConformTo<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
-        Assert.That(collection, Has.All.Matches(filter));
+        // NUnit 5 declares the predicate as Predicate<T?>; the null-forgiving operator is needed there but redundant on NUnit 4.
+#pragma warning disable IDE0370
+        Assert.That(collection, Has.All.Matches<T>(item => filter(item!)));
+#pragma warning restore IDE0370
     }
 
     /// <summary>

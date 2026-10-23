@@ -18,6 +18,10 @@ public static class SpecificationFacts
     /// </summary>
     public const string SpecificationBaseTypeName = "Cratis.Specifications.Specification";
 
+    const string SpecificationTypeName = "Specification";
+    const string SpecificationsNamespaceName = "Specifications";
+    const string CratisNamespaceName = "Cratis";
+
     /// <summary>
     /// The namespace segment that marks a reusable specification context.
     /// </summary>
@@ -44,7 +48,7 @@ public static class SpecificationFacts
         "FactAttribute",
         "TheoryAttribute",
 
-        // NUnit
+        // NUnit and TUnit (TUnit.Core.TestAttribute)
         "TestAttribute",
         "TestCaseAttribute"
     };
@@ -58,7 +62,7 @@ public static class SpecificationFacts
     {
         for (var current = type?.BaseType; current is not null; current = current.BaseType)
         {
-            if (current.ToDisplayString() == SpecificationBaseTypeName)
+            if (IsSpecificationBaseType(current))
             {
                 return true;
             }
@@ -67,8 +71,26 @@ public static class SpecificationFacts
         return false;
     }
 
+    // Compares the symbol name and containing namespaces instead of formatting a display string, which would allocate for every base type visited.
+    static bool IsSpecificationBaseType(INamedTypeSymbol type)
+    {
+        if (type.Name != SpecificationTypeName || type.ContainingType is not null || type.IsGenericType)
+        {
+            return false;
+        }
+
+        var specifications = type.ContainingNamespace;
+        if (specifications is null || specifications.Name != SpecificationsNamespaceName)
+        {
+            return false;
+        }
+
+        var cratis = specifications.ContainingNamespace;
+        return cratis is not null && cratis.Name == CratisNamespaceName && cratis.ContainingNamespace is { IsGlobalNamespace: true };
+    }
+
     /// <summary>
-    /// Determines whether the method is a test method (carries a known xUnit or NUnit test attribute, or one derived from it).
+    /// Determines whether the method is a test method (carries a known xUnit, NUnit or TUnit test attribute, or one derived from it).
     /// </summary>
     /// <param name="method">The method to inspect.</param>
     /// <returns>True if the method carries a recognized test attribute.</returns>
@@ -76,7 +98,7 @@ public static class SpecificationFacts
         method.GetAttributes().Any(attribute => IsTestMethodAttribute(attribute.AttributeClass));
 
     /// <summary>
-    /// Determines whether the attribute type is, or derives from, a recognized xUnit or NUnit test attribute.
+    /// Determines whether the attribute type is, or derives from, a recognized xUnit, NUnit or TUnit test attribute.
     /// </summary>
     /// <param name="attributeClass">The attribute type to inspect.</param>
     /// <returns>True if it is a recognized test attribute.</returns>
