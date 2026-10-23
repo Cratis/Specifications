@@ -33,7 +33,7 @@ system. What this particular library delivers is a way to do these and also keep
 world of having isolated specifications and not have typically a **FooTests** and dump all your tests for the unit `Foo` in
 it.
 
-The library supports the convention lifecycle methods `Establish()`, `Because()` and `Destroy()`. There is no virtual method
+The library supports the convention lifecycle methods `Establish()` (or `Given()`), `Because()` (or `When()`) and `Destroy()`. There is no virtual method
 to override, just match the expected signatures:
 
 | Signature | Purpose |
@@ -50,7 +50,10 @@ If your specification requires to run in an async context, it also supports the 
 | Task Because() | Triggers the behavior being specified - **when** / **act** |
 | Task Destroy() | Tears down the context |
 
-All lifecycle methods are optional and will be ignored if not there.
+All lifecycle methods are optional and will be ignored if not there. `ValueTask` is also supported.
+Aliases have the same signatures and execution order as their conventional names. You can mix
+names across base and derived contexts, but declaring both names for one phase on the same type
+throws `AmbiguousLifecycleMethod` and reports analyzer error `CRSPEC0009`.
 Multiple levels of inheritance recursively is supported, meaning that specifications will run all the lifecycle methods
 from the lowest level in the hierarchy chain and up the hierarchy (e.g. no_user_authenticated -> when_authenticating_a_null_user).
 
@@ -74,6 +77,52 @@ then have a **given** folder and namespace where you'd put the common reusable c
 for instance for our authentication scenario: **no_user_authenticated**.
 
 For a sample of how this looks like, look within the [sample](./Sample) folder.
+
+## Setting up a project
+
+Choose one specification package and its runner packages. In each case, use `Cratis.Specifications`
+for the `Specification` base and assertions; keep the framework's own attribute (`[Fact]` or `[Test]`).
+
+| Framework | Specification package | Runner packages | Project defaults supplied |
+| --- | --- | --- | --- |
+| xUnit v2 | `Cratis.Specifications.XUnit` | `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` | No additional defaults |
+| xUnit v3 | `Cratis.Specifications.XUnit.v3` | `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio` (or the MTP-enabled `xunit.v3` runner) | None; set `<OutputType>Exe</OutputType>` |
+| NUnit 4 | `Cratis.Specifications.NUnit` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | No additional defaults |
+| NUnit 5 | `Cratis.Specifications.NUnit5` | `Microsoft.NET.Test.Sdk`, `NUnit3TestAdapter` | No additional defaults |
+| TUnit | `Cratis.Specifications.TUnit` | `TUnit` | None; the `TUnit` package makes it an executable |
+| Native runner | `Cratis.Specifications.Runner` | None | Executable Microsoft.Testing.Platform test project with generated entry point |
+
+The same optional properties work for every package:
+
+```xml
+<PropertyGroup>
+    <CratisSpecificationsSharedLifecycle>true</CratisSpecificationsSharedLifecycle>
+    <CratisSpecificationsReadableNames>true</CratisSpecificationsReadableNames>
+    <CratisSpecificationsWarnOnSharedContextMutation>true</CratisSpecificationsWarnOnSharedContextMutation>
+</PropertyGroup>
+```
+
+| Property | Default | What it sets |
+| --- | --- | --- |
+| `CratisSpecificationsSharedLifecycle` | Unset | xUnit: generates the framework registration attribute, sharing eligible specification instances. NUnit, TUnit and the native runner already share instances; this property is accepted without changing their lifecycle. |
+| `CratisSpecificationsReadableNames` | Unset | Generates `[assembly: ReadableSpecificationNames]`. xUnit also registers the framework; if shared lifecycle is not enabled it emits `[assembly: PerFactSpecificationLifecycle]` to retain per-fact execution. TUnit additionally generates its display-name formatter attribute. The native runner already uses readable names. |
+| `CratisSpecificationsWarnOnSharedContextMutation` | Unset | Adds a global analyzer configuration raising `CRSPEC0008` from info to warning. Your repository's `.editorconfig` takes precedence. |
+
+These are additive, opt-in settings: existing projects keep their current names and lifecycle
+unless a setting or the corresponding assembly attribute is added. If your xUnit project already
+has a handwritten `[assembly: Xunit.TestFramework(...)]`, **remove it before enabling either
+of the first two properties**; duplicate framework attributes cause `CS0579`.
+Registering `SpecificationTestFramework` by hand continues to mean shared lifecycle. For a
+names-only manual registration, also add `[assembly: PerFactSpecificationLifecycle]` and
+`[assembly: ReadableSpecificationNames]`.
+
+Readable names use the same formatter in every package: for example,
+`for_Author.when_registering.should_keep_the_name` becomes
+`Author › when registering › should keep the name`. Namespace prefixes before `for_` are
+omitted and nested specification type names are retained. Display names change, not test
+identities, namespace filters, traits or skip conditions. Explicit xUnit fact display names
+remain unchanged. `SpecificationDisplayNames.ForType`, `ForClass`, `ForFact` and `Readable`
+expose the formatter for integrations (hidden from IntelliSense).
 
 ## Compiler Warnings
 
@@ -275,10 +324,14 @@ With this in place, every eligible specification class is constructed **once**, 
 `Because` run **once**, all its facts run against that shared instance, and `Destroy` runs **once**
 after the last fact.
 
-A class is eligible when it derives from `Specification`, has a single public parameterless
-constructor, does not implement `IDisposable` and contains only plain facts. Everything else —
-plain xUnit test classes, theories, classes using fixtures or `ITestOutputHelper` — keeps the
-stock per-fact lifecycle, so the attribute is safe to add to an existing spec assembly.
+A class is eligible when it derives from `Specification`, has a single public constructor
+with no arguments or only framework-managed fixture arguments, and contains only plain facts.
+Class and collection fixtures stay owned by xUnit. `IDisposable` and `IAsyncDisposable`
+specifications are supported: `Destroy` runs once, then disposal runs once even if `Destroy`
+fails. Async disposal takes precedence when both disposal interfaces are implemented.
+Plain xUnit classes, theories, custom `IAsyncLifetime` implementations, `ITestOutputHelper`
+constructors and unsupported constructor arguments keep the stock per-fact lifecycle.
+The same rules apply on v3, including its assembly fixtures.
 
 The one rule to honor: facts must not mutate the shared context. They are assertions about the
 single execution the class describes — which is the BDD model to begin with.
@@ -304,9 +357,35 @@ xUnit v3 takes the framework type rather than its name:
 [assembly: Xunit.TestFramework(typeof(Cratis.Specifications.SpecificationTestFramework))]
 ```
 
+## Assertion behavior per package
+
+The `Should*` assertions have the same names in every package, and every package fails with its own assertion exception
+(`XunitException`, NUnit's `AssertionException`, or `SpecificationAssertionException` for TUnit and the native runner).
+A catalog of examples is run against every package, so the behavior below is verified rather than assumed.
+
+| Behavior | xUnit v2 / v3 | NUnit 4 | NUnit 5 | TUnit / native runner |
+|---|---|---|---|---|
+| `ShouldEqual(IEnumerable)` | In order | In order | In order | In order |
+| `ShouldEqual(params)` | In order | **Any order** (unchanged) | In order | In order |
+| `ShouldContainOnly` | Any order, duplicates count | Any order, duplicates count | Any order, duplicates count | Any order, duplicates count |
+| `ShouldContain(items)` | Every item present; repeats not demanded | Same | Same | Same |
+| Nested collection elements | Compared with `Equals` | NUnit equality (deep) | NUnit equality (deep) | Deep |
+| Actual is `null` | Fails with a readable message | Fails with a readable message | Fails with a readable message | Fails with a readable message |
+
+Use the explicit names when the order matters to you, since they behave the same in every package:
+
+- `ShouldEqualInOrder(...)`: the same elements in the same order.
+- `ShouldEqualInAnyOrder(...)`: the same elements in any order; duplicates are significant.
+- `ShouldContainSingleMatching(predicate)`: exactly one element matches (now available in the xUnit and TUnit packages too).
+
+A `null` actual value fails with a message like `ShouldContain expected the actual value to contain the expected item but the actual value was null`
+instead of a `NullReferenceException` or `ArgumentNullException`. In the TUnit package `ShouldNotContain` on a `null` string used to pass and now fails.
+
+The NUnit 4 order-insensitive `ShouldEqual(params)` and the xUnit/NUnit differences for nested collections are kept for compatibility; unifying them is a breaking change tracked for 5.0 (#74).
+
 ## Analyzers
 
-The packages ship Roslyn analyzers (`CRSPEC0001`–`CRSPEC0008`) that catch common specification mistakes.
+The packages ship Roslyn analyzers (`CRSPEC0001`–`CRSPEC0009`) that catch common specification mistakes.
 
 `CRSPEC0008` — *facts should not modify the shared specification context* — reports a `should_*`
 fact that assigns to, increments, or calls `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on
@@ -323,7 +402,8 @@ dotnet_diagnostic.CRSPEC0008.severity = warning   # or error
 `Cratis.Specifications.Runner` is an experimental, native specification runner on
 [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro),
 without xUnit, NUnit or TUnit underneath. Reference the package and the test project becomes an executable test
-application; a source generator registers the specifications at compile time, so there is no reflection at run time.
+application; a source generator registers the specifications at compile time. Ordinary methods use generated
+invocation; inaccessible methods on constructed generic base types use a reflection fallback.
 
 ```csharp
 public class when_registering : Specification
@@ -341,6 +421,15 @@ public class when_registering : Specification
 - `Given`/`When` are aliases for `Establish`/`Because`; a class may not declare both forms of the same step.
 - One instance per class: `Establish` and `Because` run once, facts may run concurrently and must only read the
   shared context, then `Destroy` and disposal (`IDisposable`/`IAsyncDisposable`) run once.
+- Stop/cancellation stops scheduling new classes, then waits for running classes to finish all their facts, `Destroy`
+  and disposal. Unstarted facts are reported as skipped. Running code can cooperate through
+  `SpecificationContext.CancellationToken`, which flows across awaits and is isolated per class; outside a class it
+  is `CancellationToken.None`. Cancellation does not forcibly interrupt running code.
+- `--treenode-filter '/<assembly>/<namespace>/<class>/<fact>'` selects methods by their code names, not their
+  readable display names. Segments support the platform's wildcards and alternatives; for example
+  `--treenode-filter '/*/*/when_registering/*'`. Use the assembly's simple name and URL-encode special characters
+  in path segments. There are no trait properties. `--filter-uid` still accepts class or fact UIDs; other filter
+  types fail explicitly rather than running an unfiltered suite.
 - Test names read as sentences: `for_Author.when_registering.should_be_registered` shows as
   `Author › when registering › should be registered`.
 - Options: `--specs-parallel <n>`, `--specs-sequential-facts`, `--fail-fast`, `--last-failed-first`,

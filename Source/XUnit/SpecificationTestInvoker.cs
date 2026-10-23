@@ -24,8 +24,7 @@ namespace Cratis.Specifications;
 /// <remarks>
 /// The stock <see cref="TestInvoker{TTestCase}"/> lifecycle still runs per fact against the shared
 /// instance, harmlessly: <see cref="Specification.InitializeAsync"/> is idempotent,
-/// <see cref="Specification.DisposeAsync"/> is a no-op for shared instances and eligible classes
-/// never implement <see cref="IDisposable"/>, so per-fact disposal does not touch the instance.
+/// <see cref="Specification.DisposeAsync"/> is a no-op for shared instances and cleanup is owned by the class runner.
 /// </remarks>
 public class SpecificationTestInvoker(
     Specification sharedInstance,
@@ -39,6 +38,24 @@ public class SpecificationTestInvoker(
     ExceptionAggregator aggregator,
     CancellationTokenSource cancellationTokenSource) : XunitTestInvoker(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
 {
+    /// <summary>
+    /// Runs a fact without disposing the shared class instance; the class runner owns cleanup.
+    /// </summary>
+    /// <returns>The elapsed invocation time.</returns>
+    public new Task<decimal> RunAsync() => Aggregator.RunAsync(async () =>
+    {
+        if (CancellationTokenSource.IsCancellationRequested) return Timer.Total;
+        var instance = CreateTestClass();
+        await BeforeTestMethodInvokedAsync();
+        if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
+        {
+            await InvokeTestMethodAsync(instance);
+        }
+
+        await AfterTestMethodInvokedAsync();
+        return Timer.Total;
+    });
+
     /// <inheritdoc/>
     /// <remarks>
     /// Mirrors the guard of the stock implementation - no instance is handed out for static test

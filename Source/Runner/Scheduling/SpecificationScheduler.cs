@@ -53,7 +53,7 @@ internal static class SpecificationScheduler
                 var work = plan[index];
                 await sink.Starting(work);
                 var timestamp = Stopwatch.GetTimestamp();
-                var results = await SpecificationClassRunner.Run(work, options.SequentialFacts);
+                var results = await SpecificationClassRunner.Run(work, options.SequentialFacts, cancellationToken);
                 var failed = AnyFailed(results);
                 cache.Record(work.Specification.Uid, Stopwatch.GetElapsedTime(timestamp), failed);
                 await sink.Completed(work, results);

@@ -14,8 +14,23 @@ internal static class SpecificationClassRunner
     /// </summary>
     /// <param name="work">The specification class and its selected facts.</param>
     /// <param name="sequentialFacts">Whether to await each fact before starting the next.</param>
+    /// <param name="cancellationToken">The cooperative cancellation token of the run.</param>
     /// <returns>The result of every selected fact, in order.</returns>
-    public static async Task<FactResult[]> Run(SpecificationWork work, bool sequentialFacts)
+    public static async Task<FactResult[]> Run(SpecificationWork work, bool sequentialFacts, CancellationToken cancellationToken = default)
+    {
+        var previous = SpecificationContext.CancellationToken;
+        SpecificationContext.CancellationToken = cancellationToken;
+        try
+        {
+            return await RunCore(work, sequentialFacts);
+        }
+        finally
+        {
+            SpecificationContext.CancellationToken = previous;
+        }
+    }
+
+    static async Task<FactResult[]> RunCore(SpecificationWork work, bool sequentialFacts)
     {
         var specification = work.Specification;
         var facts = work.Facts;
@@ -58,7 +73,7 @@ internal static class SpecificationClassRunner
 
         if (instance is not null && await TearDown(specification, instance) is Exception teardownFailure)
         {
-            FailPassed(results, teardownFailure);
+            ApplyTearDownFailure(results, teardownFailure);
         }
 
         return results;
@@ -91,7 +106,7 @@ internal static class SpecificationClassRunner
         }
         catch (Exception ex)
         {
-            failure ??= ex;
+            failure = failure is null ? ex : new AggregateException(failure, ex);
         }
 
         return failure;
@@ -117,14 +132,14 @@ internal static class SpecificationClassRunner
         }
     }
 
-    static void FailPassed(FactResult[] results, Exception exception)
+    static void ApplyTearDownFailure(FactResult[] results, Exception exception)
     {
         for (var index = 0; index < results.Length; index++)
         {
-            if (results[index].Outcome == FactOutcome.Passed)
-            {
-                results[index] = FactResult.Failed(exception, results[index].Started, results[index].Duration);
-            }
+            var result = results[index];
+            if (result.Outcome == FactOutcome.Skipped) continue;
+            var failure = result.Exception is null ? exception : new AggregateException(result.Exception, exception);
+            results[index] = FactResult.Failed(failure, result.Started, result.Duration);
         }
     }
 }

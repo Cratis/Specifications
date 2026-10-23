@@ -1,7 +1,7 @@
 # Test framework benchmarks
 
 A repeatable end-to-end comparison of Cratis Specifications on xUnit v2, xUnit v3,
-NUnit 4 and TUnit, alongside plain-framework baselines. NUnit 5 is included only
+NUnit 4 and TUnit, plus the native Cratis runner, alongside plain-framework baselines. NUnit 5 is included only
 when `Source/NUnit5/NUnit5.csproj` exists. Nothing is packable or included in
 `Specifications.sln`; the normal solution build and CI are unchanged.
 
@@ -18,7 +18,7 @@ Benchmarks/run.sh --n 5 --f 2 --r 1
 Benchmarks/run.sh
 
 # Shared-machine example; compare several flavors within one interleaved run.
-N=300 F=5 R=5 Benchmarks/run.sh --flavors xunit-v2,xunit-v3,nunit4,tunit
+N=300 F=5 R=5 Benchmarks/run.sh --flavors xunit-v2,xunit-v3,xunit-v3-mtp,nunit4,tunit,cratis-runner
 
 # Generator alone, for inspection or manual experiments.
 python3 Benchmarks/generate.py --n 5 --f 2
@@ -30,7 +30,7 @@ python3 -m unittest discover -s Benchmarks -p 'test_*.py' -v
 to every context, half in Establish and half in Because (and makes every Because asynchronous),
 so the cost of running a context once per class versus once per fact shows. `--aot` also
 publishes the `cratis-runner` suite with Native AOT and measures the native executable;
-the publish is timed separately and not included in the build columns. Numbers must be positive; flavors are comma-separated
+the publish is timed separately and not included in the build columns. Reports include AOT publish seconds and the number of unique IL2xxx/IL3xxx warning lines from the publish log (the same diagnostic repeated in a build summary counts once). Warnings are retained, not suppressed. This is explicitly **Cratis runner JIT vs Cratis runner AOT**, not an AOT comparison across frameworks. Numbers must be positive; flavors are comma-separated
 with no duplicates. `--parallel` accepts `default`, `off`, or `both` (default).
 Run only one harness process per checkout: generation and runner configuration
 share files. On shared developer machines, run the entire multi-flavor invocation through
@@ -96,7 +96,8 @@ start/end and at the start/end of every pass, including warm-up, in Markdown and
 | Flavor | Primary path | Additional path |
 |---|---|---|
 | xUnit v2 | `dotnet test` / VSTest | None |
-| xUnit v3 (`xunit.v3.mtp-off`) | `dotnet test` / VSTest | Built executable / native xUnit runner |
+| xUnit v3 native runner, MTP off (`xunit-v3`, `xunit.v3.mtp-off`) | `dotnet test` / VSTest | Built executable / native xUnit runner |
+| xUnit v3 on MTP (`xunit-v3-mtp`, `xunit.v3`) | `dotnet run --no-build --no-restore` / MTP | Built executable / MTP |
 | NUnit 4/5 | `dotnet test` / NUnit3TestAdapter | None |
 | TUnit | `dotnet run --no-build --no-restore` / MTP | Built executable / MTP |
 | Cratis runner (`cratis-runner`) | `dotnet run --no-build --no-restore` / MTP | Built executable / MTP; Native AOT executable with `--aot` |
@@ -127,6 +128,7 @@ attempts at an unrunnable flavor, omit it from the next subset and report it.
 Both modes run by default; never compare rows from different modes as if they
 were controlled for parallelism.
 
+- xUnit v3 MTP: the same generated Cratis and raw source as the native MTP-off flavor; only the hosting route and package differ. Serial mode uses `--parallel none`.
 - xUnit: default runner settings (collections/classes may run concurrently).
   Disabled via output `xunit.runner.json` (`parallelizeTestCollections: false`,
   `maxParallelThreads: 1`); direct v3 also passes `-parallelMode none`.
@@ -158,3 +160,21 @@ fully balance every position. Rerun on an idle, fixed machine for a meaningful r
 Prefer same-runner, same-mode comparisons;
 report both native/direct speed and CLI-inclusive speed rather than declaring
 an unconditional fastest framework. Tiny suites mostly measure runner startup.
+
+## Native AOT CI smoke and controlled subset
+
+The dedicated benchmark workflow uses `ubuntu-24.04`, SDK `10.0.100`, clang and
+zlib development headers, and always enables `AOT=1`. It is dispatch-only; it
+never publishes packages. A local small count check with Native AOT is:
+
+```bash
+Benchmarks/run.sh --n 5 --f 2 --r 1 --flavors cratis-runner --parallel both --aot
+Benchmarks/run.sh --n 300 --f 5 --r 5 --flavors cratis-runner,tunit,xunit-v3,xunit-v3-mtp --parallel both --aot
+```
+
+Run these through the admission queue, one harness process at a time. The second
+command rotates all routes in one interleaved invocation. Every warm-up and
+sample still requires exactly N×F passing tests, zero failures/skips, an exit
+code of zero and RSS. Treat missing reports or unavailable AOT prerequisites as
+incomplete measurements, never as comparable results. No new timing claims are
+made here; retain the harness JSON/Markdown and raw logs for the measured host.

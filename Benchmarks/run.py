@@ -5,6 +5,7 @@
 import datetime
 import os
 import platform
+import re
 import socket
 import subprocess
 import xml.etree.ElementTree as ET
@@ -29,6 +30,9 @@ def publish_aot(project, logs):
     # Native AOT publish of the native Cratis runner; timed like a clean build, measured separately.
     result = measure(["dotnet", "publish", str(project), "-c", "Release", "-f", "net10.0", "-r", runtime_identifier(),
                       "-p:BenchmarkAot=true", "-o", str(project.parent / "bin/aot")], logs / "aot-publish")
+    diagnostics = {line.strip() for line in Path(result["log"]).read_text().splitlines()
+                   if re.search(r"\bwarning IL[23]\d{3}\b", line)}
+    result["aot_trim_warnings"] = len(diagnostics)
     if result["exit"]:
         raise RuntimeError(f"AOT publish failed: {result['log']}")
     return result
@@ -64,7 +68,7 @@ def prepare_project(item, args, directory, rows):
         except RuntimeError as error:
             rows.append({**item, "parallel": "—", "route": "aot", "error": str(error)})
     routes = ["dotnet-run", "executable", *(["aot"] if "aot" in builds else [])] if flavor == "cratis-runner" else \
-        ["dotnet-run", "executable"] if flavor == "tunit" else ["dotnet-test", "executable"] if flavor == "xunit-v3" else ["dotnet-test"]
+        ["dotnet-run", "executable"] if flavor in ("tunit", "xunit-v3-mtp") else ["dotnet-test", "executable"] if flavor == "xunit-v3" else ["dotnet-test"]
     modes = ["default", "off"] if args.parallel == "both" else [args.parallel]
     for mode in modes:
         for route in routes:
