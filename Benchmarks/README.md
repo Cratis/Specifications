@@ -5,6 +5,10 @@ NUnit 4 and TUnit, plus the native Cratis runner, alongside plain-framework base
 when `Source/NUnit5/NUnit5.csproj` exists. Nothing is packable or included in
 `Specifications.sln`; the normal solution build and CI are unchanged.
 
+Benchmarks are for local runs. No pull request or push workflow runs them, and nothing in the build, the specs or the
+release depends on their results. The only workflow that can run them (`benchmarks.yml`) starts on demand
+(`workflow_dispatch`) and publishes nothing.
+
 ## Run
 
 Requires Python 3 (standard library only), .NET SDK 10, and `/usr/bin/time`

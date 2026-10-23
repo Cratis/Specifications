@@ -125,7 +125,7 @@ public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
 This uses [Testcontainers](https://dotnet.testcontainers.org) and xUnit v3's `IAsyncLifetime` returning `ValueTask`;
 on xUnit v2 it returns `Task`. A specification joins the collection with `[Collection(DatabaseCollection.Name)]` and
 receives the fixture through its constructor. Constructor arguments that are framework-managed fixtures keep the class
-eligible for the [shared lifecycle](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class-opt-in).
+eligible for the [shared lifecycle](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class).
 
 ## Keep them fast and reliable
 
