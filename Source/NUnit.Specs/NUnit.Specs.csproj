@@ -16,6 +16,7 @@
     <!-- The framework-free assertion catalog is shared by every package's specs. -->
     <ItemGroup>
         <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -40,4 +41,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+    <!-- Compile the session hook the package adds to its consumers, exactly as they get it. -->
+    <Import Project="../NUnit/buildTransitive/Cratis.Specifications.NUnit.targets" />
 </Project>

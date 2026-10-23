@@ -11,6 +11,7 @@
     <!-- The framework-free assertion catalog is shared by every package's specs. -->
     <ItemGroup>
         <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -20,5 +21,11 @@
 
     <ItemGroup>
         <PackageReference Include="TUnit" />
+    </ItemGroup>
+
+    <!-- Compile the session hook the package adds to its consumers. The rest of the package targets is not imported:
+         the specs declare the readable-names attribute themselves. -->
+    <ItemGroup>
+        <Compile Include="../TUnit/buildTransitive/CratisSpecificationsSession.TUnit.g.cs" Link="CratisSpecificationsSession.TUnit.g.cs" />
     </ItemGroup>
 </Project>

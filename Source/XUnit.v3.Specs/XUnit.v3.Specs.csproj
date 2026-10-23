@@ -16,6 +16,7 @@
     <!-- The framework-free assertion catalog is shared by every package's specs. -->
     <ItemGroup>
         <Compile Include="../Shared.Specs/Assertions/*.cs" Link="Assertions/%(Filename)%(Extension)" />
+        <Compile Include="../Shared.Specs/Observation/*.cs" Link="Observation/%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -38,6 +39,8 @@
          xUnit v2 specs are shared to prove that both packages give the same semantics. -->
     <ItemGroup>
         <Compile Include="../XUnit.Specs/for_SpecificationTestFramework/*.cs" Link="for_SpecificationTestFramework/%(Filename)%(Extension)" />
+        <Compile Include="../XUnit.Specs/for_SpecificationObservers/**/*.cs" Exclude="../XUnit.Specs/for_SpecificationObservers/when_observing_a_specification_that_skips_every_fact.cs;../XUnit.Specs/for_SpecificationObservers/probes/skipped_observed_specification.cs" Link="for_SpecificationObservers/%(RecursiveDir)%(Filename)%(Extension)" />
+        <Compile Include="../XUnit.Specs/for_SpecificationSession/*.cs" Link="for_SpecificationSession/%(Filename)%(Extension)" />
         <Compile Include="../XUnit.Specs/for_SpecificationTestClassRunner/probes/*.cs" Link="for_SpecificationTestClassRunner/probes/%(Filename)%(Extension)" />
         <Compile Include="../XUnit.Specs/for_Should/when_running_the_assertion_catalog.cs" Link="for_Should/%(Filename)%(Extension)" />
     </ItemGroup>
