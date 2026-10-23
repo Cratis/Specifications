@@ -33,6 +33,8 @@ public static class AssertionCases
     static readonly string?[] _largeWithNulls = [.. Enumerable.Repeat("a", 30), null, null];
     static readonly string?[] _largeWithNullsShuffled = [null, .. Enumerable.Repeat("a", 30), null];
     static readonly string?[] _largeWithOneNull = [.. Enumerable.Repeat("a", 31), null];
+    static readonly UnhashableItem[] _largeUnhashable = [.. Enumerable.Range(0, 20).Select(index => new UnhashableItem(index))];
+    static readonly UnhashableItem[] _largeUnhashableReversed = [.. _largeUnhashable.Reverse()];
     static readonly Dictionary<string, int> _dictionary = new() { ["one"] = 1 };
     static readonly int[][] _nestedCopy = [[1], [2]];
     static readonly int[][] _nestedReversedCopy = [[2], [1]];
@@ -96,6 +98,7 @@ public static class AssertionCases
         Fail("contain only: many items with one extra item", () => _large.ShouldContainOnly(_largeLonger)),
         Pass("contain only: many items with nulls in another place", () => _largeWithNulls.ShouldContainOnly(_largeWithNullsShuffled)),
         Fail("contain only: many items with a different number of nulls", () => _largeWithNulls.ShouldContainOnly(_largeWithOneNull)),
+        Pass("contain only: many items whose hash code throws", () => _largeUnhashable.ShouldContainOnly(_largeUnhashableReversed)),
 
         // Containment.
         Pass("contain: item present", () => _numbers.ShouldContain(2)),
@@ -199,4 +202,13 @@ public static class AssertionCases
     static AssertionCase Pass(string name, Action run) => new(name, run, ExpectedOutcome.Pass);
 
     static AssertionCase Fail(string name, Action run) => new(name, run, ExpectedOutcome.Fail);
+
+    sealed class UnhashableItem(int value)
+    {
+        public int Value { get; } = value;
+
+        public override bool Equals(object? obj) => obj is UnhashableItem other && other.Value == Value;
+
+        public override int GetHashCode() => throw new NotSupportedException("Not hashable");
+    }
 }
