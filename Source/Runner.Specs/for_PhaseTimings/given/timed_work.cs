@@ -4,7 +4,7 @@
 namespace Cratis.Specifications.Runner.for_PhaseTimings.given;
 
 /// <summary>
-/// Builds specification work with a lifecycle that is not shared with other specifications, optionally failing Because.
+/// Builds specification work with a lifecycle that is not shared with other specifications, optionally failing Because. Every phase takes measurable time.
 /// </summary>
 internal static class timed_work
 {
@@ -17,10 +17,13 @@ internal static class timed_work
             uid,
             uid,
             () => new object(),
-            _ => ValueTask.CompletedTask,
-            _ => failBecause ? throw new InvalidOperationException("Observed failure text") : ValueTask.CompletedTask,
-            _ => ValueTask.CompletedTask,
+            _ => Elapse(),
+            _ => failBecause ? throw new InvalidOperationException("Observed failure text") : Elapse(),
+            _ => Elapse(),
             [fact]);
         return new(specification, specification.Facts);
     }
+
+    // A phase that returns at once can measure as zero, since a TimeSpan only resolves 100 ns, and zero is never above a zero threshold.
+    static ValueTask Elapse() => new(Task.Delay(1));
 }
