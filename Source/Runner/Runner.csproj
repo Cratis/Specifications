@@ -24,8 +24,6 @@
          with the TUnit package by linking, until the assertions get a package of their own. -->
     <ItemGroup>
         <Compile Include="../TUnit/Should*.cs" Link="Assertions/%(Filename)%(Extension)" />
-        <Compile Include="../TUnit/SpecificationAssert.cs" Link="Assertions/SpecificationAssert.cs" />
-        <Compile Include="../TUnit/SpecificationAssertionException.cs" Link="Assertions/SpecificationAssertionException.cs" />
     </ItemGroup>
 
     <ItemGroup>
