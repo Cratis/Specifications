@@ -39,7 +39,7 @@ It contains only names and durations, never exception messages.
 
 ## The JSON timings file
 
-Set `CRATIS_SPECS_TIMINGS_FILE` (or the `CratisSpecificationsPhaseTimingsFile` assembly metadata) to write every phase
+Set `CRATIS_SPECS_TIMINGS_FILE` (or the `CratisSpecificationsPhaseTimingsFile` MSBuild property) to write every phase
 to a JSON file when the test session ends. A failure to write the file is reported without its message and never fails
 the run.
 
