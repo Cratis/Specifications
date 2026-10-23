@@ -25,7 +25,7 @@ public class and_fact_modifies_an_inherited_field : given.a_fact_must_not_modify
 
     void Because() => _result = AnalyzerVerifier<FactMustNotModifySharedContextAnalyzer>.VerifyAnalyzer(
         SpecSource.Wrap(Usage, "Sample.when_something"),
-        new ExpectedDiagnostic(DiagnosticIds.FactMustNotModifySharedContext, DiagnosticSeverity.Info, "should_change", "_value"));
+        new ExpectedDiagnostic(DiagnosticIds.FactMustNotModifySharedContext, DiagnosticSeverity.Error, "should_change", "_value"));
 
     [Fact] Task should_report_the_inherited_field_assignment() => _result;
 }

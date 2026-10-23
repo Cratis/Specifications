@@ -14,8 +14,9 @@ namespace Cratis.Specifications.CodeAnalysis.Analyzers;
 /// Analyzer that reports when a fact modifies state shared through the specification instance.
 /// </summary>
 /// <remarks>
-/// Reported as info by default so existing code bases are not broken; raise the severity through
-/// <c>dotnet_diagnostic.CRSPEC0008.severity</c> in an .editorconfig.
+/// Reported as an error, because specifications share one context instance by default. Specifications marked
+/// with <c>PerFactSpecificationLifecycle</c> (on the class, a containing or base class, or the assembly) and
+/// theories are not analyzed. Lower the severity through <c>dotnet_diagnostic.CRSPEC0008.severity</c> in an .editorconfig.
 /// </remarks>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
@@ -30,12 +31,16 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
         "Insert"
     };
 
+    const string PerFactAttributeName = "PerFactSpecificationLifecycleAttribute";
+    const string TheoryAttributeName = "TheoryAttribute";
+    const string ImmutableCollectionsNamespace = "System.Collections.Immutable";
+
     static readonly DiagnosticDescriptor _rule = new(
         id: DiagnosticIds.FactMustNotModifySharedContext,
         title: "Facts should not modify the shared specification context",
         messageFormat: "Fact '{0}' modifies the shared specification state '{1}'; establish state in Establish/Because so facts stay independent of execution order",
         category: "Reliability",
-        defaultSeverity: DiagnosticSeverity.Info,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All facts of a specification share one context instance that is established once. A fact that assigns to, or mutates, a field or property of that context makes other facts depend on execution order. Move the change into Establish or Because, or use a local variable.");
 
@@ -50,6 +55,11 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
         context.RegisterCompilationStartAction(compilationContext =>
         {
             if (compilationContext.Compilation.GetTypeByMetadataName(SpecificationFacts.SpecificationBaseTypeName) is null)
+            {
+                return;
+            }
+
+            if (HasPerFactAttribute(compilationContext.Compilation.Assembly.GetAttributes()))
             {
                 return;
             }
@@ -93,7 +103,15 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
     {
         var invocation = (InvocationExpressionSyntax)context.Node;
         if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess ||
-            !_mutatingMethodNames.Contains(memberAccess.Name.Identifier.ValueText))
+            !_mutatingMethodNames.Contains(memberAccess.Name.Identifier.ValueText) ||
+            !IsDiscardedResult(invocation))
+        {
+            return;
+        }
+
+        // Immutable collections return a new collection and leave the receiver untouched.
+        if (context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type is { } receiverType &&
+            IsImmutableCollection(receiverType))
         {
             return;
         }
@@ -107,7 +125,9 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
         if (name is null ||
             context.ContainingSymbol is not IMethodSymbol { MethodKind: MethodKind.Ordinary } method ||
             !SpecificationFacts.DerivesFromSpecification(method.ContainingType) ||
-            !SpecificationFacts.IsTestMethod(method))
+            !SpecificationFacts.IsTestMethod(method) ||
+            IsTheory(method) ||
+            IsPerFact(method.ContainingType))
         {
             return;
         }
@@ -119,6 +139,50 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
         }
 
         context.ReportDiagnostic(Diagnostic.Create(_rule, context.Node.GetLocation(), method.Name, name));
+    }
+
+    // A mutating call whose result is used (fluent chain, assignment, argument) is not treated as a mutation of the field.
+    static bool IsDiscardedResult(InvocationExpressionSyntax invocation) =>
+        invocation.Parent is ExpressionStatementSyntax or ArrowExpressionClauseSyntax;
+
+    static bool IsImmutableCollection(ITypeSymbol type) =>
+        type.ContainingNamespace?.ToDisplayString() == ImmutableCollectionsNamespace;
+
+    static bool IsTheory(IMethodSymbol method) => HasAttribute(method.GetAttributes(), TheoryAttributeName, inherit: true);
+
+    static bool IsPerFact(INamedTypeSymbol type)
+    {
+        for (var container = type; container is not null; container = container.ContainingType)
+        {
+            for (var current = container; current is not null; current = current.BaseType)
+            {
+                if (HasPerFactAttribute(current.GetAttributes()))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    static bool HasPerFactAttribute(ImmutableArray<AttributeData> attributes) => HasAttribute(attributes, PerFactAttributeName, inherit: false);
+
+    // Matches by metadata name so it works for the xUnit and xUnit v3 packages alike, without referencing either.
+    static bool HasAttribute(ImmutableArray<AttributeData> attributes, string name, bool inherit)
+    {
+        foreach (var attribute in attributes)
+        {
+            for (var current = attribute.AttributeClass; current is not null; current = inherit ? current.BaseType : null)
+            {
+                if (current.Name == name)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     // Only plain 'member' or 'this.member' targets qualify; anything else (indexers, other instances) is ignored to stay conservative.

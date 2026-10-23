@@ -13,5 +13,5 @@ public class when_creating_analyzer : Specification
 
     [Fact] void should_have_supported_diagnostics() => _analyzer.SupportedDiagnostics.ShouldNotBeEmpty();
     [Fact] void should_support_crspec0008() => _analyzer.SupportedDiagnostics.Any(d => d.Id == DiagnosticIds.FactMustNotModifySharedContext).ShouldBeTrue();
-    [Fact] void should_be_info_by_default() => _analyzer.SupportedDiagnostics[0].DefaultSeverity.ShouldEqual(Microsoft.CodeAnalysis.DiagnosticSeverity.Info);
+    [Fact] void should_be_error_by_default() => _analyzer.SupportedDiagnostics[0].DefaultSeverity.ShouldEqual(Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
 }
