@@ -1,7 +1,10 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Reflection;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 
 namespace Cratis.Specifications;
 
@@ -43,6 +46,7 @@ namespace Cratis.Specifications;
 /// class.
 /// </remarks>
 [TestFixture]
+[SpecificationDisplayName]
 public class Specification
 {
     [OneTimeSetUp]
@@ -63,4 +67,29 @@ public class Specification
     Task OnBecause() => SpecificationLifecycle.Because(this, GetType(), typeof(Specification));
 
     Task OnDestroy() => SpecificationLifecycle.Destroy(this, GetType(), typeof(Specification));
+}
+
+/// <summary>
+/// Applies readable names only when the test assembly opts in.
+/// </summary>
+[AttributeUsage(AttributeTargets.Class, Inherited = true)]
+public sealed class SpecificationDisplayNameAttribute : NUnitAttribute, IApplyToTest
+{
+    /// <inheritdoc/>
+    public void ApplyToTest(Test test)
+    {
+        var type = test.TypeInfo?.Type;
+        if (type is null) return;
+        if (!typeof(Specification).IsAssignableFrom(type)) return;
+        if (!type.Assembly.IsDefined(typeof(ReadableSpecificationNamesAttribute))) return;
+        ApplyNames(test, SpecificationDisplayNames.ForType(type));
+    }
+
+    static void ApplyNames(Test test, string className)
+    {
+        var suffix = test.Name.IndexOf('(');
+        test.Name = (test.Method is null ? className : SpecificationDisplayNames.ForFact(className, test.Method.Name))
+            + (suffix < 0 ? string.Empty : test.Name.Substring(suffix));
+        foreach (var child in test.Tests.OfType<Test>()) ApplyNames(child, className);
+    }
 }
