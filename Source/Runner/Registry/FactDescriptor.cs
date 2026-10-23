@@ -14,8 +14,9 @@ namespace Cratis.Specifications.Runner;
 /// <param name="line">The 1-based line of the fact declaration.</param>
 /// <param name="invoke">Invokes the fact on an instance of the specification class.</param>
 /// <param name="skipReason">The reason the fact is skipped; null when it runs.</param>
+/// <param name="returnTypeFullName">The full name of the return type of the fact method, reported as part of the test method identity.</param>
 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-public sealed class FactDescriptor(string methodName, string displayName, string? filePath, int line, Func<object, ValueTask> invoke, string? skipReason = null)
+public sealed class FactDescriptor(string methodName, string displayName, string? filePath, int line, Func<object, ValueTask> invoke, string? skipReason = null, string returnTypeFullName = "System.Void")
 {
     /// <summary>Gets the method name.</summary>
     public string MethodName { get; } = methodName;
@@ -31,6 +32,9 @@ public sealed class FactDescriptor(string methodName, string displayName, string
 
     /// <summary>Gets the invoker.</summary>
     public Func<object, ValueTask> Invoke { get; } = invoke;
+
+    /// <summary>Gets the full name of the return type of the fact method.</summary>
+    public string ReturnTypeFullName { get; } = returnTypeFullName;
 
     /// <summary>Gets the skip reason.</summary>
     public string? SkipReason { get; } = skipReason;
