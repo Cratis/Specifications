@@ -8,8 +8,6 @@ concurrency:
 
 env:
   NUGET_OUTPUT: ./Artifacts/NuGet
-  DOTNET8_VERSION: "8.0.x"
-  DOTNET9_VERSION: "9.0.x"
   DOTNET10_VERSION: "10.0.x"
 
 on:
@@ -63,8 +61,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            ${{ env.DOTNET8_VERSION }}
-            ${{ env.DOTNET9_VERSION }}
             ${{ env.DOTNET10_VERSION }}
 
       - name: Build

@@ -5,7 +5,7 @@
         <IsPackable>true</IsPackable>
         <Description>Experimental: Specification by Example (BDD) for .NET with a native runner on Microsoft.Testing.Platform - Given/When/Then specifications with one shared context per specification class, source generated discovery and no runtime reflection.</Description>
         <Nullable>enable</Nullable>
-        <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>
