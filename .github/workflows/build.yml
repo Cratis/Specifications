@@ -135,6 +135,7 @@ jobs:
             "run Integration/Consumers/TUnit/Consumer.TUnit.csproj"
             "run Integration/Consumers/Runner/Runner.csproj"
             "test Integration/Consumers/AnalyzersOff/AnalyzersOff.csproj"
+            "run Integration/Consumers/AssertionXml/OpenApi/OpenApi.csproj"
           )
           for consumer in "${consumers[@]}"; do
             dotnet restore "${consumer#* }"
@@ -173,6 +174,29 @@ jobs:
               dotnet run --project "${consumer#* }" --configuration Release --no-build
             fi
           done
+
+      - name: Check isolated pre-lifecycle assertion registration
+        shell: bash
+        run: |
+          set -euo pipefail
+          project=Integration/Consumers/AssertionXml/PlainAssertions/PlainAssertions.csproj
+          dotnet restore "$project"
+          dotnet build "$project" -c Release --no-restore
+          dotnet run --project "$project" -c Release --no-build --no-restore -- Probe.A-B Consumer.AssertionXml.FirstProbe
+          dotnet run --project "$project" -c Release --no-build --no-restore -- Probe.A_B Consumer.AssertionXml.SecondProbe
+
+      - name: Check assertion registration incremental generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          node Integration/Consumers/AssertionXml/verify-generation.mjs First Probe.A-B
+          node Integration/Consumers/AssertionXml/verify-generation.mjs Second Probe.A_B
+          source=Integration/Consumers/AssertionXml/First/obj/Release/net10.0/CratisSpecificationsAssertionFailures.g.cs
+          previous_write_time="$(node -e 'console.log(require("node:fs").statSync(process.argv[1]).mtimeMs)' "$source")"
+          dotnet build Integration/Consumers/AssertionXml/First/First.csproj -c Release --no-restore
+          node Integration/Consumers/AssertionXml/verify-generation.mjs First Probe.A-B "$previous_write_time"
+          dotnet build Integration/Consumers/AssertionXml/First/First.csproj -c Release --no-restore -p:AssertionProbeAssemblyName=Probe.Renamed
+          node Integration/Consumers/AssertionXml/verify-generation.mjs First Probe.Renamed
 
       - name: Remove packed packages from the NuGet cache
         if: always()

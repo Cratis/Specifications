@@ -21,6 +21,27 @@
         <TieredPGO Condition="'$(TieredPGO)' == ''">false</TieredPGO>
     </PropertyGroup>
 
+    <!-- Assembly names are encoded reversibly: punctuation must not collapse distinct XML member identities.
+         Run on every compile so an AssemblyName change without a clean also regenerates the source. -->
+    <Target Name="CratisSpecificationsGenerateAssertionFailures"
+            BeforeTargets="CoreCompile"
+            Condition="'@(CratisSpecificationsAssertionFailureTemplate)' != ''">
+        <PropertyGroup>
+            <_CratisAssertionAssemblyId>A$([MSBuild]::ConvertToBase64('$(AssemblyName)').Replace('+', '_p').Replace('/', '_s').Replace('=', '_e'))</_CratisAssertionAssemblyId>
+            <_CratisAssertionSource>$(IntermediateOutputPath)CratisSpecificationsAssertionFailures.g.cs</_CratisAssertionSource>
+            <_CratisAssertionTemplatePath>@(CratisSpecificationsAssertionFailureTemplate)</_CratisAssertionTemplatePath>
+            <_CratisAssertionTemplate>$([System.IO.File]::ReadAllText('$(_CratisAssertionTemplatePath)'))</_CratisAssertionTemplate>
+            <_CratisAssertionContent>$(_CratisAssertionTemplate.Replace('__CRATIS_ASSEMBLY_ID__', '$(_CratisAssertionAssemblyId)'))</_CratisAssertionContent>
+        </PropertyGroup>
+        <WriteLinesToFile File="$(_CratisAssertionSource)"
+                          Lines="$([MSBuild]::Escape('$(_CratisAssertionContent)'))"
+                          Overwrite="true" WriteOnlyWhenDifferent="true" />
+        <ItemGroup>
+            <Compile Include="$(_CratisAssertionSource)" Visible="false" />
+            <FileWrites Include="$(_CratisAssertionSource)" />
+        </ItemGroup>
+    </Target>
+
     <Target Name="CratisSpecificationsRemoveAnalyzers"
             AfterTargets="ResolveLockFileAnalyzers"
             Condition="'$(_CratisRemoveAnalyzers)' == 'true'">
