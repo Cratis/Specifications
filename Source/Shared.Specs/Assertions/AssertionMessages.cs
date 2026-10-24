@@ -26,6 +26,7 @@ public static class AssertionMessages
         ("greater than", () => 1.ShouldBeGreaterThan(2), "1 should be greater than 2"),
         ("true", () => false.ShouldBeTrue(), $"Expected: True{Environment.NewLine}Actual:   False"),
         ("null actual", () => _noString.ShouldContain("a"), "ShouldContain expected the actual value to contain the expected item but the actual value was null"),
+        ("string not contain: actual is null", () => _noString.ShouldNotContain("a"), "ShouldNotContain expected the actual value not to contain the specified item but the actual value was null"),
         ("single matching", () => _numbers.ShouldContainSingleMatching(item => item > 1), "Expected exactly one item matching the filter but found 2"),
     ];
 

@@ -15,10 +15,12 @@ the facts that `CRSPEC0008` now reports as errors.
 5. Native runner: make `async void` facts and lifecycle methods return `Task` or `ValueTask` (`CRSPEC0010`).
 6. Change variables typed as `Predicate<T>` that you pass to assertions to `Func<T, bool>`.
 7. NUnit 4: replace `ShouldEqual(params)` calls that relied on any order with `ShouldEqualInAnyOrder`.
-8. Rebuild. Fix new nullable warnings if your project treats warnings as errors.
-9. Expect one reset of test history in tools that key results by display name, and, for the native runner, by test
-   identity (see [Readable names](#readable-names-are-on-by-default) and
-   [Native runner](#native-runner)).
+8. Check `ShouldNotContain` calls on nullable strings: a `null` string now fails in every package. Use
+   `(value ?? string.Empty).ShouldNotContain("x")` if `null` should count as empty.
+9. Rebuild. Fix new nullable warnings if your project treats warnings as errors.
+10. Expect one reset of test history in tools that key results by display name, and, for the native runner, by test
+    identity (see [Readable names](#readable-names-are-on-by-default) and
+    [Native runner](#native-runner)).
 
 ## Target framework
 
@@ -171,8 +173,14 @@ What changes in behavior:
   enumeration order there.
 - **`null` is handled the same everywhere.** A `null` actual value fails with a readable message instead of throwing
   `NullReferenceException` or `ArgumentNullException`; a `null` expected value equals a `null` actual value; a `null`
-  expected collection fails instead of throwing. In the TUnit package, `ShouldNotContain` on a `null` string used to
-  pass and now fails.
+  expected collection fails instead of throwing. **Breaking change:** `ShouldNotContain` on a `null` string now fails
+  in every package; it passed in 4.x, including xUnit v2 and TUnit. This strict behavior is deliberate: a null subject
+  is usually a bug, and the lenient behavior would hide it. If `null` should count as empty, coalesce it explicitly:
+
+```csharp
+(value ?? string.Empty).ShouldNotContain("x");
+```
+
 - **`Predicate<T>` is now `Func<T, bool>`** in the assertions that took a predicate (`ShouldMatch`,
   `ShouldEachConformTo`, `ShouldContain(filter)`, `ShouldNotContain(filter)` and `ShouldContainSingleMatching`).
   Lambdas compile unchanged. A variable or method group typed as `Predicate<T>` does not compile any more; change
