@@ -147,6 +147,11 @@ exception type:
 | NUnit 4 and 5 | NUnit's `AssertionException` |
 | TUnit and the native runner | `SpecificationAssertionException`, which also carries `Expected` and `Actual` |
 
+xUnit and NUnit assertion registration retains its XML documentation and uses an assembly-specific generated
+namespace. Applications that combine documentation from several specification assemblies, including ASP.NET Core
+OpenAPI applications, can load those XML files together without duplicate registration member IDs. No documentation
+suppression or assertion-registration opt-out is needed; keep the core and framework packages on the same version.
+
 What changes in behavior:
 
 - **`ShouldEqual(params)` compares in order in every package.** NUnit 4 used to ignore the order. Use

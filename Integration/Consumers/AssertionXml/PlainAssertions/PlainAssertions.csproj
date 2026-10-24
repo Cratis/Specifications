@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <!-- Only the selected probe assembly may supply automatic assertion registration. -->
+        <CratisSpecificationsAssertionFailures>false</CratisSpecificationsAssertionFailures>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../First/First.csproj" />
+        <ProjectReference Include="../Second/Second.csproj" />
+    </ItemGroup>
+</Project>
