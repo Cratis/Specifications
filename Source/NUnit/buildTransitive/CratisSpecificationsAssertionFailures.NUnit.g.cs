@@ -3,6 +3,8 @@
 // CratisSpecificationsAssertionFailures to false to leave it out.
 // </auto-generated>
 
+namespace Cratis.Generated.__CRATIS_ASSEMBLY_ID__;
+
 /// <summary>
 /// Registers the NUnit assertion failure factory when the test assembly loads, so a failed assertion in any class
 /// throws the native exception type no matter which package assembly happened to be loaded first.
