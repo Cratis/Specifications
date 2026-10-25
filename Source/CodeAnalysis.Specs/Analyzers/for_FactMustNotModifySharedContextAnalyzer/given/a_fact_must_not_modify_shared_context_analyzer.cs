@@ -5,4 +5,14 @@ namespace Cratis.Specifications.CodeAnalysis.Specs.Analyzers.for_FactMustNotModi
 
 public class a_fact_must_not_modify_shared_context_analyzer : Specification
 {
+    protected const string InOrderSource = """
+    namespace NSubstitute
+    {
+        public static class Received
+        {
+            public static void InOrder(System.Action action) { }
+            public static System.Threading.Tasks.Task InOrder(System.Func<System.Threading.Tasks.Task> action) => action();
+        }
+    }
+    """;
 }
