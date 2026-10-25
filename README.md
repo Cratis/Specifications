@@ -24,7 +24,7 @@ Packages:
 - [Cratis.Specifications.NUnit](https://www.nuget.org/packages/cratis.specifications.nunit) — for NUnit 4
 - [Cratis.Specifications.NUnit5](https://www.nuget.org/packages/cratis.specifications.nunit5) — for NUnit 5
 - [Cratis.Specifications.TUnit](https://www.nuget.org/packages/cratis.specifications.tunit) — for TUnit
-- [Cratis.Specifications.Runner](https://www.nuget.org/packages/cratis.specifications.runner) — the native runner on Microsoft.Testing.Platform (experimental)
+- [Cratis.Specifications.Runner](https://www.nuget.org/packages/cratis.specifications.runner) — the native runner on Microsoft.Testing.Platform
 - [Cratis.Specifications](https://www.nuget.org/packages/cratis.specifications) — the shared core (the `Specification` base, assertions and analyzers); every package above depends on it
 
 All packages target `net10.0`; specification projects that must target .NET 8 or .NET 9 stay on 4.x. Use the same version of
@@ -438,9 +438,9 @@ Standard SDK switches also work:
   excluding assets on a framework package does not remove them, and on `Cratis.Specifications.Runner` it also drops the
   source generator, so the specifications are no longer registered. Use the property.
 
-## Native runner on Microsoft.Testing.Platform (experimental)
+## Native runner on Microsoft.Testing.Platform
 
-`Cratis.Specifications.Runner` is an experimental, native specification runner on
+`Cratis.Specifications.Runner` is a native specification runner on
 [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro),
 without xUnit, NUnit or TUnit underneath. Reference the package and the test project becomes an executable test
 application; a source generator registers the specifications at compile time. Ordinary methods use generated
@@ -463,7 +463,7 @@ public class when_registering : Specification
 - One instance per class: `Establish` and `Because` run once, facts may run concurrently and must only read the
   shared context, then `Destroy` and disposal (`IDisposable`/`IAsyncDisposable`) run once.
 - Stop/cancellation stops scheduling new classes, then waits for running classes to finish all their facts, `Destroy`
-  and disposal. Unstarted facts are reported as skipped. Running code can cooperate through
+  and disposal. Unstarted facts are reported as skipped, except after a hard IDE stop, where the host suppresses further updates (see [Limits](./Documentation/runner.md#limits)). Running code can cooperate through
   `SpecificationContext.CancellationToken`, which flows across awaits and is isolated per class; outside a class it
   is `CancellationToken.None`. Cancellation does not forcibly interrupt running code.
 - `--treenode-filter '/<assembly>/<namespace>/<class>/<fact>'` selects methods by their code names, not their
@@ -477,7 +477,7 @@ public class when_registering : Specification
   `--shard <index>/<count>` and `--specs-cache <path|none>`; standard options such as `--filter-uid` and `--report-trx` apply.
 
 Run it with `dotnet run --project <spec project>` or the built executable. The package, its options and its
-behavior may change without notice while it is experimental.
+behavior follow the same versioning as the rest of the packages.
 
 ## Guides
 
