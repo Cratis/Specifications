@@ -3,11 +3,11 @@
 `Cratis.Specifications.Runner` runs specifications directly on
 [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro) (MTP),
 without xUnit, NUnit or TUnit underneath. A source generator registers the specification classes at compile time, so
-discovery needs no reflection scan and the runner starts fast. The runner remains experimental.
+discovery needs no reflection scan and the runner starts fast.
 
 This guide covers where the runner works, how to run and filter it, what it cannot do, and how to move an existing
 xUnit project to it. For the specification vocabulary itself, see the
-[repository README](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsoft-testing-platform-experimental).
+[repository README](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsofttestingplatform).
 
 ## Set up a project
 

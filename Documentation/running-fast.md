@@ -25,9 +25,9 @@ What to take from it:
 
 - The same xUnit v3 suite costs about 4.5 times more CPU through `dotnet test` than as an executable in this run.
   Running the executable is the cheap win.
-- The native runner (`Cratis.Specifications.Runner`, [experimental](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsoft-testing-platform-experimental))
+- The native runner (`Cratis.Specifications.Runner`, [README](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsofttestingplatform))
   and xUnit v3 executables start fastest. Choose the native runner when you want its features (cache, sharding,
-  readable names) and accept that it may change without notice.
+  readable names).
 - TUnit runs on Microsoft.Testing.Platform. See
   [Using TUnit](https://github.com/Cratis/Specifications/blob/main/README.md#using-tunit) for how it coexists with VSTest projects.
 - Keep xUnit v2 or NUnit when you depend on their adapters and tooling; they are not slow for typical suites.
@@ -71,7 +71,7 @@ repository's [build workflow](https://github.com/Cratis/Specifications/blob/main
 
 ## Filter, shard and cache
 
-The native runner options (see the [README](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsoft-testing-platform-experimental)):
+The native runner options (see the [README](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsofttestingplatform)):
 
 | Option | Use |
 | --- | --- |
