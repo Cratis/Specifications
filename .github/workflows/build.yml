@@ -198,6 +198,28 @@ jobs:
           dotnet build Integration/Consumers/AssertionXml/First/First.csproj -c Release --no-restore -p:AssertionProbeAssemblyName=Probe.Renamed
           node Integration/Consumers/AssertionXml/verify-generation.mjs First Probe.Renamed
 
+      - name: Verify shared lifecycle failures and cancellation through all adapters
+        shell: bash
+        run: |
+          set -euo pipefail
+          for consumer in \
+            'XUnit XUnit/Consumer.XUnit.csproj' \
+            'XUnitV3 XUnit.v3/XUnit.v3.csproj' \
+            'NUnit4 NUnit/Consumer.NUnit.csproj' \
+            'NUnit5 NUnit5/NUnit5.csproj' \
+            'TUnit TUnit/Consumer.TUnit.csproj' \
+            'Runner Runner/Runner.csproj'; do
+            adapter="${consumer%% *}"
+            stop=false
+            if [ "$adapter" = Runner ]; then stop=true; fi
+            dotnet build "Integration/Consumers/${consumer#* }" --configuration Release --no-restore \
+              -p:LifecycleProof=true -p:PlatformStopProof="$stop"
+            node Integration/Lifecycle/verify.mjs "$adapter"
+          done
+
+      - name: Verify MTP server-session Stop with concurrent classes
+        run: node Integration/Lifecycle/stop.mjs
+
       - name: Remove packed packages from the NuGet cache
         if: always()
         run: rm -rf ~/.nuget/packages/cratis.specifications*/0.0.0-ci

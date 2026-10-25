@@ -11,6 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="../../../Integration/Lifecycle/lifecycle_probes.cs;../../../Integration/Lifecycle/Cases/*.cs" />
         <ProjectReference Include="../../Runner/Runner.csproj" />
         <ProjectReference Include="../../Runner.Generator/Runner.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
