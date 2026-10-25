@@ -7,6 +7,7 @@
         <AssemblyName>Cratis.Specifications.Runner.Specs.Probes</AssemblyName>
         <RootNamespace>Cratis.Specifications.Probes</RootNamespace>
         <IsPackable>false</IsPackable>
+        <IsTestProject>false</IsTestProject>
         <TargetFrameworks>net10.0</TargetFrameworks>
         <Nullable>disable</Nullable>
         <NoWarn>$(NoWarn);CA1707;CS1591;RCS1213;IDE0051;IDE1006;CA1051;SA1633;RCS1090;SA1649;SA1600;SA1310;SA1502;SA1134;MA0048;CA1002;MA0016;CA1515;CA1812;IDE0060;CA1001;CA1822;CA1063;CA1816;CA2201;CS0108;CS0114;SA1402;MA0012;CA1065;CA1034</NoWarn>

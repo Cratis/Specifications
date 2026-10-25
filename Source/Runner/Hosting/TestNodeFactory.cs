@@ -65,7 +65,7 @@ internal sealed class TestNodeFactory(string assemblyFullName, TrxCapability trx
         var method = new TestMethodIdentifierProperty(assemblyFullName, specification.Namespace, specification.TypeName, "(teardown)", 0, [], "System.Void");
         return new()
         {
-            Uid = new TestNodeUid(specification.Uid + ".(teardown)"),
+            Uid = new TestNodeUid(TearDownNodeUid.For(specification)),
             DisplayName = specification.DisplayName + " (teardown)",
             Properties = new PropertyBag(Failed(result.Exception!, Timing(result), [method], specification.Uid))
         };

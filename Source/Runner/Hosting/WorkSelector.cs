@@ -33,12 +33,15 @@ internal static class WorkSelector
         return SelectUids(classes, UidsOf(filter));
     }
 
+    static bool SelectsWholeClass(HashSet<string>? uids, SpecificationClassDescriptor specification) =>
+        uids is null || uids.Contains(specification.Uid) || uids.Contains(TearDownNodeUid.For(specification));
+
     static List<SpecificationWork> SelectUids(IReadOnlyList<SpecificationClassDescriptor> classes, HashSet<string>? uids)
     {
         var selected = new List<SpecificationWork>(classes.Count);
         foreach (var specification in classes)
         {
-            if (uids is null || uids.Contains(specification.Uid))
+            if (SelectsWholeClass(uids, specification))
             {
                 if (specification.Facts.Count > 0) selected.Add(new(specification, specification.Facts));
                 continue;
@@ -47,7 +50,7 @@ internal static class WorkSelector
             List<FactDescriptor>? facts = null;
             foreach (var fact in specification.Facts)
             {
-                if (uids.Contains(fact.Uid)) (facts ??= []).Add(fact);
+                if (uids!.Contains(fact.Uid)) (facts ??= []).Add(fact);
             }
 
             if (facts is not null) selected.Add(new(specification, facts));
