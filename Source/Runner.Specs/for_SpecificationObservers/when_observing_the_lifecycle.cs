@@ -9,7 +9,7 @@ namespace Cratis.Specifications.Runner.for_SpecificationObservers;
 public class when_observing_the_lifecycle : Specification
 {
     readonly Dictionary<ObservedFailure, IReadOnlyList<string>> observed = [];
-    readonly Dictionary<ObservedFailure, FactResult[]> results = [];
+    readonly Dictionary<ObservedFailure, SpecificationClassResult> results = [];
     IReadOnlyList<string> skipped;
     IReadOnlyList<SpecificationScope> current_during_phases;
     bool disposed_before_scope_ended;
@@ -54,6 +54,7 @@ public class when_observing_the_lifecycle : Specification
     void should_report_nothing_for_a_class_that_skips_every_fact() => skipped.ShouldEqual<string>(ObservationCatalog.AllSkipped);
     void should_flow_the_scope_through_every_phase() => current_during_phases.ShouldEachConformTo(_ => _ != null);
     void should_end_the_scope_after_disposal() => disposed_before_scope_ended.ShouldBeTrue();
-    void should_keep_passing_facts_passing() => results[ObservedFailure.None].ShouldEachConformTo(_ => _.Outcome == FactOutcome.Passed);
-    void should_fail_facts_on_a_failing_destroy() => results[ObservedFailure.Destroy].ShouldEachConformTo(_ => _.Outcome == FactOutcome.Failed);
+    void should_keep_passing_facts_passing() => results[ObservedFailure.None].Facts.ShouldEachConformTo(_ => _.Outcome == FactOutcome.Passed);
+    void should_keep_facts_passing_on_a_failing_destroy() => results[ObservedFailure.Destroy].Facts.ShouldEachConformTo(_ => _.Outcome == FactOutcome.Passed);
+    void should_report_a_separate_failing_destroy() => results[ObservedFailure.Destroy].TearDownFailure.Value.Outcome.ShouldEqual(FactOutcome.Failed);
 }

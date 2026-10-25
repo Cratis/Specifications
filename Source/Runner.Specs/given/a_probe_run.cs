@@ -12,6 +12,7 @@ public class a_probe_run<TProbe> : Specification
     private protected SpecificationWork work;
     private protected FactResult[] results;
     private protected IReadOnlyList<string> calls;
+    private protected FactResult? teardown_failure;
 
     void Establish()
     {
@@ -21,7 +22,9 @@ public class a_probe_run<TProbe> : Specification
 
     async Task Because()
     {
-        results = await SpecificationClassRunner.Run(work, sequentialFacts: false);
+        var result = await SpecificationClassRunner.Run(work, sequentialFacts: false);
+        results = result.Facts;
+        teardown_failure = result.TearDownFailure;
         calls = CallLog.For(typeof(TProbe).Name);
     }
 

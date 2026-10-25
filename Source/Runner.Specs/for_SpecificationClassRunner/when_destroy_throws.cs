@@ -5,5 +5,7 @@ namespace Cratis.Specifications.Runner.for_SpecificationClassRunner;
 
 public class when_destroy_throws : given.a_probe_run<failing_destroy>
 {
-    void should_fail_the_facts_that_passed_with_the_exception_of_destroy() => results[0].Exception.Message.ShouldEqual("Destroy failed");
+    void should_keep_the_passing_fact() => results[0].Outcome.ShouldEqual(FactOutcome.Passed);
+    void should_not_attach_the_teardown_error_to_the_fact() => results[0].Exception.ShouldBeNull();
+    void should_report_a_separate_teardown_failure() => teardown_failure.Value.Exception.Message.ShouldEqual("Destroy failed");
 }

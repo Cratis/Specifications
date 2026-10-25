@@ -11,7 +11,7 @@ namespace Cratis.Specifications.Runner.for_LifecycleContract;
 // Private generic hooks   | awaited, base first; Task/ValueTask/void are supported
 // Override / hidden hook  | virtual override once / both distinct declarations base first
 // Failed Establish        | no Because/facts; Destroy and disposal still run once
-// Fact + teardown failure | preserve fact, Destroy and disposal errors
+// Fact + teardown failure | preserve fact outcome; aggregate Destroy and disposal in a separate class result
 // Disposal                | IAsyncDisposable preferred over IDisposable; once per class
 // All skipped             | no construction, lifecycle or disposal
 // Partly skipped          | skipped facts never run; lifecycle and disposal run once for the rest
@@ -24,7 +24,7 @@ public class when_verifying_the_lifecycle_contract : Specification
     FactResult[] overridden;
     FactResult[] hidden;
     FactResult[] establish_failure;
-    FactResult[] teardown_failure;
+    SpecificationClassResult teardown_failure;
     FactResult[] because_failure;
     FactResult[] duplicate_alias;
     FactResult[] skipped;
@@ -86,7 +86,7 @@ public class when_verifying_the_lifecycle_contract : Specification
             SpecificationRunOptions.Default with { MaxParallelClasses = 1, SequentialFacts = true, FailFast = true }, new given.a_recording_sink(), RunCache.Empty, CancellationToken.None);
     }
 
-    static Task<FactResult[]> Run<T>() => SpecificationClassRunner.Run(given.contract_probes.WorkFor<T>(), sequentialFacts: true);
+    static async Task<FactResult[]> Run<T>() => (await SpecificationClassRunner.Run(given.contract_probes.WorkFor<T>(), sequentialFacts: true)).Facts;
 
     void should_run_private_generic_hooks_and_dispatch_an_override_once() => lifecycle_context<overridden_context>.Calls.ShouldEqual(
         ["Create", "Establish base", "Given", "Because override", "fact", "Destroy base", "Destroy", "DisposeAsync"]);
@@ -108,21 +108,22 @@ public class when_verifying_the_lifecycle_contract : Specification
 
     void should_preserve_the_original_asynchronous_because_exception() => because_failure.Single().Exception.ShouldEqual(failing_async_because.Failure);
 
-    void should_preserve_all_failures_from_fact_destroy_and_disposal()
+    void should_keep_the_fact_failure_separate_from_teardown()
     {
-        var result = given.the_probes.ResultOf(teardown, teardown_failure, "should_fail");
-        var errors = ((AggregateException)result.Exception).Flatten().InnerExceptions;
-        errors.Count.ShouldEqual(3);
-        errors.ShouldContain(error => error.Message == "Fact failed");
-        errors.ShouldContain(failing_teardown.DestroyFailure);
-        errors.ShouldContain(failing_teardown.DisposeFailure);
+        var result = given.the_probes.ResultOf(teardown, teardown_failure.Facts, "should_fail");
+        result.Outcome.ShouldEqual(FactOutcome.Failed);
+        result.Exception.ShouldBeOfExactType<InvalidOperationException>();
+        result.Exception.Message.ShouldEqual("Fact failed");
     }
 
-    void should_fail_a_previously_passing_fact_after_teardown_fails() => given.the_probes.ResultOf(teardown, teardown_failure, "should_pass").Outcome.ShouldEqual(FactOutcome.Failed);
+    void should_keep_a_previously_passing_fact_after_teardown_fails() => given.the_probes.ResultOf(teardown, teardown_failure.Facts, "should_pass").Outcome.ShouldEqual(FactOutcome.Passed);
 
-    void should_preserve_both_teardown_failures_for_a_previously_passing_fact()
+    void should_not_attach_teardown_to_the_passing_fact() => given.the_probes.ResultOf(teardown, teardown_failure.Facts, "should_pass").Exception.ShouldBeNull();
+
+    void should_report_both_teardown_failures_as_one_separate_failure()
     {
-        var result = given.the_probes.ResultOf(teardown, teardown_failure, "should_pass");
+        var result = teardown_failure.TearDownFailure.Value;
+        result.Outcome.ShouldEqual(FactOutcome.Failed);
         var errors = ((AggregateException)result.Exception).Flatten().InnerExceptions;
         errors.ShouldEqualInAnyOrder(failing_teardown.DestroyFailure, failing_teardown.DisposeFailure);
     }
