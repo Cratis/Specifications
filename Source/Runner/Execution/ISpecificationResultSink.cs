@@ -20,6 +20,7 @@ internal interface ISpecificationResultSink
     /// </summary>
     /// <param name="work">The work that completed.</param>
     /// <param name="results">The results, in the order of <see cref="SpecificationWork.Facts"/>.</param>
+    /// <param name="teardownFailure">The separate teardown failure, if any.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask Completed(SpecificationWork work, IReadOnlyList<FactResult> results);
+    ValueTask Completed(SpecificationWork work, IReadOnlyList<FactResult> results, FactResult? teardownFailure = null);
 }

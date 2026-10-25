@@ -54,9 +54,9 @@ internal static class SpecificationScheduler
                 await sink.Starting(work);
                 var timestamp = Stopwatch.GetTimestamp();
                 var results = await SpecificationClassRunner.Run(work, options.SequentialFacts, cancellationToken);
-                var failed = AnyFailed(results);
+                var failed = results.TearDownFailure is not null || AnyFailed(results.Facts);
                 cache.Record(work.Specification.Uid, Stopwatch.GetElapsedTime(timestamp), failed);
-                await sink.Completed(work, results);
+                await sink.Completed(work, results.Facts, results.TearDownFailure);
                 if (failed && options.FailFast) control.RequestStop();
             }
         }

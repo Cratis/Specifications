@@ -3,7 +3,7 @@
 `Cratis.Specifications.Runner` runs specifications directly on
 [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro) (MTP),
 without xUnit, NUnit or TUnit underneath. A source generator registers the specification classes at compile time, so
-discovery needs no reflection scan and the runner starts fast.
+discovery needs no reflection scan and the runner starts fast. The runner remains experimental.
 
 This guide covers where the runner works, how to run and filter it, what it cannot do, and how to move an existing
 xUnit project to it. For the specification vocabulary itself, see the
@@ -25,10 +25,22 @@ dotnet build --configuration Release
 dotnet run --project Source/MyProject.Specs --configuration Release --no-build
 ```
 
+For `dotnet test`, merge this setting into the application's `global.json`, keeping any existing SDK configuration:
+
+```json
+{
+    "test": {
+        "runner": "Microsoft.Testing.Platform"
+    }
+}
+```
+
 ## Supported IDEs and tools
 
 Because the runner is a Microsoft.Testing.Platform application, it works wherever MTP is supported. This list comes
 from the Microsoft and JetBrains documentation of MTP support; it has not been verified by hand in each IDE.
+The toolchain must also support this runner's `net10.0` target. Facts and separate class-teardown failures are published
+as test nodes with stable UIDs; no Cratis-specific IDE plugin is required.
 
 | Tool | Requirement |
 | --- | --- |
@@ -74,6 +86,23 @@ Cancelling the run (for example Ctrl+C, or Stop in the IDE) and `--fail-fast` bo
 - Running code can cooperate through `SpecificationContext.CancellationToken`, which flows across awaits and is
   isolated per class. Cancellation never interrupts running code forcibly.
 
+## Failures in setup, act and teardown
+
+If `Establish`/`Given` fails, `Because`/`When` and the fact bodies do not run. If `Because`/`When` fails, the fact
+bodies do not run. In either case, the selected non-skipped facts fail with the original exception; `Destroy` and
+disposal are still attempted once when an instance was created.
+
+A failure in `Destroy`, disposal or ending the specification scope produces **one separate failed result for the
+class**, displayed as `<Class> (teardown)`. Multiple cleanup errors are aggregated into that result. Its stable UID
+is distinct from every fact UID. Completed facts keep their own outcomes: a passing fact stays passed, and a failing
+fact keeps its own exception, without the teardown error merged into it. The teardown node fails the run and appears
+in IDE results and TRX reports, even when a tree filter selected only one fact of the class. If no fact of the class
+was selected, or all selected facts were skipped, its lifecycle does not run and there is no teardown result.
+
+This follows the class/suite cleanup boundary of the xUnit, xUnit.v3, NUnit and NUnit5 packages. TUnit differs:
+its engine attaches an `After(Class)` failure to the test that triggers class cleanup. The native runner does not
+adopt that engine-owned behavior.
+
 ## Limits
 
 - **Methods must return `void`, `Task` or `ValueTask`.** A fact with another return type fails its class with a
@@ -90,6 +119,9 @@ Cancelling the run (for example Ctrl+C, or Stop in the IDE) and `--fail-fast` bo
 - **Native AOT.** Specifications that avoid the reflection fallback need no reflection at run time, which is what makes
   them compatible with trimming and ahead-of-time compilation.
 - **No test traits or categories.** Select tests with the tree filter, UIDs or sharding.
+- **No xUnit theory or data-row runner.** Parameterized facts, `[Theory]`, `[InlineData]` and xUnit fixtures are not
+  provided by this runner. Express each case as a specification class with parameterless facts, and prepare its
+  context in `Establish`/`Given`.
 
 ## Migrating from xUnit
 
@@ -103,4 +135,7 @@ Cancelling the run (for example Ctrl+C, or Stop in the IDE) and `--fail-fast` bo
    `SpecificationAssertionException` instead of `XunitException`.
 5. Replace `dotnet test --filter` expressions with `--treenode-filter` or `--filter-uid`, and the xUnit run parameters
    with the options above.
-6. Run it with `dotnet run` or `dotnet test` on a .NET 10 SDK configured for Microsoft.Testing.Platform.
+6. Replace theories/data rows and xUnit fixture injection with specification classes and lifecycle setup; the runner
+   does not execute xUnit's extensions. Check the [limits](#limits) before removing the old runner.
+7. Run it with `dotnet run` or `dotnet test` on a .NET 10 SDK configured for Microsoft.Testing.Platform. A teardown
+   failure now appears as its own class result, not as a failure of a completed fact.

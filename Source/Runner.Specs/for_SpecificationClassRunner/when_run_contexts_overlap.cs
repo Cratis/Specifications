@@ -20,11 +20,11 @@ public class when_run_contexts_overlap : Specification
         restored = SpecificationContext.CancellationToken;
     }
 
-    Task<FactResult[]> Run(CancellationToken token)
+    async Task<FactResult[]> Run(CancellationToken token)
     {
         var facts = new[] { new FactDescriptor("check", "check", null, 0, _ => Check(token)) };
         var descriptor = new SpecificationClassDescriptor("context", "Context", "Context", "Context", () => new object(), null, null, null, facts);
-        return SpecificationClassRunner.Run(new(descriptor, facts), sequentialFacts: true, token);
+        return (await SpecificationClassRunner.Run(new(descriptor, facts), sequentialFacts: true, token)).Facts;
     }
 
     async ValueTask Check(CancellationToken token)

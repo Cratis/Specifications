@@ -11,8 +11,8 @@ namespace Cratis.Specifications.Runner;
 /// Publishes specification results to the Microsoft.Testing.Platform message bus.
 /// </summary>
 /// <remarks>
-/// Results are published once per class, after the class has completed, so a failing Destroy or disposal is
-/// reflected in its facts. In-progress updates are only published when a client shows them (server mode, used by IDEs);
+/// Results are published once per class, after the class has completed. A failing Destroy or disposal is
+/// reported separately from its facts. In-progress updates are only published when a client shows them (server mode, used by IDEs);
 /// on the command line they would double the number of messages for nothing.
 /// </remarks>
 /// <param name="producer">The data producer publishing the messages.</param>
@@ -33,12 +33,14 @@ internal sealed class MessageBusResultSink(IDataProducer producer, IMessageBus b
     }
 
     /// <inheritdoc/>
-    public async ValueTask Completed(SpecificationWork work, IReadOnlyList<FactResult> results)
+    public async ValueTask Completed(SpecificationWork work, IReadOnlyList<FactResult> results, FactResult? teardownFailure = null)
     {
         for (var index = 0; index < results.Count; index++)
         {
             await Publish(nodes.Create(work.Specification, work.Facts[index], results[index]));
         }
+
+        if (teardownFailure is { } failure) await Publish(nodes.CreateTearDown(work.Specification, failure));
     }
 
     /// <summary>

@@ -16,8 +16,9 @@ internal sealed record ClassReport(IReadOnlyList<string> Levels, IReadOnlyList<R
     /// </summary>
     /// <param name="work">The work that completed.</param>
     /// <param name="results">The results, in the order of the facts.</param>
+    /// <param name="teardownFailure">The separate teardown failure, if any.</param>
     /// <returns>The report.</returns>
-    public static ClassReport From(SpecificationWork work, IReadOnlyList<FactResult> results)
+    public static ClassReport From(SpecificationWork work, IReadOnlyList<FactResult> results, FactResult? teardownFailure = null)
     {
         var shared = SharedFailure(results);
         var facts = new List<ReportNode>(results.Count);
@@ -34,6 +35,16 @@ internal sealed record ClassReport(IReadOnlyList<string> Levels, IReadOnlyList<R
                 FilePath = fact.FilePath,
                 Line = fact.Line,
                 Phases = result.Steps
+            });
+        }
+
+        if (teardownFailure is { } teardown)
+        {
+            facts.Add(new ReportNode("(teardown)", true)
+            {
+                Outcome = FactOutcome.Failed,
+                Duration = teardown.Duration,
+                Failure = FailureInfo.From(teardown.Exception!)
             });
         }
 

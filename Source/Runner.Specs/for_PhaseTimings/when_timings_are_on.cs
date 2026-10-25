@@ -23,7 +23,7 @@ public class when_timings_are_on : Specification
         var collector = PhaseTimings.Start(new PhaseTimingOptions(true, TimeSpan.Zero, null), line => { lock (slow) slow.Add(line); }, scope => scope.DisplayName == Uid);
         try
         {
-            results = await SpecificationClassRunner.Run(timed_work.For(Uid), sequentialFacts: false);
+            results = (await SpecificationClassRunner.Run(timed_work.For(Uid), sequentialFacts: false)).Facts;
             records = [.. collector.Records.Where(_ => _.Specification == Uid)];
         }
         finally

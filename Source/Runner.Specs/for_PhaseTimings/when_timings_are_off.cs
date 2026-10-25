@@ -15,7 +15,7 @@ public class when_timings_are_off : Specification
     async Task Because()
     {
         started = PhaseTimings.Start(new PhaseTimingOptions(false, TimeSpan.Zero, null), _ => { });
-        results = await SpecificationClassRunner.Run(timed_work.For(Uid), sequentialFacts: false);
+        results = (await SpecificationClassRunner.Run(timed_work.For(Uid), sequentialFacts: false)).Facts;
     }
 
     void should_not_start_collecting() => started.ShouldBeNull();

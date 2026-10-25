@@ -15,8 +15,8 @@ internal static class SpecificationClassRunner
     /// <param name="work">The specification class and its selected facts.</param>
     /// <param name="sequentialFacts">Whether to await each fact before starting the next.</param>
     /// <param name="cancellationToken">The cooperative cancellation token of the run.</param>
-    /// <returns>The result of every selected fact, in order.</returns>
-    public static async Task<FactResult[]> Run(SpecificationWork work, bool sequentialFacts, CancellationToken cancellationToken = default)
+    /// <returns>The fact results and any separate teardown failure.</returns>
+    public static async Task<SpecificationClassResult> Run(SpecificationWork work, bool sequentialFacts, CancellationToken cancellationToken = default)
     {
         var previous = SpecificationContext.CancellationToken;
         SpecificationContext.CancellationToken = cancellationToken;
@@ -30,7 +30,7 @@ internal static class SpecificationClassRunner
         }
     }
 
-    static async Task<FactResult[]> RunCore(SpecificationWork work, bool sequentialFacts)
+    static async Task<SpecificationClassResult> RunCore(SpecificationWork work, bool sequentialFacts)
     {
         var specification = work.Specification;
         var facts = work.Facts;
@@ -40,13 +40,13 @@ internal static class SpecificationClassRunner
         if (specification.Error is not null || specification.Create is null)
         {
             FailAll(facts, results, new SpecificationDiscoveryException(specification.Error ?? "The specification class can not be created."), started);
-            return results;
+            return new(results);
         }
 
         if (AllSkipped(facts))
         {
             FailAll(facts, results, null, started);
-            return results;
+            return new(results);
         }
 
         object? instance = null;
@@ -73,9 +73,11 @@ internal static class SpecificationClassRunner
             FailAll(facts, results, contextFailure, started);
         }
 
+        FactResult? teardown = null;
+        var teardownStarted = DateTimeOffset.UtcNow;
         if (instance is not null && await TearDown(specification, instance, scope) is Exception teardownFailure)
         {
-            ApplyTearDownFailure(results, teardownFailure);
+            teardown = FactResult.Failed(teardownFailure, teardownStarted, DateTimeOffset.UtcNow - teardownStarted);
         }
 
         if (scope is not null && PhaseTimings.PhasesOf(scope) is { } phases)
@@ -83,7 +85,7 @@ internal static class SpecificationClassRunner
             AttachSteps(results, phases, specification.DisplayName);
         }
 
-        return results;
+        return new(results, teardown);
     }
 
     static ValueTask RunPhase(SpecificationScope? scope, SpecificationPhase phase, Func<object, ValueTask>? body, object instance)
@@ -163,17 +165,6 @@ internal static class SpecificationClassRunner
             if (result.Outcome == FactOutcome.Skipped) continue;
             var fact = new PhaseRecord(SpecificationPhase.Fact, PhaseRecord.SpecOwner, displayName, null, result.Started, result.Duration, result.Outcome == FactOutcome.Failed);
             results[index] = result with { Steps = [.. classPhases, fact] };
-        }
-    }
-
-    static void ApplyTearDownFailure(FactResult[] results, Exception exception)
-    {
-        for (var index = 0; index < results.Length; index++)
-        {
-            var result = results[index];
-            if (result.Outcome == FactOutcome.Skipped) continue;
-            var failure = result.Exception is null ? exception : new AggregateException(result.Exception, exception);
-            results[index] = FactResult.Failed(failure, result.Started, result.Duration);
         }
     }
 }

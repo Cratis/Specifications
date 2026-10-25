@@ -54,6 +54,23 @@ internal sealed class TestNodeFactory(string assemblyFullName, TrxCapability trx
         };
     }
 
+    /// <summary>
+    /// Creates a separate failed node for cleanup of a selected specification class.
+    /// </summary>
+    /// <param name="specification">The class whose teardown failed.</param>
+    /// <param name="result">The aggregated teardown failure.</param>
+    /// <returns>The failed teardown node.</returns>
+    public TestNode CreateTearDown(SpecificationClassDescriptor specification, FactResult result)
+    {
+        var method = new TestMethodIdentifierProperty(assemblyFullName, specification.Namespace, specification.TypeName, "(teardown)", 0, [], "System.Void");
+        return new()
+        {
+            Uid = new TestNodeUid(specification.Uid + ".(teardown)"),
+            DisplayName = specification.DisplayName + " (teardown)",
+            Properties = new PropertyBag(Failed(result.Exception!, Timing(result), [method], specification.Uid))
+        };
+    }
+
     static TimingProperty Timing(FactResult result)
     {
         var info = new TimingInfo(result.Started, result.Started + result.Duration, result.Duration);

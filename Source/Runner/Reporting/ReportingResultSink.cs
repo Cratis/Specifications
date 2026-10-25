@@ -51,10 +51,10 @@ internal sealed class ReportingResultSink : ISpecificationResultSink, IDisposabl
     public ValueTask Starting(SpecificationWork work) => _inner.Starting(work);
 
     /// <inheritdoc/>
-    public async ValueTask Completed(SpecificationWork work, IReadOnlyList<FactResult> results)
+    public async ValueTask Completed(SpecificationWork work, IReadOnlyList<FactResult> results, FactResult? teardownFailure = null)
     {
-        await _inner.Completed(work, results);
-        await Report(ClassReport.From(work, results));
+        await _inner.Completed(work, results, teardownFailure);
+        await Report(ClassReport.From(work, results, teardownFailure));
     }
 
     /// <summary>
