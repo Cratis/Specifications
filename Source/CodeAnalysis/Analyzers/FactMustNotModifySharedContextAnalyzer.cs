@@ -116,7 +116,15 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        Analyze(context, memberAccess.Expression);
+        AnalyzeUnlessVerifying(context, memberAccess.Expression);
+    }
+
+    static void AnalyzeUnlessVerifying(SyntaxNodeAnalysisContext context, ExpressionSyntax? target)
+    {
+        if (!IsInsideReceivedInOrder(context))
+        {
+            Analyze(context, target);
+        }
     }
 
     static void Analyze(SyntaxNodeAnalysisContext context, ExpressionSyntax? target)
@@ -139,6 +147,32 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
         }
 
         context.ReportDiagnostic(Diagnostic.Create(_rule, context.Node.GetLocation(), method.Name, name));
+    }
+
+    static bool IsInsideReceivedInOrder(SyntaxNodeAnalysisContext context)
+    {
+        for (var ancestor = context.Node.Parent; ancestor is not null and not MethodDeclarationSyntax; ancestor = ancestor.Parent)
+        {
+            if (ancestor is AnonymousFunctionExpressionSyntax
+                {
+                    Parent: ArgumentSyntax { Parent: ArgumentListSyntax { Parent: InvocationExpressionSyntax invocation } }
+                } && IsReceivedInOrder(context, invocation))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool IsReceivedInOrder(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation)
+    {
+        if (context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is not IMethodSymbol { Name: "InOrder" } method)
+        {
+            return false;
+        }
+
+        return SymbolEqualityComparer.Default.Equals(method.ContainingType, context.Compilation.GetTypeByMetadataName("NSubstitute.Received"));
     }
 
     // A mutating call whose result is used (fluent chain, assignment, argument) is not treated as a mutation of the field.

@@ -82,6 +82,7 @@ It reports a `should_*` fact that assigns to or increments an instance field or 
 
 - classes or assemblies marked `[PerFactSpecificationLifecycle]`;
 - theories;
+- calls inside NSubstitute's `Received.InOrder` delegates, which record verification expectations;
 - `Add`, `Remove` and `Clear` calls whose result is used or that target immutable collections.
 
 Fix a reported fact by moving the change into `Establish` or `Because`:
