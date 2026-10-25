@@ -79,14 +79,21 @@ public static class SpecificationEmitter
         body.Append("        static ").Append(isAsync ? "async " : string.Empty).Append(ValueTask).Append(' ').Append(name).AppendLine("(object instance)");
         body.AppendLine("        {");
         body.Append("            var specification = (").Append(model.FullyQualifiedName).AppendLine(")instance;");
+        body.AppendLine("            try");
+        body.AppendLine("            {");
         foreach (var call in calls)
         {
             var expression = Call(accessors, call, ref counter);
             var awaited = call.Returns != ReturnKind.Void || call.How == CallKind.Reflection;
-            body.Append("            ").Append(awaited ? "await " : string.Empty).Append(expression).AppendLine(";");
+            body.Append("                ").Append(awaited ? "await " : string.Empty).Append(expression).AppendLine(";");
         }
 
-        if (!isAsync) body.AppendLine("            return default;");
+        if (!isAsync) body.AppendLine("                return default;");
+        body.AppendLine("            }");
+        body.AppendLine("            catch (global::System.OperationCanceledException exception)");
+        body.AppendLine("            {");
+        body.Append("                throw new global::Cratis.Specifications.SpecificationCancelledException(").Append(Literal(name)).AppendLine(", exception);");
+        body.AppendLine("            }");
         body.AppendLine("        }");
         return name;
     }

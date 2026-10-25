@@ -1,0 +1,10 @@
+<Project>
+    <!-- Expected-failure fixtures run only in the lifecycle proof, never in the ordinary green consumers. -->
+    <ItemGroup Condition="'$(LifecycleProof)' == 'true'">
+        <Compile Remove="../when_using_given_and_when.cs;../when_running_with_the_package_runtime_defaults.cs" />
+        <Compile Include="../../Lifecycle/lifecycle_probes.cs;../../Lifecycle/Cases/*.cs" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LifecycleProof)' == 'true' And '$(PlatformStopProof)' == 'true'">
+        <Compile Include="../../Lifecycle/stop_probes.cs;../../Lifecycle/Stop/*.cs" />
+    </ItemGroup>
+</Project>

@@ -81,8 +81,10 @@ starts previously failed classes first with `--last-failed-first`.
 Cancelling the run (for example Ctrl+C, or Stop in the IDE) and `--fail-fast` both stop scheduling:
 
 - No new class is started after the stop.
-- A class that is already running finishes: its facts, `Destroy` and disposal always run.
-- Facts of classes that never started are reported as skipped, so every selected fact ends in a terminal state.
+- A class that is already running completes its lifecycle; `Destroy` and disposal are attempted once. A cancelled
+  setup or act still prevents its fact bodies from running, just like any other setup or act failure.
+- The runner emits skipped results for facts of classes that never started. Hard IDE cancellation can prevent MTP
+  from delivering these results to the client; see [limits](#limits).
 - Running code can cooperate through `SpecificationContext.CancellationToken`, which flows across awaits and is
   isolated per class. Cancellation never interrupts running code forcibly.
 
@@ -90,7 +92,9 @@ Cancelling the run (for example Ctrl+C, or Stop in the IDE) and `--fail-fast` bo
 
 If `Establish`/`Given` fails, `Because`/`When` and the fact bodies do not run. If `Because`/`When` fails, the fact
 bodies do not run. In either case, the selected non-skipped facts fail with the original exception; `Destroy` and
-disposal are still attempted once when an instance was created.
+disposal are still attempted once when an instance was created. Lifecycle cancellation is wrapped in
+`SpecificationCancelledException`, with the lifecycle phase in its message and the original cancellation as its
+inner exception, matching the reflection-based adapters.
 
 A failure in `Destroy`, disposal or ending the specification scope produces **one separate failed result for the
 class**, displayed as `<Class> (teardown)`. Multiple cleanup errors are aggregated into that result. Its stable UID
@@ -105,6 +109,13 @@ adopt that engine-owned behavior.
 
 ## Limits
 
+- **Hard IDE Stop can suppress result delivery.** With Microsoft.Testing.Platform 2.5.1, server-mode
+  `$/cancelRequest` cancels the request and stops forwarding subsequent test updates. The runner still cancels
+  cooperative running code, attempts `Destroy` and disposal once per started class, and does not construct queued
+  classes, but the client may receive no terminal results, including skipped results for queued facts. The server
+  acknowledges the cancelled request with JSON-RPC error `-32800`; its process exits successfully when the client
+  subsequently sends `exit`. That process exit is not a passing test run. This is a platform transport limitation,
+  not a guarantee of terminal-result parity with an uncancelled run or `--fail-fast`.
 - **Methods must return `void`, `Task` or `ValueTask`.** A fact with another return type fails its class with a
   discovery error. An `async void` fact or lifecycle method is a compile error (`CRSPEC0010`), because its failures can
   not be awaited.
