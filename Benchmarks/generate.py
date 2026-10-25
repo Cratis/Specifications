@@ -73,6 +73,9 @@ def project(flavor, raw):
     packages = [XUNIT_PACKAGES[flavor]] if flavor.startswith("xunit") else ["TUnit" if flavor == "tunit" else "nunit"]
     if flavor not in ("tunit", "xunit-v3-mtp"):
         packages += ["Microsoft.NET.Test.Sdk", "xunit.runner.visualstudio" if flavor.startswith("xunit") else "NUnit3TestAdapter"]
+    if flavor == "xunit-v3-mtp":
+        # The harness asks every Microsoft.Testing.Platform route for a TRX report; xUnit v3 needs the extension for it.
+        packages += ["Microsoft.Testing.Extensions.TrxReport"]
     references = "" if raw else f'<ProjectReference Include="../../../Source/{SOURCES[flavor]}/{SOURCES[flavor]}.csproj" />'
     package_xml = {p: f'<PackageReference Include="{p}" />' for p in packages}
     if flavor.startswith("nunit"):
@@ -81,6 +84,8 @@ def project(flavor, raw):
         source = ROOT.parent / f"Source/{SOURCES[flavor]}/{SOURCES[flavor]}.csproj"
         reference = next(p for p in ET.parse(source).findall(".//PackageReference") if p.attrib["Include"].lower() == "nunit")
         package_xml["nunit"] = ET.tostring(reference, encoding="unicode").strip()
+    # xUnit v3 executables use their own console runner unless Microsoft.Testing.Platform is switched on.
+    mtp = "\n    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>" if flavor == "xunit-v3-mtp" else ""
     return f'''<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks></TargetFrameworks>
@@ -90,7 +95,7 @@ def project(flavor, raw):
     <IsTestProject>{str(flavor not in ('tunit', 'xunit-v3-mtp')).lower()}</IsTestProject>
     <OutputType>{'Exe' if flavor in ('xunit-v3', 'xunit-v3-mtp', 'tunit') else 'Library'}</OutputType>
     <LangVersion>latest</LangVersion>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>{mtp}
   </PropertyGroup>
   <ItemGroup>
     {references}
