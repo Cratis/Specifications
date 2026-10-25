@@ -126,6 +126,9 @@ class HarnessTests(unittest.TestCase):
         mtp = project("xunit-v3-mtp", False)
         self.assertIn('Include="xunit.v3"', mtp)
         self.assertNotIn("mtp-off", mtp)
+        self.assertIn('Include="Microsoft.Testing.Extensions.TrxReport"', mtp)
+        self.assertIn("<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>", mtp)
+        self.assertNotIn("UseMicrosoftTestingPlatformRunner", project("xunit-v3", False))
         self.assertNotIn("Microsoft.NET.Test.Sdk", mtp)
         self.assertIn("<OutputType>Exe</OutputType>", mtp)
         for raw in (False, True):
