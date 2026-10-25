@@ -128,6 +128,10 @@ class HarnessTests(unittest.TestCase):
         self.assertNotIn("mtp-off", mtp)
         self.assertNotIn("Microsoft.NET.Test.Sdk", mtp)
         self.assertIn("<OutputType>Exe</OutputType>", mtp)
+        # Bare xunit.v3 defaults to its native console runner, which rejects --report-trx with exit 3;
+        # both of these are required to make it run as a Microsoft.Testing.Platform application instead.
+        self.assertIn("<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>", mtp)
+        self.assertIn('Include="Microsoft.Testing.Extensions.TrxReport"', mtp)
         for raw in (False, True):
             self.assertEqual(suite("xunit-v3", raw, 5, 2), suite("xunit-v3-mtp", raw, 5, 2))
         self.assertIn('Include="xunit.v3.mtp-off"', project("xunit-v3", False))

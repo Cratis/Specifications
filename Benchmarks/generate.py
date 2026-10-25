@@ -73,6 +73,9 @@ def project(flavor, raw):
     packages = [XUNIT_PACKAGES[flavor]] if flavor.startswith("xunit") else ["TUnit" if flavor == "tunit" else "nunit"]
     if flavor not in ("tunit", "xunit-v3-mtp"):
         packages += ["Microsoft.NET.Test.Sdk", "xunit.runner.visualstudio" if flavor.startswith("xunit") else "NUnit3TestAdapter"]
+    elif flavor == "xunit-v3-mtp":
+        # Bare xunit.v3 defaults to its native console runner; MTP mode (and --report-trx) need both opted in.
+        packages += ["Microsoft.Testing.Extensions.TrxReport"]
     references = "" if raw else f'<ProjectReference Include="../../../Source/{SOURCES[flavor]}/{SOURCES[flavor]}.csproj" />'
     package_xml = {p: f'<PackageReference Include="{p}" />' for p in packages}
     if flavor.startswith("nunit"):
@@ -91,6 +94,7 @@ def project(flavor, raw):
     <OutputType>{'Exe' if flavor in ('xunit-v3', 'xunit-v3-mtp', 'tunit') else 'Library'}</OutputType>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    {'<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>' if flavor == 'xunit-v3-mtp' else ''}
   </PropertyGroup>
   <ItemGroup>
     {references}
