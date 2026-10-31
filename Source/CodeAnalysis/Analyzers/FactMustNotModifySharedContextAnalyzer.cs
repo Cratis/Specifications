@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Cratis.Specifications.CodeAnalysis.Analyzers;
@@ -80,7 +81,7 @@ public class FactMustNotModifySharedContextAnalyzer : DiagnosticAnalyzer
         var members = new SharedMembers(context.SemanticModel, fact.ContainingType, context.CancellationToken);
         if (new SharedStateWriteFinder(members).Find(context.Node) is { } change)
         {
-            context.ReportDiagnostic(Diagnostic.Create(_rule, context.Node.GetLocation(), fact.Name, change.Member, change.Through));
+            context.ReportDiagnostic(Diagnostic.Create(_rule, MemberCall.ResultOf((ExpressionSyntax)context.Node).GetLocation(), fact.Name, change.Member, change.Through));
         }
     }
 }

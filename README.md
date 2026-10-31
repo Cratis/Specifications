@@ -418,10 +418,14 @@ property of the specification, or an object reached through one, to:
 - `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on an object reached through a field, such as
   `_owner.Items.Clear()`, when the result is discarded.
 
-Neither rule reports in classes or assemblies marked `[PerFactSpecificationLifecycle]` or in theories. Neither
-reports calls verified through `Received()` or inside `Received.InOrder`, calls on immutable collections, LINQ operators
-such as `Take`, or reads. Changes made through a method declared in another file (a `given` context) and through
-lambdas inside a helper are not followed. Lower either rule for a project or folder in an `.editorconfig`:
+Both rules see through null-conditional access, so `_items?.Clear()`, `_owner?.Count = 1` and `_store?.Dequeue()`
+are reported like their plain forms. Neither rule reports in classes or assemblies marked
+`[PerFactSpecificationLifecycle]` or in theories. Neither reports calls verified through `Received()`,
+`DidNotReceive()` or inside `Received.InOrder`, calls on immutable collections, LINQ operators such as `Take`, or
+reads. `CRSPEC0012` does not report a call whose result is handed to NSubstitute, as in `_scenario.Execute(1).Returns(x)`;
+`CRSPEC0008` reports that as reconfiguring the substitute. Changes made through a method declared in another file
+(a `given` context), through lambdas inside a helper, and inside iterator helpers (methods using `yield`, whose body
+runs only when enumerated) are not followed. Lower either rule for a project or folder in an `.editorconfig`:
 
 ```ini
 [*.cs]

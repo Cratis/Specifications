@@ -18,7 +18,8 @@ namespace Cratis.Specifications.CodeAnalysis.Analyzers;
 /// running an action (<c>Execute</c>, <c>Handle</c>), consuming reads (<c>Take</c>, <c>Dequeue</c>, <c>Pop</c>,
 /// <c>MoveNext</c>), and collection changes (<c>Push</c>, <c>Enqueue</c>, <c>TryAdd</c>, <c>Reset</c>, and
 /// <c>Add</c>/<c>Remove</c>/<c>Clear</c>-style calls on an object reached through a field, such as <c>_x.Items.Clear()</c>).
-/// LINQ operators, immutable collections, calls verified through <c>Received()</c> or <c>Received.InOrder</c>, theories,
+/// Null-conditional calls (<c>_x?.Dequeue()</c>) are judged the same way. LINQ operators, immutable collections, calls
+/// verified through <c>Received()</c> or <c>Received.InOrder</c>, calls whose result is handed to NSubstitute, theories,
 /// and specifications marked <c>PerFactSpecificationLifecycle</c> are not reported. Provable changes are reported by
 /// <see cref="FactMustNotModifySharedContextAnalyzer"/>.
 /// </remarks>
@@ -91,37 +92,50 @@ public class FactShouldNotCallStateChangingMembersOnSharedContextAnalyzer : Diag
     static void Analyze(SyntaxNodeAnalysisContext context)
     {
         var invocation = (InvocationExpressionSyntax)context.Node;
-        if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess || !IsCandidate(invocation, memberAccess))
+        if (MemberCall.From(invocation) is not { } call || !IsCandidate(invocation, call))
         {
             return;
         }
 
-        if (!SharedLifecycleFacts.TryGetSharedFact(context, out var fact) || IsExempt(context, invocation, memberAccess))
+        if (!SharedLifecycleFacts.TryGetSharedFact(context, out var fact) || IsExempt(context, invocation, call))
         {
             return;
         }
 
         var members = new SharedMembers(context.SemanticModel, fact.ContainingType, context.CancellationToken);
-        if (members.Root(memberAccess.Expression, throughInvocations: false) is { } member)
+        if (members.Root(call.Receiver, throughInvocations: false) is { } member)
         {
-            context.ReportDiagnostic(Diagnostic.Create(_rule, invocation.GetLocation(), fact.Name, memberAccess.Name.Identifier.ValueText, member));
+            context.ReportDiagnostic(Diagnostic.Create(_rule, MemberCall.ResultOf(invocation).GetLocation(), fact.Name, call.Name, member));
         }
     }
 
-    static bool IsCandidate(InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax memberAccess)
-    {
-        var name = memberAccess.Name.Identifier.ValueText;
-        return _stateChangingNames.Contains(name) || (_nestedCollectionMutatorNames.Contains(name) && IsDiscardedCallOnNestedObject(invocation, memberAccess));
-    }
+    static bool IsCandidate(InvocationExpressionSyntax invocation, MemberCall call) =>
+        _stateChangingNames.Contains(call.Name) || (_nestedCollectionMutatorNames.Contains(call.Name) && IsDiscardedCallOnNestedObject(invocation, call));
 
-    static bool IsDiscardedCallOnNestedObject(InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax memberAccess) =>
-        !SharedMembers.IsDirect(memberAccess.Expression) && SharedLifecycleFacts.IsDiscardedResult(invocation);
+    static bool IsDiscardedCallOnNestedObject(InvocationExpressionSyntax invocation, MemberCall call) =>
+        !SharedMembers.IsDirect(call.Receiver) && SharedLifecycleFacts.IsDiscardedResult(invocation);
 
-    // Immutable collections and LINQ operators return a new value; calls inside Received.InOrder are recorded, not run.
-    static bool IsExempt(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax memberAccess) =>
-        SharedLifecycleFacts.IsImmutableCollection(memberAccess.Expression, context.SemanticModel, context.CancellationToken) ||
+    // Immutable collections and LINQ operators return a new value; calls inside Received.InOrder are recorded, not run;
+    // a call whose result is handed to NSubstitute (_s.Execute().Returns(x)) configures the substitute, which
+    // FactMustNotModifySharedContextAnalyzer reports.
+    static bool IsExempt(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, MemberCall call) =>
+        SharedLifecycleFacts.IsImmutableCollection(call.Receiver, context.SemanticModel, context.CancellationToken) ||
         IsLinq(context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol) ||
-        SharedLifecycleFacts.IsInsideReceivedInOrder(invocation, context.SemanticModel, context.CancellationToken);
+        SharedLifecycleFacts.IsInsideReceivedInOrder(invocation, context.SemanticModel, context.CancellationToken) ||
+        IsHandedToNSubstitute(context, invocation);
+
+    static bool IsHandedToNSubstitute(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation) =>
+        ConsumerOf(MemberCall.ResultOf(invocation)) is { } consumer &&
+        context.SemanticModel.GetSymbolInfo(consumer, context.CancellationToken).Symbol is IMethodSymbol method &&
+        SharedLifecycleFacts.IsNSubstitute(method);
+
+    // The invocation the result is passed to, either as its receiver (result.Returns(x)) or as an argument (Returns(result, x)).
+    static InvocationExpressionSyntax? ConsumerOf(ExpressionSyntax result) => result.Parent switch
+    {
+        MemberAccessExpressionSyntax { Parent: InvocationExpressionSyntax consumer } memberAccess when memberAccess.Expression == result => consumer,
+        ArgumentSyntax { Parent: ArgumentListSyntax { Parent: InvocationExpressionSyntax consumer } } => consumer,
+        _ => null
+    };
 
     static bool IsLinq(ISymbol? symbol) =>
         symbol?.ContainingNamespace?.ToDisplayString() is { } ns &&

@@ -16,6 +16,10 @@ public class a_fact_should_not_call_state_changing_members_analyzer : Specificat
         public static class SubstituteExtensions
         {
             public static T Received<T>(this T substitute) => substitute;
+            public static T DidNotReceive<T>(this T substitute) => substitute;
+            public static T ReceivedWithAnyArgs<T>(this T substitute) => substitute;
+            public static T Returns<T>(this T value, T returnThis) => value;
+            public static void When<T>(this T substitute, System.Action<T> substituteCall) { }
         }
     }
 

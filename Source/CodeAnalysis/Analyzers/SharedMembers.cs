@@ -73,8 +73,9 @@ sealed class SharedMembers(SemanticModel model, INamedTypeSymbol specification, 
         return false;
     }
 
-    // Only member access, element access and (optionally) invocations are followed; anything else, such as a
-    // conditional access, a cast or a 'new' expression, ends the chain conservatively.
+    // Only member access, element access, null-conditional bindings ('?.Name', '?[key]', followed to the expression
+    // before the '?') and (optionally) invocations are followed; anything else, such as a cast or a 'new' expression,
+    // ends the chain conservatively.
     static ExpressionSyntax? GetRoot(ExpressionSyntax expression, bool throughInvocations)
     {
         var current = expression;
@@ -91,6 +92,7 @@ sealed class SharedMembers(SemanticModel model, INamedTypeSymbol specification, 
         MemberAccessExpressionSyntax memberAccess => memberAccess.Expression,
         ElementAccessExpressionSyntax elementAccess => elementAccess.Expression,
         ParenthesizedExpressionSyntax parenthesized => parenthesized.Expression,
+        MemberBindingExpressionSyntax or ElementBindingExpressionSyntax => MemberCall.ConditionalReceiverOf(expression),
         InvocationExpressionSyntax invocation when throughInvocations => invocation.Expression,
         _ => null
     };

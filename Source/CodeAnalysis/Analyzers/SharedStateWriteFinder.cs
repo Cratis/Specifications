@@ -72,14 +72,12 @@ sealed class SharedStateWriteFinder(SharedMembers members)
         type.ToDisplayString() == interfaceName || type.AllInterfaces.Any(_ => _.ToDisplayString() == interfaceName);
 
     static bool IsSubstituteConfiguration(IMethodSymbol method) =>
-        _substituteConfigurationNames.Contains(method.Name) &&
-        method.ContainingNamespace?.ToDisplayString() is { } ns &&
-        (ns == "NSubstitute" || ns.StartsWith("NSubstitute.", System.StringComparison.Ordinal));
+        _substituteConfigurationNames.Contains(method.Name) && SharedLifecycleFacts.IsNSubstitute(method);
 
     SharedStateChange? FindInCall(InvocationExpressionSyntax invocation)
     {
-        var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
-        if (FindCollectionMutation(invocation, memberAccess) is { } mutated)
+        var call = MemberCall.From(invocation);
+        if (FindCollectionMutation(invocation, call) is { } mutated)
         {
             return mutated;
         }
@@ -89,26 +87,26 @@ sealed class SharedStateWriteFinder(SharedMembers members)
             return null;
         }
 
-        return FindDisposal(memberAccess, method) ?? FindSubstituteConfiguration(invocation, method) ?? FindInHelper(invocation, method);
+        return FindDisposal(call, method) ?? FindSubstituteConfiguration(invocation, method) ?? FindInHelper(invocation, method);
     }
 
-    SharedStateChange? FindCollectionMutation(InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax? memberAccess)
+    SharedStateChange? FindCollectionMutation(InvocationExpressionSyntax invocation, MemberCall? call)
     {
-        if (memberAccess is null || !IsDiscardedCollectionMutatorCall(invocation, memberAccess))
+        if (call is null || !IsDiscardedCollectionMutatorCall(invocation, call))
         {
             return null;
         }
 
-        return SharedLifecycleFacts.IsImmutableCollection(memberAccess.Expression, members.Model, members.CancellationToken)
+        return SharedLifecycleFacts.IsImmutableCollection(call.Receiver, members.Model, members.CancellationToken)
             ? null
-            : Changed(members.Direct(memberAccess.Expression));
+            : Changed(members.Direct(call.Receiver));
     }
 
-    static bool IsDiscardedCollectionMutatorCall(InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax memberAccess) =>
-        _collectionMutatorNames.Contains(memberAccess.Name.Identifier.ValueText) && SharedLifecycleFacts.IsDiscardedResult(invocation);
+    static bool IsDiscardedCollectionMutatorCall(InvocationExpressionSyntax invocation, MemberCall call) =>
+        _collectionMutatorNames.Contains(call.Name) && SharedLifecycleFacts.IsDiscardedResult(invocation);
 
-    SharedStateChange? FindDisposal(MemberAccessExpressionSyntax? memberAccess, IMethodSymbol method) =>
-        memberAccess is not null && IsDispose(method) ? Changed(members.Root(memberAccess.Expression, throughInvocations: false)) : null;
+    SharedStateChange? FindDisposal(MemberCall? call, IMethodSymbol method) =>
+        call is not null && IsDispose(method) ? Changed(members.Root(call.Receiver, throughInvocations: false)) : null;
 
     SharedStateChange? FindSubstituteConfiguration(InvocationExpressionSyntax invocation, IMethodSymbol method) =>
         IsSubstituteConfiguration(method) && GetSubstitute(invocation, method) is { } substitute
@@ -116,8 +114,8 @@ sealed class SharedStateWriteFinder(SharedMembers members)
             : null;
 
     static ExpressionSyntax? GetSubstitute(InvocationExpressionSyntax invocation, IMethodSymbol method) =>
-        method.ReducedFrom is not null && invocation.Expression is MemberAccessExpressionSyntax memberAccess
-            ? memberAccess.Expression
+        method.ReducedFrom is not null
+            ? MemberCall.From(invocation)?.Receiver
             : invocation.ArgumentList.Arguments.FirstOrDefault()?.Expression;
 
     static bool IsCalledOnThisInstance(InvocationExpressionSyntax invocation) =>
@@ -126,7 +124,8 @@ sealed class SharedStateWriteFinder(SharedMembers members)
     static bool IsInstanceMethod(IMethodSymbol method) => !method.IsStatic && method.MethodKind == MethodKind.Ordinary;
 
     // A non-static method of the specification called on this instance, whose body is in the same file, is followed,
-    // because its effect on the shared state is the fact's effect. Lambdas and local functions in it are not followed.
+    // because its effect on the shared state is the fact's effect. Lambdas and local functions in it are not followed,
+    // and neither are iterators: their body runs only when the result is enumerated, which may be never.
     SharedStateChange? FindInHelper(InvocationExpressionSyntax invocation, IMethodSymbol method)
     {
         if (!IsCalledOnThisInstance(invocation) || !IsInstanceMethod(method))
@@ -140,7 +139,7 @@ sealed class SharedStateWriteFinder(SharedMembers members)
         }
 
         var changed = GetBodiesInThisFile(method)
-            .SelectMany(_ => _.DescendantNodes(node => node is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax)))
+            .SelectMany(NodesRunByTheCall)
             .Select(Find)
             .FirstOrDefault(_ => _ is not null);
         return changed is null ? null : new SharedStateChange(changed.Member, method.Name);
@@ -154,5 +153,11 @@ sealed class SharedStateWriteFinder(SharedMembers members)
             .OfType<MethodDeclarationSyntax>()
             .Select(_ => (SyntaxNode?)_.Body ?? _.ExpressionBody)
             .Where(_ => _ is not null)
-            .Select(_ => _!);
+            .Select(_ => _!)
+            .Where(_ => !IsIterator(_));
+
+    static IEnumerable<SyntaxNode> NodesRunByTheCall(SyntaxNode body) =>
+        body.DescendantNodes(node => node is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax));
+
+    static bool IsIterator(SyntaxNode body) => NodesRunByTheCall(body).OfType<YieldStatementSyntax>().Any();
 }

@@ -18,6 +18,7 @@ static class SharedLifecycleFacts
     const string TheoryAttributeName = "TheoryAttribute";
     const string ImmutableCollectionsNamespace = "System.Collections.Immutable";
     const string ReceivedTypeName = "NSubstitute.Received";
+    const string NSubstituteNamespace = "NSubstitute";
 
     /// <summary>
     /// Determines whether the compilation contains specifications sharing their context, so the analysis applies at all.
@@ -75,7 +76,16 @@ static class SharedLifecycleFacts
     /// <param name="invocation">The invocation to inspect.</param>
     /// <returns>True if the result is discarded.</returns>
     public static bool IsDiscardedResult(InvocationExpressionSyntax invocation) =>
-        invocation.Parent is ExpressionStatementSyntax or ArrowExpressionClauseSyntax;
+        MemberCall.ResultOf(invocation).Parent is ExpressionStatementSyntax or ArrowExpressionClauseSyntax;
+
+    /// <summary>
+    /// Determines whether the method belongs to NSubstitute.
+    /// </summary>
+    /// <param name="method">The method to inspect.</param>
+    /// <returns>True if the method is declared in the NSubstitute namespace or one of its sub-namespaces.</returns>
+    public static bool IsNSubstitute(IMethodSymbol method) =>
+        method.ContainingNamespace?.ToDisplayString() is { } ns &&
+        (ns == NSubstituteNamespace || ns.StartsWith(NSubstituteNamespace + ".", System.StringComparison.Ordinal));
 
     /// <summary>
     /// Determines whether the expression's type is an immutable collection, whose members return a new collection and leave the receiver untouched.
