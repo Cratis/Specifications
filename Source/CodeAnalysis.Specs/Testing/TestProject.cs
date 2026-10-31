@@ -68,6 +68,8 @@ public static class TestProject
     static IEnumerable<MetadataReference> GetMetadataReferences() =>
     [
         MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+        MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Runtime.dll")),
+        MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Collections.dll")),
         MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
         MetadataReference.CreateFromFile(typeof(System.Attribute).Assembly.Location),
         MetadataReference.CreateFromFile(typeof(System.Collections.Immutable.ImmutableArray).Assembly.Location),

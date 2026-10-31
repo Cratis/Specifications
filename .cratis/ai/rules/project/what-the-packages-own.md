@@ -17,8 +17,8 @@ specification means everywhere — treat the public surface conservatively.
   in every package.
 - **Lifecycle defaults:** xUnit shares the specification instance per class and every package shows readable names,
   both switched off with `CratisSpecificationsSharedLifecycle=false` and `CratisSpecificationsReadableNames=false`.
-- **Analyzers** `CRSPEC0001`–`CRSPEC0009` ship only in `Cratis.Specifications`; the Runner's generator adds
-  `CRSPEC0010` and `CRSPEC0011`. `CRSPEC0008` is an error. `CratisSpecificationsAnalyzers=false|ide` controls them.
+- **Analyzers** `CRSPEC0001`–`CRSPEC0009` and `CRSPEC0012` ship only in `Cratis.Specifications`; the Runner's generator adds
+  `CRSPEC0010` and `CRSPEC0011`. `CRSPEC0008` is an error; `CRSPEC0012` a warning. `CratisSpecificationsAnalyzers=false|ide` controls them.
 - **Experimental surface:** shared resources and isolation leases (`CRSPECEXP01`, opt in with
   `CratisSpecificationsSharedResources=true`). Treat it as changeable until it graduates.
 - Packages target `net10.0` only. Keep `Cratis.Specifications` and the framework package on the same version.

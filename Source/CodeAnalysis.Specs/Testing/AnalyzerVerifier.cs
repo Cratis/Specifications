@@ -34,11 +34,28 @@ public static class AnalyzerVerifier<TAnalyzer>
     /// <returns>A <see cref="Task"/> representing the verification.</returns>
     public static Task VerifyRunnerAnalyzer(string source, params ExpectedDiagnostic[] expected) => Verify(source, true, expected);
 
-    static async Task Verify(string source, bool withRunnerStub, ExpectedDiagnostic[] expected)
+    /// <summary>
+    /// Verify analyzer diagnostics for source that must compile without errors, so a diagnostic that is not reported
+    /// cannot be explained by a symbol the compiler failed to resolve.
+    /// </summary>
+    /// <param name="source">The C# source to analyze (may contain <c>{|#0:...|}</c> markers).</param>
+    /// <param name="expected">The expected diagnostics, ordered by source position.</param>
+    /// <returns>A <see cref="Task"/> representing the verification.</returns>
+    public static Task VerifyAnalyzerOnCompilingSource(string source, params ExpectedDiagnostic[] expected) => Verify(source, false, expected, requireCompilingSource: true);
+
+    static async Task Verify(string source, bool withRunnerStub, ExpectedDiagnostic[] expected, bool requireCompilingSource = false)
     {
         var markedSource = SourceMarker.Parse(source);
         var project = TestProject.CreateProject(markedSource.Source, withRunnerStub);
         var compilation = await project.GetCompilationAsync();
+
+        if (requireCompilingSource)
+        {
+            compilation.GetDiagnostics()
+                .Where(d => d.Severity == DiagnosticSeverity.Error)
+                .Select(d => d.ToString())
+                .ShouldBeEmpty();
+        }
 
         var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new TAnalyzer());
         var compilationWithAnalyzers = compilation.WithAnalyzers(analyzers);

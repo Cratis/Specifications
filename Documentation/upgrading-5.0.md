@@ -231,7 +231,7 @@ If you use `Cratis.Specifications.Runner`:
 
 ## Analyzers: one switch, one package
 
-The analyzers `CRSPEC0001`–`CRSPEC0009` are shipped in `Cratis.Specifications` only. The adapter packages receive
+The analyzers `CRSPEC0001`–`CRSPEC0009` and `CRSPEC0012` are shipped in `Cratis.Specifications` only. The adapter packages receive
 them through that dependency, so they run once instead of twice. (`CRSPEC0010` and `CRSPEC0011` come from the native
 runner's source generator.) `CratisSpecificationsAnalyzers` controls them for
 every package:
