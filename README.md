@@ -333,7 +333,8 @@ constructors and unsupported constructor arguments keep the stock per-fact lifec
 The same rules apply on v3, including its assembly fixtures.
 
 The one rule to honor: facts must not mutate the shared context. They are assertions about the
-single execution the class describes, which is the BDD model to begin with. The `CRSPEC0008` analyzer enforces it as a build error.
+single execution the class describes, which is the BDD model to begin with. The `CRSPEC0008` analyzer enforces it as a build error,
+and `CRSPEC0012` warns about calls that probably change it, such as executing a command in a fact.
 
 To keep xUnit's per-fact lifecycle, apply `[PerFactSpecificationLifecycle]` to a class or to the assembly, or set
 `<CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>` for the whole project.
@@ -387,19 +388,45 @@ block do not report. Moving from 4.x? See the [5.0 upgrade guide](./Documentatio
 
 ## Analyzers
 
-`Cratis.Specifications` ships Roslyn analyzers (`CRSPEC0001`–`CRSPEC0009`) that catch common specification mistakes; the
+`Cratis.Specifications` ships Roslyn analyzers (`CRSPEC0001`–`CRSPEC0009` and `CRSPEC0012`) that catch common specification mistakes; the
 framework packages receive them through their dependency on it. The native runner's source generator adds `CRSPEC0010`
 (an `async void` fact or lifecycle method, an error) and `CRSPEC0011` (a method called through reflection, a warning).
 
-`CRSPEC0008` — *facts should not modify the shared specification context* — reports a `should_*`
-fact that assigns to, increments, or calls `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on
-an instance field or property of the specification. Facts share one context by default, so it is an **error**.
-It does not report in classes or assemblies marked `[PerFactSpecificationLifecycle]`, in theories, or on calls whose
-result is used or that target immutable collections. Lower it for a project or folder in an `.editorconfig`:
+Two rules protect the shared specification context. Facts share one context by default, so a fact that changes it
+makes the other facts depend on the order they run in. Both tell you to move the change into `Because` (or
+`Establish`), or to mark the class `[PerFactSpecificationLifecycle]` so each fact gets its own context.
+
+`CRSPEC0008` — *facts should not modify the shared specification context* — is an **error**. It reports changes the
+analyzer can prove from the code. In a `should_*` fact, it reports:
+
+- assigning to, or incrementing, an instance field or property of the specification, or anything reached through one:
+  `_value = 1`, `_owner.Count = 2`, `_counts["a"] = 3`, `_values[0]++`, `_owner.Changed += handler`;
+- calling `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on such a field, when the result is discarded;
+- disposing such a field, or an object reached through one (`IDisposable.Dispose`, `IAsyncDisposable.DisposeAsync`);
+- reconfiguring an NSubstitute substitute held in such a field: `Returns`, `Throws`, `When`, `ClearReceivedCalls`
+  and their variants, as in `_service.Get().Returns(1)`;
+- calling a method of the specification that does any of the above, when that method is declared in the same file.
+  The message names the method: `modifies the shared specification state '_count' through 'Reset()'`.
+
+`CRSPEC0012` — *facts should not call members that change the shared specification context* — is a **warning**,
+because it judges a call by the member's name rather than by what the member does. It reports calls on a field or
+property of the specification, or an object reached through one, to:
+
+- members that run the action under test: `Execute`, `ExecuteAsync`, `Handle`, `HandleAsync`;
+- consuming reads: `Take`, `TryTake`, `Dequeue`, `TryDequeue`, `Pop`, `TryPop`, `MoveNext`;
+- other changes: `Push`, `Enqueue`, `TryAdd`, `TryRemove`, `TryUpdate`, `AddOrUpdate`, `RemoveAll`, `Reset`;
+- `Add`/`AddRange`/`Remove`/`RemoveAt`/`Clear`/`Insert` on an object reached through a field, such as
+  `_owner.Items.Clear()`, when the result is discarded.
+
+Neither rule reports in classes or assemblies marked `[PerFactSpecificationLifecycle]` or in theories. Neither
+reports calls verified through `Received()` or inside `Received.InOrder`, calls on immutable collections, LINQ operators
+such as `Take`, or reads. Changes made through a method declared in another file (a `given` context) and through
+lambdas inside a helper are not followed. Lower either rule for a project or folder in an `.editorconfig`:
 
 ```ini
 [*.cs]
 dotnet_diagnostic.CRSPEC0008.severity = warning   # or suggestion, or none
+dotnet_diagnostic.CRSPEC0012.severity = none
 ```
 
 The `CratisSpecificationsWarnOnSharedContextMutation` property from 4.x is gone.

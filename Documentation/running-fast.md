@@ -49,6 +49,7 @@ lifecycle runs them once per class, which is what a specification means: one con
   adds deterministic work to each context so you can see this cost on your own hardware.
 - Facts must only read the shared context. `CRSPEC0008` is an error by default, so a fact that mutates it fails the
   build. To lower it, set the severity in an `.editorconfig`: `dotnet_diagnostic.CRSPEC0008.severity = warning`.
+  `CRSPEC0012` warns about calls that probably change it, such as `_scenario.Execute(...)` or `_queue.Dequeue()`.
 
 ## Run the executable, not the full `dotnet test` pipeline
 

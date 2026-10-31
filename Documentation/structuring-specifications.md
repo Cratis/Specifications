@@ -194,8 +194,10 @@ public class when_registering_asynchronously : Specification, IAsyncDisposable
   specification. See the README on the
   [shared instance](https://github.com/Cratis/Specifications/blob/main/README.md#shared-instance-per-specification-class).
 - Under a shared lifecycle, `Establish` and `Because` run once and facts may run concurrently. Facts must be read-only:
-  no assignments to fields, no `Add` or `Clear` on collections. Put every mutation in `Establish` or `Because`.
-  `CRSPEC0008` reports violations as a build error.
+  no assignments to fields or to objects reached through them, no `Add` or `Clear` on collections, no `Dispose`, no
+  `Returns` on a shared substitute, and no running the action again. Put every mutation in `Establish` or `Because`.
+  `CRSPEC0008` reports provable violations as a build error; `CRSPEC0012` warns about calls such as `Execute`,
+  `Handle` or `Dequeue` that probably change the context.
 - Mistake: `async void` lifecycle methods. Return `Task`. The native runner reports them as the error `CRSPEC0010`.
 - Mistake: `Task.Delay` to wait for a result. Await the operation that produces it.
 
@@ -208,7 +210,7 @@ public class when_registering_asynchronously : Specification, IAsyncDisposable
 - `Given` and `When` suit teams that think in given/when/then; `Establish` and `Because` suit teams coming from
   Machine.Specifications. Pick one for the project and keep to it. Mixing across base and derived contexts works;
   both names on one class throws `AmbiguousLifecycleMethod` (`CRSPEC0009`).
-- The analyzers `CRSPEC0001` to `CRSPEC0009` keep specifications honest: `should_` naming, one specification per file,
+- The analyzers `CRSPEC0001` to `CRSPEC0009` and `CRSPEC0012` keep specifications honest: `should_` naming, one specification per file,
   public specification classes, no facts or `Because` on a `given` context, no explicit base lifecycle calls, no
   mutation of shared context, and no ambiguous aliases. See the README on
   [analyzers](https://github.com/Cratis/Specifications/blob/main/README.md#analyzers), including how to lower
