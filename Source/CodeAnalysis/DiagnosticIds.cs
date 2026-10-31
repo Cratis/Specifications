@@ -52,4 +52,12 @@ public static class DiagnosticIds
     /// A specification declares both lifecycle names for one phase.
     /// </summary>
     public const string AmbiguousLifecycleAliases = "CRSPEC0009";
+
+    /// <summary>
+    /// A fact calls a member on the shared specification context that, by its name, changes it (an action, a consuming read or a nested collection change).
+    /// </summary>
+    /// <remarks>
+    /// <c>CRSPEC0010</c> and <c>CRSPEC0011</c> belong to the native runner's source generator.
+    /// </remarks>
+    public const string FactShouldNotCallStateChangingMembersOnSharedContext = "CRSPEC0012";
 }

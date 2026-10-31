@@ -1,0 +1,36 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using Cratis.Specifications.CodeAnalysis.Analyzers;
+using Cratis.Specifications.CodeAnalysis.Specs.Testing;
+
+namespace Cratis.Specifications.CodeAnalysis.Specs.Analyzers.for_FactShouldNotCallStateChangingMembersOnSharedContextAnalyzer.when_analyzing;
+
+public class and_class_is_marked_per_fact : given.a_fact_should_not_call_state_changing_members_analyzer
+{
+    const string Usage = """
+    [System.AttributeUsage(System.AttributeTargets.All)]
+    public sealed class PerFactSpecificationLifecycleAttribute : System.Attribute
+    {
+    }
+
+    [Sample.PerFactSpecificationLifecycle]
+    public class when_something : Cratis.Specifications.Specification
+    {
+        Store _store;
+
+        [Xunit.Fact]
+        void should_consume() => _store.Dequeue();
+
+        [Xunit.Theory]
+        void should_consume_in_a_theory() => _store.Pop();
+    }
+    """;
+
+    Task _result;
+
+    void Because() => _result = AnalyzerVerifier<FactShouldNotCallStateChangingMembersOnSharedContextAnalyzer>.VerifyAnalyzerOnCompilingSource(
+        SpecSource.Wrap(Usage) + SupportSource);
+
+    [Fact] Task should_not_report_any_diagnostics() => _result;
+}

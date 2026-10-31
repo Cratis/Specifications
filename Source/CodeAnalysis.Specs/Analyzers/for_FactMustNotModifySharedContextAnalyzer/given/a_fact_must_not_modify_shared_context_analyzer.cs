@@ -15,4 +15,22 @@ public class a_fact_must_not_modify_shared_context_analyzer : Specification
         }
     }
     """;
+
+    protected const string SubstituteSource = """
+    namespace NSubstitute
+    {
+        public class WhenCalled<T>
+        {
+            public void Do(System.Action<object> callback) { }
+        }
+
+        public static class SubstituteExtensions
+        {
+            public static T Returns<T>(this T value, T returnThis) => value;
+            public static WhenCalled<T> When<T>(this T substitute, System.Action<T> call) => new();
+            public static void ClearReceivedCalls<T>(this T substitute) { }
+            public static T Received<T>(this T substitute) => substitute;
+        }
+    }
+    """;
 }
