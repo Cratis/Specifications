@@ -35,6 +35,8 @@ public class when_running_the_resource_catalog : Specification
     [Fact] void should_carry_on_starting_after_a_cancelled_wait() => results.StartCarriedOnAfterCancelledWait.ShouldBeTrue();
     [Fact] void should_report_every_stop_failure() => ((AggregateException)results.ReportedStopFailures).InnerExceptions.Select(_ => _.GetType()).ShouldEqual<Type>(typeof(TimeoutException), typeof(InvalidOperationException));
     [Fact] void should_report_the_stop_failure_itself() => ((AggregateException)results.ReportedStopFailures).InnerExceptions[1].InnerException.ShouldBeSame(results.StopFailure);
+    [Fact] void should_name_the_resource_when_its_stop_fails_synchronously() => results.ReportedSynchronousStopFailure.Message.ShouldEqual("Stopping the shared resource 'Cratis.Specifications.Resources.unlimited_resource' failed: Synchronous stop failure");
+    [Fact] void should_keep_the_synchronous_stop_failure_itself() => results.ReportedSynchronousStopFailure.InnerException.ShouldBeSame(results.SynchronousStopFailure);
     [Fact] void should_stop_resources_in_reverse_start_order() => results.StopSequence.ShouldEqual<string>("stop quick", "stop unlimited");
     [Fact] void should_return_a_borrowed_resource() => results.BorrowedResourceReturned.ShouldBeTrue();
     [Fact] void should_never_start_a_borrowed_resource() => results.BorrowedStarts.ShouldEqual(0);

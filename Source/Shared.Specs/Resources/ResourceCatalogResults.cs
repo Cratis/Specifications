@@ -44,6 +44,8 @@ internal sealed class ResourceCatalogResults
     public Exception StopFailure { get; set; }
     public Exception ReportedStopFailures { get; set; }
     public IReadOnlyList<string> StopSequence { get; set; }
+    public Exception SynchronousStopFailure { get; set; }
+    public Exception ReportedSynchronousStopFailure { get; set; }
 
     public bool BorrowedResourceReturned { get; set; }
     public int BorrowedStarts { get; set; }

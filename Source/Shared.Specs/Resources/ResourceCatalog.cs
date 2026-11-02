@@ -26,6 +26,7 @@ internal static partial class ResourceCatalog
         await RejectOutOfOrderLeases(results);
         await CancelWaits(results);
         await ReportStopFailures(results);
+        await ReportSynchronousStopFailures(results);
         await NeverDisposeBorrowed(results);
         await FailOnlyTheFailingLease(results);
         await RejectLeasesOutsideAScope(results);
@@ -182,6 +183,15 @@ internal static partial class ResourceCatalog
         await registry.Get(() => new quickly_stopped_resource(log, new() { StopHangs = true }), default);
         results.ReportedStopFailures = await Catch(() => session.Stop().AsTask());
         results.StopSequence = log.Entries;
+    }
+
+    static async Task ReportSynchronousStopFailures(ResourceCatalogResults results)
+    {
+        var (registry, session) = NewRegistry();
+        var log = new ResourceLog();
+        results.SynchronousStopFailure = new NotSupportedException("Synchronous stop failure");
+        await registry.Get(() => new unlimited_resource(log, new() { SynchronousStopFailure = results.SynchronousStopFailure }), default);
+        results.ReportedSynchronousStopFailure = await Catch(() => session.Stop().AsTask());
     }
 
     static async Task NeverDisposeBorrowed(ResourceCatalogResults results)
