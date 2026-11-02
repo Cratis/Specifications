@@ -167,12 +167,14 @@ internal sealed class ResourceRegistry(Action<Func<ValueTask>>? registerSessionE
     static async Task StopResource(ResourceEntry entry)
     {
         var name = entry.Resource.GetType().FullName;
-        var stopping = entry.Resource.DisposeAsync().AsTask();
+        Task? stopping = null;
         try
         {
+            // Started inside the try so a DisposeAsync that throws before its first await is reported like any other stop failure.
+            stopping = entry.Resource.DisposeAsync().AsTask();
             await stopping.WaitAsync(entry.StopTimeout);
         }
-        catch (TimeoutException ex) when (!stopping.IsCompleted)
+        catch (TimeoutException ex) when (stopping?.IsCompleted == false)
         {
             throw new TimeoutException($"Stopping the shared resource '{name}' did not finish within {entry.StopTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture)} seconds.", ex);
         }

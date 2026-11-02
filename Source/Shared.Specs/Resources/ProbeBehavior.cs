@@ -12,6 +12,7 @@ internal sealed class ProbeBehavior
     public Exception StartFailure { get; init; }
     public Exception StopFailure { get; init; }
     public bool StopHangs { get; init; }
+    public Exception SynchronousStopFailure { get; init; }
     public Exception LeaseFailure { get; init; }
     public Exception ReleaseFailure { get; init; }
 }

@@ -38,10 +38,16 @@ internal abstract class ProbeResource : ISpecificationResource<ProbeLease>
 #pragma warning restore CA2000
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         _log.ResourceDisposed();
         _log.Add($"stop {Name}");
+        if (_behavior.SynchronousStopFailure is not null) throw _behavior.SynchronousStopFailure;
+        return Stop();
+    }
+
+    async ValueTask Stop()
+    {
         if (_behavior.StopHangs) await Task.Delay(Timeout.Infinite);
         if (_behavior.StopFailure is not null) throw _behavior.StopFailure;
     }
