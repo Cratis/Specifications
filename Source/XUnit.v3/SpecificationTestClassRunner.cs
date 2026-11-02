@@ -29,7 +29,7 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
     protected override async ValueTask<bool> OnTestClassStarting(XunitTestClassRunnerContext ctxt)
     {
         var result = await base.OnTestClassStarting(ctxt);
-        if (ctxt.Aggregator.HasExceptions || !IsEligibleForSharedLifecycle(ctxt) || !AnyFactWillRun(ctxt)) return result;
+        if (ctxt.Aggregator.HasExceptions || !UsesSharedLifecycle(ctxt)) return result;
 
         await ctxt.Aggregator.RunAsync(async () =>
         {
@@ -99,6 +99,8 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
         if (!constructors[0].GetParameters().All(parameter => IsFixture(parameter.ParameterType, fixtures))) return false;
         return ctxt.TestCases.All(IsPlainFact);
     }
+
+    static bool UsesSharedLifecycle(XunitTestClassRunnerContext ctxt) => IsEligibleForSharedLifecycle(ctxt) && AnyFactWillRun(ctxt);
 
     static bool AnyFactWillRun(XunitTestClassRunnerContext ctxt) => ctxt.TestCases.Any(_ => WillRun(_, ctxt.ExplicitOption));
 
