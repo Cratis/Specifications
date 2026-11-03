@@ -15,5 +15,5 @@ public class when_observing_a_specification_that_skips_every_fact : for_Specific
         observed = (await RecordingObserver.Record<skipped_observed_specification>(() => RunClass(typeof(skipped_observed_specification)))).Events;
     }
 
-    [Fact] void should_report_the_lifecycle_the_adapter_ran() => observed.ShouldEqual<string>(ObservationCatalog.Passing);
+    [Fact] void should_not_report_a_lifecycle_because_the_adapter_ran_none() => observed.ShouldBeEmpty();
 }

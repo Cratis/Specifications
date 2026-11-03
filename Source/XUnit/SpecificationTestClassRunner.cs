@@ -51,7 +51,7 @@ public class SpecificationTestClassRunner(
     {
         await base.AfterTestClassStartingAsync();
 
-        if (!IsEligibleForSharedLifecycle()) return;
+        if (!IsEligibleForSharedLifecycle() || !AnyFactWillRun()) return;
 
         await Aggregator.RunAsync(async () =>
         {
@@ -95,6 +95,9 @@ public class SpecificationTestClassRunner(
         (testCase.GetType() == typeof(XunitTestCase) || testCase.GetType() == typeof(SpecificationTestCase)) &&
         (testCase.TestMethodArguments is null || testCase.TestMethodArguments.Length == 0) &&
         !testCase.TestMethod.Method.GetCustomAttributes(typeof(TheoryAttribute)).Any();
+
+    // A class whose facts are all skipped falls back to the per-fact path, which constructs nothing for a skipped fact.
+    bool AnyFactWillRun() => TestCases.Any(_ => string.IsNullOrEmpty(_.SkipReason));
 
     bool IsEligibleForSharedLifecycle()
     {
