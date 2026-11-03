@@ -26,12 +26,23 @@ public class a_class_runner_harness : Specification
 
         var testCases = type
             .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(_ => _.GetCustomAttributes<FactAttribute>().Any())
+            .Select(_ => (Method: _, Fact: _.GetCustomAttribute<FactAttribute>()))
+            .Where(_ => _.Fact is not null)
             .Select(_ => (IXunitTestCase)new XunitTestCase(
-                new XunitTestMethod(testClass, _, []),
-                $"{type.Name}.{_.Name}",
-                $"{type.FullName}.{_.Name}",
-                false))
+                new XunitTestMethod(testClass, _.Method, []),
+                $"{type.Name}.{_.Method.Name}",
+                $"{type.FullName}.{_.Method.Name}",
+                _.Fact.Explicit,
+                _.Fact.SkipExceptions,
+                _.Fact.Skip,
+                _.Fact.SkipType,
+                _.Fact.SkipUnless,
+                _.Fact.SkipWhen,
+                null,
+                null,
+                null,
+                null,
+                null))
             .ToArray();
 
         using var cancellationTokenSource = new CancellationTokenSource();

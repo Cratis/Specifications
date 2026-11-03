@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using Xunit;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Cratis.Specifications;
@@ -16,6 +17,9 @@ namespace Cratis.Specifications;
 /// A new runner is created for every test class, so the shared instance lives exactly as long as the class run.
 /// A failure in Establish or Because is recorded while the class is starting, which makes xUnit fail every
 /// fact in the class with that exception without running any of them.
+/// A class none of whose facts will run (every fact skipped, or excluded by the explicit option) gets no shared
+/// instance: it runs through the stock lifecycle, which never constructs a class for a skipped fact, so its
+/// Establish does not run and it starts no shared resource.
 /// </remarks>
 public class SpecificationTestClassRunner : XunitTestClassRunner
 {
@@ -25,7 +29,7 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
     protected override async ValueTask<bool> OnTestClassStarting(XunitTestClassRunnerContext ctxt)
     {
         var result = await base.OnTestClassStarting(ctxt);
-        if (ctxt.Aggregator.HasExceptions || !IsEligibleForSharedLifecycle(ctxt)) return result;
+        if (ctxt.Aggregator.HasExceptions || !UsesSharedLifecycle(ctxt)) return result;
 
         await ctxt.Aggregator.RunAsync(async () =>
         {
@@ -94,6 +98,41 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
             .Concat(ctxt.TestClass.TestCollection.TestAssembly.AssemblyFixtureTypes).ToArray();
         if (!constructors[0].GetParameters().All(parameter => IsFixture(parameter.ParameterType, fixtures))) return false;
         return ctxt.TestCases.All(IsPlainFact);
+    }
+
+    static bool UsesSharedLifecycle(XunitTestClassRunnerContext ctxt) => IsEligibleForSharedLifecycle(ctxt) && AnyFactWillRun(ctxt);
+
+    static bool AnyFactWillRun(XunitTestClassRunnerContext ctxt) => ctxt.TestCases.Any(_ => WillRun(_, ctxt.ExplicitOption));
+
+    /// <summary>
+    /// Decides ahead of xUnit whether a test case will run. When it cannot tell - a skip condition that does not
+    /// resolve to a public static <see cref="bool"/> property, or one that throws - it answers that the case runs,
+    /// which keeps the shared lifecycle and leaves reporting the misconfiguration to xUnit.
+    /// </summary>
+    static bool WillRun(IXunitTestCase testCase, ExplicitOption explicitOption)
+    {
+        if (testCase.Explicit ? explicitOption == ExplicitOption.Off : explicitOption == ExplicitOption.Only) return false;
+        if (testCase.SkipReason is null) return true;
+        if (testCase.SkipUnless is null && testCase.SkipWhen is null) return false;
+        if (ReadSkipCondition(testCase) is not { } condition) return true;
+        return testCase.SkipUnless is not null ? condition : !condition;
+    }
+
+    static bool? ReadSkipCondition(IXunitTestCase testCase)
+    {
+        if (testCase.SkipUnless is not null && testCase.SkipWhen is not null) return null;
+        var type = testCase.SkipType ?? testCase.TestClass.Class;
+        var property = type.GetProperty((testCase.SkipUnless ?? testCase.SkipWhen)!, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+        if (property?.GetMethod is null || property.PropertyType != typeof(bool)) return null;
+
+        try
+        {
+            return (bool)property.GetValue(null)!;
+        }
+        catch (TargetInvocationException)
+        {
+            return null;
+        }
     }
 
     static bool IsFixture(Type type, Type[] fixtures)
