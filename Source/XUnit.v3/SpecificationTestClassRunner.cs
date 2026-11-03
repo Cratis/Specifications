@@ -122,7 +122,7 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
     {
         if (testCase.SkipUnless is not null && testCase.SkipWhen is not null) return null;
         var type = testCase.SkipType ?? testCase.TestClass.Class;
-        var property = type.GetProperty((testCase.SkipUnless ?? testCase.SkipWhen)!, BindingFlags.Public | BindingFlags.Static);
+        var property = type.GetProperty((testCase.SkipUnless ?? testCase.SkipWhen)!, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
         if (property?.GetMethod is null || property.PropertyType != typeof(bool)) return null;
 
         try
