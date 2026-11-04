@@ -1,9 +1,15 @@
 # Guides
 
-Task-oriented guides for getting the most out of Cratis Specifications. The
+Start with a single behavior in Cratis Specifications, then use these guides as your suite grows. The
 [repository README](https://github.com/Cratis/Specifications/blob/main/README.md) is the reference for
 packages, lifecycle conventions, assertions and analyzers; these guides assume you have read its
 [setup section](https://github.com/Cratis/Specifications/blob/main/README.md#setting-up-a-project).
+
+After setup, start with [Level 1 of Structuring specifications](./structuring-specifications.md#level-1-a-single-behavior).
+The example uses xUnit; work through the later levels only as your behavior needs them.
+
+You can keep the runner you chose during setup. [The native runner](./runner.md) is an optional alternative;
+read its [limits](./runner.md#limits) before deciding to migrate from xUnit.
 
 | Guide | Use it to |
 | --- | --- |
