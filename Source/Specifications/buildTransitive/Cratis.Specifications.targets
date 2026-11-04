@@ -1,0 +1,8 @@
+<Project>
+    <ItemGroup Condition="'$(CratisSpecificationsReadableNames)' == 'true'">
+        <AssemblyAttribute Include="Cratis.Specifications.ReadableSpecificationNamesAttribute" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(CratisSpecificationsWarnOnSharedContextMutation)' == 'true'">
+        <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)shared-context.globalconfig" />
+    </ItemGroup>
+</Project>

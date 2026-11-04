@@ -47,4 +47,9 @@ public static class DiagnosticIds
     /// A fact (test method) must not modify the shared specification context, since facts share state and must not depend on execution order.
     /// </summary>
     public const string FactMustNotModifySharedContext = "CRSPEC0008";
+
+    /// <summary>
+    /// A specification declares both lifecycle names for one phase.
+    /// </summary>
+    public const string AmbiguousLifecycleAliases = "CRSPEC0009";
 }

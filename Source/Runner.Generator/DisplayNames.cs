@@ -1,8 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Text;
-
 namespace Cratis.Specifications.Runner.Generator;
 
 /// <summary>
@@ -27,17 +25,7 @@ public static class DisplayNames
     /// <returns>The display name.</returns>
     public static string ForClass(string @namespace, IEnumerable<string> typeNames)
     {
-        var segments = @namespace.Length == 0 ? [] : @namespace.Split('.');
-        var start = Array.FindIndex(segments, _ => _.StartsWith("for_", StringComparison.Ordinal));
-        var levels = new List<string>();
-        if (start >= 0)
-        {
-            levels.Add(Readable(segments[start].Substring(4)));
-            for (var index = start + 1; index < segments.Length; index++) levels.Add(Readable(segments[index]));
-        }
-
-        levels.AddRange(typeNames.Select(Readable));
-        return string.Join(Separator, levels);
+        return SpecificationDisplayNames.ForClass(@namespace, typeNames);
     }
 
     /// <summary>
@@ -55,19 +43,6 @@ public static class DisplayNames
     /// <returns>The readable words.</returns>
     public static string Readable(string identifier)
     {
-        var builder = new StringBuilder(identifier.Length);
-        foreach (var character in identifier.Trim('_'))
-        {
-            if (character == '_')
-            {
-                if (builder.Length > 0 && builder[builder.Length - 1] != ' ') builder.Append(' ');
-            }
-            else
-            {
-                builder.Append(character);
-            }
-        }
-
-        return builder.ToString();
+        return SpecificationDisplayNames.Readable(identifier);
     }
 }

@@ -134,3 +134,21 @@ sealed class probe_with_async_cancelling_because : probe_root
         throw new TaskCanceledException();
     }
 }
+
+class probe_with_aliases : probe_root
+{
+    void Given() => Calls.Add("Given");
+    void When() => Calls.Add("When");
+    void Destroy() => Calls.Add("Destroy");
+}
+
+sealed class probe_with_mixed_aliases : probe_with_aliases
+{
+    void Establish() => Calls.Add("derived.Establish");
+}
+
+sealed class probe_with_ambiguous_aliases : probe_root
+{
+    void Given() { }
+    void Establish() { }
+}

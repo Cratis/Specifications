@@ -33,7 +33,7 @@ internal static class SpecificationLifecycle
     /// <param name="specificationBase">The framework base type at which the inheritance walk stops.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public static Task Establish(object unit, Type unitType, Type specificationBase) =>
-        Run(GetMethods(unitType, specificationBase).Establish, unit, EstablishName);
+        RunPhase(unit, unitType, specificationBase, EstablishName);
 
     /// <summary>
     /// Run all Because methods for a specification.
@@ -43,7 +43,7 @@ internal static class SpecificationLifecycle
     /// <param name="specificationBase">The framework base type at which the inheritance walk stops.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public static Task Because(object unit, Type unitType, Type specificationBase) =>
-        Run(GetMethods(unitType, specificationBase).Because, unit, BecauseName);
+        RunPhase(unit, unitType, specificationBase, BecauseName);
 
     /// <summary>
     /// Run all Destroy methods for a specification.
@@ -53,28 +53,45 @@ internal static class SpecificationLifecycle
     /// <param name="specificationBase">The framework base type at which the inheritance walk stops.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public static Task Destroy(object unit, Type unitType, Type specificationBase) =>
-        Run(GetMethods(unitType, specificationBase).Destroy, unit, DestroyName);
+        RunPhase(unit, unitType, specificationBase, DestroyName);
+
+    static Task RunPhase(object unit, Type unitType, Type specificationBase, string phase)
+    {
+        try
+        {
+            var methods = GetMethods(unitType, specificationBase);
+            return Run(phase == EstablishName ? methods.Establish : phase == BecauseName ? methods.Because : methods.Destroy, unit, phase);
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
+        }
+    }
 
     static Methods GetMethods(Type unit, Type specificationBase) =>
         _cache.GetOrAdd((unit, specificationBase), static key => new Methods(
-            Discover(key.Unit, key.Base, EstablishName),
-            Discover(key.Unit, key.Base, BecauseName),
+            Discover(key.Unit, key.Base, EstablishName, "Given"),
+            Discover(key.Unit, key.Base, BecauseName, "When"),
             Discover(key.Unit, key.Base, DestroyName)));
 
-    static MethodInfo[] Discover(Type unit, Type specificationBase, string name)
+    static MethodInfo[] Discover(Type unit, Type specificationBase, string name, string? alias = null)
     {
         var methods = new List<MethodInfo>();
         var type = unit;
 
         while (type is not null && type != specificationBase)
         {
-            foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+            var declared = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                .Where(method => method.GetParameters().Length == 0 && !method.IsGenericMethod && !IsRunThroughBaseDeclaration(method, specificationBase))
+                .ToArray();
+            var primary = declared.Where(method => method.Name == name).ToArray();
+            var secondary = declared.Where(method => method.Name == alias).ToArray();
+            if (primary.Length > 0 && secondary.Length > 0)
             {
-                if (method.Name == name && method.GetParameters().Length == 0 && !IsRunThroughBaseDeclaration(method, specificationBase))
-                {
-                    methods.Add(method);
-                }
+                throw new AmbiguousLifecycleMethod(type, name, alias!);
             }
+
+            methods.AddRange(primary.Length > 0 ? primary : secondary);
 
             type = type.BaseType;
         }

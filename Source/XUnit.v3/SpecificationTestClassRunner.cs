@@ -29,7 +29,9 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
 
         await ctxt.Aggregator.RunAsync(async () =>
         {
-            var instance = (Specification)Activator.CreateInstance(ctxt.TestClass.Class)!;
+            var arguments = await CreateTestClassConstructorArguments(ctxt);
+            if (ctxt.Aggregator.HasExceptions) return;
+            var instance = (Specification)Activator.CreateInstance(ctxt.TestClass.Class, arguments)!;
             instance.IsSharedInstance = true;
             _sharedInstance = instance;
             await instance.InitializeAsync();
@@ -43,7 +45,7 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
     {
         if (_sharedInstance is not null)
         {
-            await ctxt.Aggregator.RunAsync(() => new ValueTask(_sharedInstance.DestroyAsync()));
+            await ctxt.Aggregator.RunAsync(() => new ValueTask(DisposeSharedInstance(_sharedInstance)));
         }
 
         return await base.OnTestClassFinished(ctxt, summary);
@@ -69,7 +71,7 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
                 ctxt.ClassFixtureMappings);
 
     static bool IsPlainFact(IXunitTestCase testCase) =>
-        testCase.GetType() == typeof(XunitTestCase) &&
+        (testCase.GetType() == typeof(XunitTestCase) || testCase.GetType() == typeof(SpecificationTestCase)) &&
         ((XunitTestCase)testCase).TestMethodArguments.Length == 0 &&
         !testCase.TestMethod.Method.GetCustomAttributes<TheoryAttribute>().Any();
 
@@ -77,14 +79,52 @@ public class SpecificationTestClassRunner : XunitTestClassRunner
     {
         var type = ctxt.TestClass.Class;
         if (!typeof(Specification).IsAssignableFrom(type)) return false;
-        if (typeof(IDisposable).IsAssignableFrom(type)) return false;
+        if (type.Assembly.IsDefined(typeof(PerFactSpecificationLifecycleAttribute))) return false;
+        if (HasCustomAsyncLifetime(type)) return false;
 
         var constructors = type.GetTypeInfo()
             .DeclaredConstructors
             .Where(_ => !_.IsStatic && _.IsPublic)
             .ToArray();
-        if (constructors.Length != 1 || constructors[0].GetParameters().Length != 0) return false;
+        if (constructors.Length != 1) return false;
 
+        var fixtures = ctxt.TestClass.ClassFixtureTypes
+            .Concat(ctxt.TestClass.TestCollection.CollectionFixtureTypes)
+            .Concat(ctxt.TestClass.TestCollection.TestAssembly.AssemblyFixtureTypes).ToArray();
+        if (!constructors[0].GetParameters().All(parameter => IsFixture(parameter.ParameterType, fixtures))) return false;
         return ctxt.TestCases.All(IsPlainFact);
+    }
+
+    static bool IsFixture(Type type, Type[] fixtures)
+    {
+        if (fixtures.Contains(type)) return true;
+        if (!type.IsConstructedGenericType) return false;
+        return fixtures.Contains(type.GetGenericTypeDefinition());
+    }
+
+    static bool HasCustomAsyncLifetime(Type type) =>
+        type.GetInterfaceMap(typeof(IAsyncLifetime)).TargetMethods
+            .Any(method => method.Name.Contains(nameof(IAsyncLifetime.InitializeAsync), StringComparison.Ordinal) && method.DeclaringType != typeof(Specification));
+
+    static bool HasCustomAsyncDisposal(Type type) =>
+        type.GetInterfaceMap(typeof(IAsyncDisposable)).TargetMethods.Any(method => method.DeclaringType != typeof(Specification));
+
+    static async Task DisposeSharedInstance(Specification instance)
+    {
+        try
+        {
+            await instance.DestroyAsync();
+        }
+        finally
+        {
+            if (HasCustomAsyncDisposal(instance.GetType()) && instance is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync();
+            }
+            else
+            {
+                (instance as IDisposable)?.Dispose();
+            }
+        }
     }
 }

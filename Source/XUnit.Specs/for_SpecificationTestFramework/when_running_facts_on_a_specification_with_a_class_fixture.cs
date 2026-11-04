@@ -3,8 +3,6 @@
 
 namespace Cratis.Specifications.for_SpecificationTestFramework;
 
-// A Specification whose constructor takes a class fixture is not eligible for the shared
-// lifecycle - it falls back to the stock per-fact lifecycle.
 public class when_running_facts_on_a_specification_with_a_class_fixture(the_fixture fixture) : Specification, IClassFixture<the_fixture>
 {
     internal static int establish_count;
@@ -23,13 +21,13 @@ public class when_running_facts_on_a_specification_with_a_class_fixture(the_fixt
     void should_run_establish_for_the_first_fact()
     {
         facts_run++;
-        establish_count.ShouldEqual(facts_run);
+        establish_count.ShouldEqual(1);
     }
 
     [Fact]
     void should_run_establish_for_the_second_fact()
     {
         facts_run++;
-        establish_count.ShouldEqual(facts_run);
+        establish_count.ShouldEqual(1);
     }
 }

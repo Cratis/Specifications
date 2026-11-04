@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+</Project>

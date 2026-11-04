@@ -19,6 +19,7 @@
         <IncludeSource>false</IncludeSource>
 
         <LangVersion>latest</LangVersion>
+        <DefineConstants>$(DefineConstants);SPECIFICATIONS_GENERATOR</DefineConstants>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -27,5 +28,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../Specifications/SpecificationDisplayNames.cs" Link="SpecificationDisplayNames.cs" />
     </ItemGroup>
 </Project>

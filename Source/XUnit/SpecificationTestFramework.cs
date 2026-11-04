@@ -19,14 +19,19 @@ namespace Cratis.Specifications;
 /// [assembly: Xunit.TestFramework("Cratis.Specifications.SpecificationTestFramework", "Cratis.Specifications.XUnit")]
 /// </code>
 /// The shared lifecycle applies only to classes deriving from <see cref="Specification"/> that have a
-/// single public parameterless constructor, do not implement <see cref="IDisposable"/> and contain only
-/// plain facts. Everything else - plain xUnit classes, theories, classes using fixtures or
+/// single public constructor accepting only class or collection fixtures and contain only
+/// plain facts. Everything else - plain xUnit classes, theories, custom async lifetimes or
 /// <c>ITestOutputHelper</c> - runs with the stock xUnit per-fact lifecycle.
+/// Disposal is owned by the class runner after Destroy; async disposal takes precedence over sync disposal.
 /// Facts must not mutate the shared context; they are assertions about the single execution the class
 /// describes.
 /// </remarks>
 public class SpecificationTestFramework(IMessageSink messageSink) : XunitTestFramework(messageSink)
 {
+    /// <inheritdoc/>
+    protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo) =>
+        new SpecificationTestFrameworkDiscoverer(assemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
+
     /// <inheritdoc/>
     protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)
         => new SpecificationTestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);

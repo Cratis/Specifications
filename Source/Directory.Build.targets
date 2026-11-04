@@ -8,6 +8,10 @@
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(IsPackable)' == 'true'">
+        <None Update="buildTransitive/**/*" Pack="true" PackagePath="buildTransitive" Visible="false" />
+    </ItemGroup>
+
     <Target Name="PackCratisAnalyzer"
             BeforeTargets="_GetPackageFiles"
             Condition="'$(IsPackable)' == 'true'">
