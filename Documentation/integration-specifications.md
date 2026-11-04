@@ -1,8 +1,8 @@
 # Integration specifications
 
 How to write specifications that need more than a class and its doubles: a database, a message broker, a hosted
-application or an event store. This guide is a how-to with the reasoning behind each practice. It describes what you
-can do today and what is planned.
+application or an event store. This guide is a how-to with the reasoning behind each practice. Choose between
+in-process scenarios, framework-owned fixtures and optional experimental resource sharing.
 
 ## Start by not needing infrastructure
 
@@ -144,14 +144,16 @@ eligible for the [shared lifecycle](https://github.com/Cratis/Specifications/blo
 
 ## Where this is heading
 
-Two proposals are planned and not shipped, so nothing here can be used yet:
+Keep framework-owned infrastructure in fixtures as described above. Two optional additions help with sharing and
+diagnosis without replacing that ownership model:
 
-- Shared resources and isolation leases (#75): a portable way to declare a resource once, acquire it across
-  frameworks and release it in reverse order.
-- Phase timings (#76): reporting how long acquisition, startup, reset, setup, the action and cleanup take, so slow
-  infrastructure is visible.
+- Shared resources and isolation leases (#75): a portable sharing API with per-specification isolation leases.
+  The API is experimental. See [Shared resources](./shared-resources.md) for its diagnostic suppression and leasing
+  opt-in requirements before adopting it. Its implementation examples are scaffolds, not runnable database resources.
+- Phase timings (#76): see [Phase timings](./phase-timings.md) to find costly lifecycle and resource work. Timing is
+  optional; it neither requires shared resources nor replaces state isolation.
 
-Until they exist, use your framework's fixtures as described above.
+Whichever approach you choose, isolate each specification's mutable state and keep cleanup bounded.
 
 ## Related
 

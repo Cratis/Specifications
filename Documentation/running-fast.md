@@ -3,36 +3,9 @@
 How to keep a Cratis Specifications suite quick to run, locally and in CI. This is a how-to guide; the
 [README](https://github.com/Cratis/Specifications/blob/main/README.md) describes each feature in full.
 
-## Choose a package with speed in mind
-
-Most of the time in a small suite is runner startup, discovery and reporting, not your specifications.
-How you launch the suite matters more than the framework underneath.
-
-These are indicative numbers, not a ranking: median CPU seconds for 1,500 trivial tests, measured on a loaded Mac
-with the repository's [benchmark harness](https://github.com/Cratis/Specifications/blob/main/Benchmarks/README.md).
-Measure your own suite before deciding.
-
-| Package and launch path | Median CPU (s) |
-| --- | --- |
-| xUnit v2 through `dotnet test` | 1.46 |
-| xUnit v3 as an executable | 0.75 |
-| xUnit v3 through `dotnet test` | 3.40 |
-| TUnit as an executable | 1.42 |
-| Native runner as an executable | 0.86 |
-| Native runner through `dotnet run` | 1.34 |
-
-What to take from it:
-
-- The same xUnit v3 suite costs about 4.5 times more CPU through `dotnet test` than as an executable in this run.
-  Running the executable is the cheap win.
-- The native runner (`Cratis.Specifications.Runner`, [README](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsofttestingplatform))
-  and xUnit v3 executables start fastest. Choose the native runner when you want its features (cache, sharding,
-  readable names).
-- TUnit runs on Microsoft.Testing.Platform. See
-  [Using TUnit](https://github.com/Cratis/Specifications/blob/main/README.md#using-tunit) for how it coexists with VSTest projects.
-- Keep xUnit v2 or NUnit when you depend on their adapters and tooling; they are not slow for typical suites.
-
-A tiny suite mostly measures startup. The gap between runners shrinks as your specifications do real work.
+Measure your suite before changing packages. Use [Phase timings](./phase-timings.md) to find expensive setup,
+actions and cleanup. Check repeated lifecycle work before changing how it is shared, and measure launch paths
+separately: phase timings do not describe total process startup or discovery time.
 
 ## Share the lifecycle
 
@@ -69,6 +42,37 @@ TUnit and the native runner are executables already. xUnit v3 projects set `<Out
 Where a repository mixes Microsoft.Testing.Platform and VSTest projects, run each project on its own, as this
 repository's [build workflow](https://github.com/Cratis/Specifications/blob/main/.github/workflows/build.yml) does;
 `dotnet test` on the whole solution does not work there.
+
+## Choose a package with speed in mind
+
+Most of the time in a small suite is runner startup, discovery and reporting, not your specifications.
+How you launch the suite matters more than the framework underneath.
+
+These are indicative numbers, not a ranking: median CPU seconds for 1,500 trivial tests, measured on a loaded Mac
+with the repository's [benchmark harness](https://github.com/Cratis/Specifications/blob/main/Benchmarks/README.md).
+Measure your own suite before deciding.
+
+| Package and launch path | Median CPU (s) |
+| --- | --- |
+| xUnit v2 through `dotnet test` | 1.46 |
+| xUnit v3 as an executable | 0.75 |
+| xUnit v3 through `dotnet test` | 3.40 |
+| TUnit as an executable | 1.42 |
+| Native runner as an executable | 0.86 |
+| Native runner through `dotnet run` | 1.34 |
+
+What to take from it:
+
+- The same xUnit v3 suite costs about 4.5 times more CPU through `dotnet test` than as an executable in this run.
+  Running the executable is the cheap win.
+- The native runner (`Cratis.Specifications.Runner`, [README](https://github.com/Cratis/Specifications/blob/main/README.md#native-runner-on-microsofttestingplatform))
+  and xUnit v3 executables start fastest. Choose the native runner when you want its features (cache, sharding,
+  readable names).
+- TUnit runs on Microsoft.Testing.Platform. See
+  [Using TUnit](https://github.com/Cratis/Specifications/blob/main/README.md#using-tunit) for how it coexists with VSTest projects.
+- Keep xUnit v2 or NUnit when you depend on their adapters and tooling; they are not slow for typical suites.
+
+A tiny suite mostly measures startup. The gap between runners shrinks as your specifications do real work.
 
 ## Filter, shard and cache
 
