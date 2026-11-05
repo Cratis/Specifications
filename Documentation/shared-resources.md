@@ -10,6 +10,9 @@ specifications, and how to give each specification its own isolated part of it.
 
 Implement `ISpecificationResource` from `Cratis.Specifications.Resources`. `Start` starts it; `DisposeAsync` stops it.
 
+This is an implementation scaffold, not a runnable database example. Supply startup, a readiness check, connection
+assignment and shutdown; the comment-only methods below do not perform those operations.
+
 ```csharp
 public sealed class PostgresServer : ISpecificationResource
 {
@@ -29,6 +32,8 @@ public sealed class PostgresServer : ISpecificationResource
 
 Get it from `Establish`:
 
+This usage fragment assumes you have completed the resource implementation.
+
 ```csharp
 public class when_reading_an_order : Specification
 {
@@ -46,6 +51,9 @@ public class when_reading_an_order : Specification
 - A resource without a parameterless constructor is created by a factory:
   `SpecificationResources.Get(() => new PostgresServer("postgres:17"))`. The factory is only used the first time.
 
+The factory example assumes your implementation supplies the shown constructor. The resource declarations on this
+page illustrate alternatives; do not paste them together as duplicate class definitions.
+
 ## Give each specification its own lease
 
 Leasing needs the test project to opt in, so a project that does not lease pays nothing for it:
@@ -62,6 +70,9 @@ property, before anything is created or started. `Get` and `Borrow` work without
 
 Implement `ISpecificationResource<TLease>` to hand each specification an isolated part of the shared resource, for
 example a fresh database on a shared server:
+
+This lease implementation is also a scaffold. Supply the isolated database type and its creation method, and implement
+its asynchronous disposal to clean up the isolated store.
 
 ```csharp
 public sealed class PostgresServer : ISpecificationResource<FreshDatabase>
@@ -89,6 +100,8 @@ async Task Establish() => _database = await SpecificationResources.Lease<Postgre
 ## Limit concurrency
 
 Put `[SpecificationResource]` on the resource to limit how many specifications hold a lease at once:
+
+The following declaration fragment shows only the concurrency setting, not a runnable browser resource.
 
 ```csharp
 [SpecificationResource(MaxConcurrency = 1)]
