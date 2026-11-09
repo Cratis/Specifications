@@ -13,7 +13,7 @@ public class when_writing_the_json_report : Specification
     void Because()
     {
         result = JsonReportWriter.Render(reporting_fixture.Tree());
-        document = JsonDocument.Parse(result).RootElement;
+        document = JsonElement.Parse(result);
     }
 
     void should_match_the_snapshot() => result.ShouldEqual(approved_snapshot.Approved("report.json", result));

@@ -29,8 +29,9 @@ public class FactShouldNotCallStateChangingMembersOnSharedContextAnalyzer : Diag
     const string LinqNamespace = "System.Linq";
 
     // Names that change their receiver whether or not the result is used.
-    static readonly HashSet<string> _stateChangingNames = new(System.StringComparer.Ordinal)
-    {
+    static readonly HashSet<string> _stateChangingNames =
+    [
+        with(System.StringComparer.Ordinal),
         "Execute",
         "ExecuteAsync",
         "Handle",
@@ -50,18 +51,19 @@ public class FactShouldNotCallStateChangingMembersOnSharedContextAnalyzer : Diag
         "AddOrUpdate",
         "RemoveAll",
         "Reset"
-    };
+    ];
 
     // Names CRSPEC0008 reports on a shared field itself; here they are reported on objects reached through one.
-    static readonly HashSet<string> _nestedCollectionMutatorNames = new(System.StringComparer.Ordinal)
-    {
+    static readonly HashSet<string> _nestedCollectionMutatorNames =
+    [
+        with(System.StringComparer.Ordinal),
         "Add",
         "AddRange",
         "Remove",
         "RemoveAt",
         "Clear",
         "Insert"
-    };
+    ];
 
     static readonly DiagnosticDescriptor _rule = new(
         id: DiagnosticIds.FactShouldNotCallStateChangingMembersOnSharedContext,

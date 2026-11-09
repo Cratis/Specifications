@@ -52,7 +52,7 @@ class HarnessTests(unittest.TestCase):
         for flavor in SOURCES:
             for raw in (False,) if flavor in NO_RAW else (False, True):
                 root = ET.fromstring(project(flavor, raw))
-                self.assertEqual("net10.0", root.findtext(".//TargetFramework"))
+                self.assertEqual("net11.0", root.findtext(".//TargetFramework"))
                 self.assertFalse(root.findtext(".//TargetFrameworks"))
                 self.assertEqual("false", root.findtext(".//IsPackable"))
                 # The native Cratis runner also references its source generator as an analyzer.
@@ -107,7 +107,7 @@ class HarnessTests(unittest.TestCase):
     def test_every_natural_runner_has_a_report_and_serial_setting(self):
         with tempfile.TemporaryDirectory() as directory:
             project_path = Path(directory) / "Benchmark.csproj"
-            (project_path.parent / "bin/Release/net10.0").mkdir(parents=True)
+            (project_path.parent / "bin/Release/net11.0").mkdir(parents=True)
             for flavor, route, setting in (("xunit-v2", "dotnet-test", "--logger"), ("xunit-v3", "executable", "-parallelMode"), ("xunit-v3-mtp", "executable", "--parallel"), ("xunit-v3-mtp", "dotnet-run", "--parallel"), ("nunit4", "dotnet-test", "NUnit.NumberOfTestWorkers=0"), ("tunit", "executable", "--maximum-parallel-tests"), ("tunit", "dotnet-run", "--maximum-parallel-tests"), ("cratis-runner", "executable", "--specs-parallel"), ("cratis-runner", "aot", "--specs-sequential-facts")):
                 command, report = runner(project_path, flavor, route, True, Path(directory))
                 self.assertIn(setting, command)

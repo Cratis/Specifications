@@ -9,6 +9,7 @@ concurrency:
 env:
   NUGET_OUTPUT: ./Artifacts/NuGet
   DOTNET10_VERSION: "10.0.x"
+  DOTNET11_VERSION: "11.0.x"
 
 on:
   workflow_dispatch:
@@ -62,6 +63,8 @@ jobs:
         with:
           dotnet-version: |
             ${{ env.DOTNET10_VERSION }}
+            ${{ env.DOTNET11_VERSION }}
+          dotnet-quality: preview
 
       - name: Restore NuGet packages cache
         id: nuget-cache

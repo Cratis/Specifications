@@ -104,7 +104,13 @@ internal static partial class ResourceCatalog
         }
     }
 
-    static async Task<bool> CompletesWithinPatience(Task task) => await Task.WhenAny(task, Task.Delay(_patience)) == task;
+    static async Task<bool> CompletesWithinPatience(Task task)
+    {
+        using var cancellation = new CancellationTokenSource();
+        var completed = await Task.WhenAny(task, Task.Delay(_patience, cancellation.Token)) == task;
+        await cancellation.CancelAsync();
+        return completed;
+    }
 
     /// <summary>
     /// Stands in for the test session a registry registers its stop with.

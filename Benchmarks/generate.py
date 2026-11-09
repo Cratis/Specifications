@@ -50,7 +50,7 @@ def runner_project():
   <Import Project="../../../Source/Runner/buildTransitive/Cratis.Specifications.Runner.props" />
   <PropertyGroup>
     <TargetFrameworks></TargetFrameworks>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <AssemblyName>Benchmark</AssemblyName>
     <IsPackable>false</IsPackable>
     <IsTestProject>false</IsTestProject>
@@ -89,7 +89,7 @@ def project(flavor, raw):
     return f'''<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks></TargetFrameworks>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <AssemblyName>Benchmark</AssemblyName>
     <IsPackable>false</IsPackable>
     <IsTestProject>{str(flavor not in ('tunit', 'xunit-v3-mtp')).lower()}</IsTestProject>

@@ -28,7 +28,7 @@ def runtime_identifier():
 
 def publish_aot(project, logs):
     # Native AOT publish of the native Cratis runner; timed like a clean build, measured separately.
-    result = measure(["dotnet", "publish", str(project), "-c", "Release", "-f", "net10.0", "-r", runtime_identifier(),
+    result = measure(["dotnet", "publish", str(project), "-c", "Release", "-f", "net11.0", "-r", runtime_identifier(),
                       "-p:BenchmarkAot=true", "-o", str(project.parent / "bin/aot")], logs / "aot-publish")
     diagnostics = {line.strip() for line in Path(result["log"]).read_text().splitlines()
                    if re.search(r"\bwarning IL[23]\d{3}\b", line)}
@@ -46,7 +46,7 @@ def build(project, logs):
         raise RuntimeError(f"restore failed: {logs / 'restore.log'}")
     builds = {}
     for name, extra in (("clean", ["-t:Rebuild"]), ("incremental", [])):
-        builds[name] = measure(["dotnet", "build", str(project), "-c", "Release", "-f", "net10.0", "--no-restore", *extra], logs / name)
+        builds[name] = measure(["dotnet", "build", str(project), "-c", "Release", "-f", "net11.0", "--no-restore", *extra], logs / name)
         if builds[name]["exit"] or builds[name]["peak_rss_mib"] is None:
             raise RuntimeError(f"{name} build failed: {builds[name]['log']}")
     return builds

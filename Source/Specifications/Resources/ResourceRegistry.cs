@@ -29,7 +29,7 @@ internal sealed class ResourceRegistry(Action<Func<ValueTask>>? registerSessionE
     readonly Func<bool> _leasesEnabled = leasesEnabled ?? _hookEnabled;
     readonly Lock _lock = new();
     Dictionary<Type, ResourceEntry> _entries = [];
-    Dictionary<string, ResourceGroup> _groups = new(StringComparer.Ordinal);
+    Dictionary<string, ResourceGroup> _groups = [with(StringComparer.Ordinal)];
     List<ResourceEntry> _started = [];
     List<Exception> _cleanupFailures = [];
     CancellationTokenSource _ending = new();
@@ -125,7 +125,7 @@ internal sealed class ResourceRegistry(Action<Func<ValueTask>>? registerSessionE
             failures = _cleanupFailures;
             ending = _ending;
             _entries = [];
-            _groups = new(StringComparer.Ordinal);
+            _groups = [with(StringComparer.Ordinal)];
             _started = [];
             _cleanupFailures = [];
             _ending = new();
