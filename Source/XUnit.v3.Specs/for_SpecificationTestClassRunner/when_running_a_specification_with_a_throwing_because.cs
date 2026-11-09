@@ -16,7 +16,8 @@ public class when_running_a_specification_with_a_throwing_because : given.a_clas
 
     [Fact] void should_not_pass_any_fact() => message_bus.Messages.OfType<ITestPassed>().ShouldBeEmpty();
 
-    [Fact] void should_fail_every_fact_with_the_because_exception() =>
+    [Fact]
+    void should_fail_every_fact_with_the_because_exception() =>
         message_bus.Messages.OfType<ITestFailed>().ShouldEachConformTo(_ => _.ExceptionTypes.Contains(typeof(InvalidOperationException).FullName));
 
     [Fact] void should_not_execute_any_fact_body() => shared_specification_with_a_throwing_because.facts_executed.ShouldEqual(0);

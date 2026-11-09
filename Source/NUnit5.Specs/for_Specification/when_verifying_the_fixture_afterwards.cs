@@ -10,7 +10,8 @@ namespace Cratis.Specifications.for_Specification;
 #endif
 public class when_verifying_the_fixture_afterwards : Specification
 {
-    [Test] public void should_have_destroyed_once_after_the_last_fact() =>
+    [Test]
+    public void should_have_destroyed_once_after_the_last_fact() =>
         given.a_context_logging_its_lifecycle.Calls.ToArray().ShouldEqual(
             "base.Establish", "derived.Establish", "base.Because", "derived.Because", "base.Destroy", "derived.Destroy");
 }
