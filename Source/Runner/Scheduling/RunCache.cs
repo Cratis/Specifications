@@ -39,7 +39,7 @@ internal sealed class RunCache
     /// <returns>The cache.</returns>
     public static RunCache Load(string path)
     {
-        var entries = new Dictionary<string, RunCacheEntry>(StringComparer.Ordinal);
+        Dictionary<string, RunCacheEntry> entries = [with(StringComparer.Ordinal)];
         try
         {
             if (!File.Exists(path)) return new(entries);
