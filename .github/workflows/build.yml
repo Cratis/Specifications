@@ -146,42 +146,52 @@ jobs:
             "test Integration/Consumers/AnalyzersOff/AnalyzersOff.csproj"
             "run Integration/Consumers/AssertionXml/OpenApi/OpenApi.csproj"
           )
-          for consumer in "${consumers[@]}"; do
-            dotnet restore "${consumer#* }"
-          done
-          for consumer in "${consumers[@]}"; do
-            dotnet build "${consumer#* }" --configuration Release --no-restore
-          done
+          plain_assertions=Integration/Consumers/AssertionXml/PlainAssertions/PlainAssertions.csproj
+          # Restore separately for each TFM; leave net11.0 assets for the later default-framework checks.
+          for framework in net10.0 net11.0; do
+            for consumer in "${consumers[@]}"; do
+              dotnet restore "${consumer#* }" -p:ConsumerFramework="$framework"
+            done
+            dotnet restore "$plain_assertions" -p:ConsumerFramework="$framework"
+            for consumer in "${consumers[@]}"; do
+              dotnet build "${consumer#* }" --configuration Release --no-restore -p:ConsumerFramework="$framework"
+            done
+            dotnet build "$plain_assertions" --configuration Release --no-restore -p:ConsumerFramework="$framework"
 
-          # Prove the consumers restored the freshly packed packages and not stale ones from the cache.
-          packages="${NUGET_PACKAGES:-$HOME/.nuget/packages}"
-          checked=0
-          for nupkg in artifacts/packages/*.0.0.0-ci.nupkg; do
-            name="$(basename "$nupkg" .nupkg)"
-            id="${name%.0.0.0-ci}"
-            lower="$(echo "$id" | tr "[:upper:]" "[:lower:]")"
-            restored="$packages/$lower/0.0.0-ci/$lower.0.0.0-ci.nupkg.sha512"
-            if [ -f "$restored" ]; then
-              expected="$(openssl dgst -sha512 -binary "$nupkg" | openssl base64 -A)"
-              if [ "$(cat "$restored")" != "$expected" ]; then
-                echo "::error::Restored $id 0.0.0-ci differs from the freshly packed package"
-                exit 1
+            # Prove the consumers restored the freshly packed packages and not stale ones from the cache.
+            packages="${NUGET_PACKAGES:-$HOME/.nuget/packages}"
+            checked=0
+            for nupkg in artifacts/packages/*.0.0.0-ci.nupkg; do
+              name="$(basename "$nupkg" .nupkg)"
+              id="${name%.0.0.0-ci}"
+              lower="$(echo "$id" | tr "[:upper:]" "[:lower:]")"
+              restored="$packages/$lower/0.0.0-ci/$lower.0.0.0-ci.nupkg.sha512"
+              if [ -f "$restored" ]; then
+                expected="$(openssl dgst -sha512 -binary "$nupkg" | openssl base64 -A)"
+                if [ "$(cat "$restored")" != "$expected" ]; then
+                  echo "::error::Restored $id 0.0.0-ci differs from the freshly packed package"
+                  exit 1
+                fi
+                checked=$((checked + 1))
               fi
-              checked=$((checked + 1))
+            done
+            if [ "$checked" -eq 0 ]; then
+              echo "::error::No freshly packed package was restored by the consumers"
+              exit 1
             fi
-          done
-          if [ "$checked" -eq 0 ]; then
-            echo "::error::No freshly packed package was restored by the consumers"
-            exit 1
-          fi
-          echo "Verified $checked restored package(s) match artifacts/packages"
+            echo "Verified $checked restored package(s) match artifacts/packages"
 
-          for consumer in "${consumers[@]}"; do
-            if [ "${consumer%% *}" = "test" ]; then
-              dotnet test "${consumer#* }" --configuration Release --no-build
-            else
-              dotnet run --project "${consumer#* }" --configuration Release --no-build
-            fi
+            for consumer in "${consumers[@]}"; do
+              if [ "${consumer%% *}" = "test" ]; then
+                dotnet test "${consumer#* }" --configuration Release --no-build -p:ConsumerFramework="$framework"
+              else
+                dotnet run --project "${consumer#* }" --configuration Release --no-build -p:ConsumerFramework="$framework"
+              fi
+            done
+            dotnet run --project "$plain_assertions" -c Release --no-build --no-restore -p:ConsumerFramework="$framework" -- Probe.A-B Consumer.AssertionXml.FirstProbe
+            dotnet run --project "$plain_assertions" -c Release --no-build --no-restore -p:ConsumerFramework="$framework" -- Probe.A_B Consumer.AssertionXml.SecondProbe
+            ConsumerFramework="$framework" node Integration/Consumers/AssertionXml/verify-generation.mjs First Probe.A-B
+            ConsumerFramework="$framework" node Integration/Consumers/AssertionXml/verify-generation.mjs Second Probe.A_B
           done
 
       - name: Check isolated pre-lifecycle assertion registration
