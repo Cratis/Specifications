@@ -39,7 +39,6 @@ jobs:
           dotnet-version: |
             ${{ env.DOTNET10_VERSION }}
             ${{ env.DOTNET11_VERSION }}
-          dotnet-quality: preview
       - name: Install Native AOT prerequisites
         run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
       - name: Check harness
