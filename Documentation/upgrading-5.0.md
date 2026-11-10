@@ -1,12 +1,12 @@
 # Upgrading to Cratis Specifications 5.0
 
 This guide lists what changes for a project that moves from Cratis Specifications 4.x to 5.0, and what to do about
-each change. Most projects need three things: target .NET 10, remove a hand-written xUnit framework attribute, and fix
+each change. Most projects need three things: target .NET 10 or .NET 11, remove a hand-written xUnit framework attribute, and fix
 the facts that `CRSPEC0008` now reports as errors.
 
 ## Checklist
 
-1. Target `net10.0` in every specification project. Projects that must stay on .NET 8 or .NET 9 stay on 4.x.
+1. Target `net10.0` or `net11.0` in every specification project. Projects that must stay on .NET 8 or .NET 9 stay on 4.x.
 2. Move `Cratis.Specifications` and your framework package (`.XUnit`, `.XUnit.v3`, `.NUnit`, `.NUnit5`, `.TUnit` or
    `.Runner`) to the same 5.0 version.
 3. xUnit: delete any `[assembly: Xunit.TestFramework(...)]` that registers Cratis Specifications.
@@ -24,7 +24,7 @@ the facts that `CRSPEC0008` now reports as errors.
 
 ## Target framework
 
-All packages target `net10.0` only. The 4.x packages also targeted .NET 8 and .NET 9. Specification projects that
+All packages target `net10.0` and `net11.0`. The 4.x packages also targeted .NET 8 and .NET 9. Specification projects that
 still target those versions stay on 4.x; the libraries you test can keep targeting older versions, because only the
 specification project references the package.
 

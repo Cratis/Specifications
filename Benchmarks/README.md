@@ -42,7 +42,7 @@ share files. On shared developer machines, run the entire multi-flavor invocatio
 your build/test admission queue. Several flavors in one `run.sh` invocation is
 the normal comparison mode; separate invocations cannot share interleaving.
 
-`generated/<flavor>/` and `generated/<flavor>-raw/` contain a single-TFM net10.0
+`generated/<flavor>/` and `generated/<flavor>-raw/` contain a single-TFM net11.0
 project and deterministic source. Generation overwrites only its own two files;
 it never removes directories. Cratis projects reference `../../../Source/...`,
 so rebuilding picks up library changes. Raw projects have no Cratis reference.

@@ -20,7 +20,7 @@ server.listen(0, '127.0.0.1');
 await once(server, 'listening');
 const connection = once(server, 'connection');
 const child = spawn('dotnet', [
-    'Integration/Consumers/Runner/bin/Release/net10.0/Runner.dll',
+    'Integration/Consumers/Runner/bin/Release/net11.0/Runner.dll',
     '--server', '--client-port', String(server.address().port),
     '--specs-parallel', '2', '--specs-cache', 'none',
 ], { env: { ...process.env, CRATIS_LIFECYCLE_TRACE: trace }, stdio: ['ignore', 'pipe', 'pipe'] });

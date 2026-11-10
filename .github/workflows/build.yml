@@ -6,6 +6,7 @@ concurrency:
 
 env:
   DOTNET10_VERSION: "10.0.x"
+  DOTNET11_VERSION: "11.0.x"
 
 on:
   push:
@@ -48,6 +49,7 @@ jobs:
         with:
           dotnet-version: |
             ${{ env.DOTNET10_VERSION }}
+            ${{ env.DOTNET11_VERSION }}
 
       - name: Restore NuGet packages cache
         id: nuget-cache
@@ -59,10 +61,10 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Restore
-        run: dotnet restore Specifications.sln
+        run: dotnet restore Specifications.sln -p:SpecificationsTestFrameworks='"net10.0;net11.0"'
 
       - name: Build
-        run: dotnet build Specifications.sln --configuration Release --no-restore -bl:artifacts/logs/build.binlog
+        run: dotnet build Specifications.sln --configuration Release --no-restore -p:SpecificationsTestFrameworks='"net10.0;net11.0"' -bl:artifacts/logs/build.binlog
 
       - name: Upload build log
         if: failure()
@@ -72,13 +74,15 @@ jobs:
           path: artifacts/logs/build.binlog
           if-no-files-found: ignore
 
-      # TUnit and the native Cratis runner (Runner.Specs) run on Microsoft.Testing.Platform, which on the .NET 10 SDK cannot be mixed with the VSTest based xUnit and NUnit
+      # TUnit and the native Cratis runner (Runner.Specs) run on Microsoft.Testing.Platform, which on the .NET 10 and .NET 11 SDKs cannot be mixed with the VSTest based xUnit and NUnit
       # projects under `dotnet test` (it requires a repository-wide runner switch in global.json), so they are run directly.
       # Only the spec projects are run here. The Sample projects intentionally contain
       # failing specs to demonstrate the framework, so they are not part of the CI test run.
       # The spec processes are independent (--no-build), so they run in parallel with one log each.
       - name: Test
         shell: bash
+        env:
+          SpecificationsTestFrameworks: 'net10.0;net11.0'
         run: |
           set -uo pipefail
           mkdir -p artifacts/logs/specs
@@ -93,21 +97,24 @@ jobs:
             "dotnet test Source/NUnit.Specs/NUnit.Specs.csproj --configuration Release --no-build"
             "dotnet test Source/NUnit5.Specs/NUnit5.Specs.csproj --configuration Release --no-build"
           )
-          pids=()
-          for index in "${!commands[@]}"; do
-            bash -c "${commands[$index]}" > "artifacts/logs/specs/$index.log" 2>&1 &
-            pids[index]=$!
-          done
           failed=()
-          for index in "${!commands[@]}"; do
-            status=0
-            wait "${pids[$index]}" || status=$?
-            echo "::group::[exit $status] ${commands[$index]}"
-            cat "artifacts/logs/specs/$index.log"
-            echo "::endgroup::"
-            if [ "$status" -ne 0 ]; then
-              failed+=("${commands[$index]} (exit $status)")
-            fi
+          for framework in net10.0 net11.0; do
+            mkdir -p "artifacts/logs/specs/$framework"
+            pids=()
+            for index in "${!commands[@]}"; do
+              bash -c "${commands[$index]} --framework $framework" > "artifacts/logs/specs/$framework/$index.log" 2>&1 &
+              pids[index]=$!
+            done
+            for index in "${!commands[@]}"; do
+              status=0
+              wait "${pids[$index]}" || status=$?
+              echo "::group::[exit $status] ${commands[$index]} --framework $framework"
+              cat "artifacts/logs/specs/$framework/$index.log"
+              echo "::endgroup::"
+              if [ "$status" -ne 0 ]; then
+                failed+=("${commands[$index]} --framework $framework (exit $status)")
+              fi
+            done
           done
           if [ "${#failed[@]}" -ne 0 ]; then
             echo "::error::${#failed[@]} spec process(es) failed:"
@@ -193,7 +200,7 @@ jobs:
           set -euo pipefail
           node Integration/Consumers/AssertionXml/verify-generation.mjs First Probe.A-B
           node Integration/Consumers/AssertionXml/verify-generation.mjs Second Probe.A_B
-          source=Integration/Consumers/AssertionXml/First/obj/Release/net10.0/CratisSpecificationsAssertionFailures.g.cs
+          source=Integration/Consumers/AssertionXml/First/obj/Release/net11.0/CratisSpecificationsAssertionFailures.g.cs
           previous_write_time="$(node -e 'console.log(require("node:fs").statSync(process.argv[1]).mtimeMs)' "$source")"
           dotnet build Integration/Consumers/AssertionXml/First/First.csproj -c Release --no-restore
           node Integration/Consumers/AssertionXml/verify-generation.mjs First Probe.A-B "$previous_write_time"

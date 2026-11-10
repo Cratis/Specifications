@@ -27,7 +27,7 @@ Packages:
 - [Cratis.Specifications.Runner](https://www.nuget.org/packages/cratis.specifications.runner) — the native runner on Microsoft.Testing.Platform
 - [Cratis.Specifications](https://www.nuget.org/packages/cratis.specifications) — the shared core (the `Specification` base, assertions and analyzers); every package above depends on it
 
-All packages target `net10.0`; specification projects that must target .NET 8 or .NET 9 stay on 4.x. Use the same version of
+All packages target `net10.0` and `net11.0`; specification projects that must target .NET 8 or .NET 9 stay on 4.x. Use the same version of
 `Cratis.Specifications` and of your framework package. Coming from 4.x? Read the [5.0 upgrade guide](./Documentation/upgrading-5.0.md).
 
 ## What does it do?
@@ -306,7 +306,7 @@ without them and throw a `SpecificationAssertionException` with the expected and
 same names and signatures as in the xUnit package.
 
 TUnit runs on [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro).
-On the .NET 10 SDK, `dotnet test` for a TUnit project requires opting in to the Microsoft.Testing.Platform runner in
+On the .NET 10 and .NET 11 SDKs, `dotnet test` for a TUnit project requires opting in to the Microsoft.Testing.Platform runner in
 `global.json` (`"test": { "runner": "Microsoft.Testing.Platform" }`), which applies to every test project in the
 repository. Use `dotnet run --project <spec project>` when the repository also has xUnit or NUnit projects on VSTest,
 as this repository does.

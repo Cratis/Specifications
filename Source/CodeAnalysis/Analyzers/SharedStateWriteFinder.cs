@@ -15,18 +15,20 @@ namespace Cratis.Specifications.CodeAnalysis.Analyzers;
 /// <param name="members">Resolves the shared members of the specification.</param>
 sealed class SharedStateWriteFinder(SharedMembers members)
 {
-    static readonly HashSet<string> _collectionMutatorNames = new(System.StringComparer.Ordinal)
-    {
+    static readonly HashSet<string> _collectionMutatorNames =
+    [
+        with(System.StringComparer.Ordinal),
         "Add",
         "AddRange",
         "Remove",
         "RemoveAt",
         "Clear",
         "Insert"
-    };
+    ];
 
-    static readonly HashSet<string> _substituteConfigurationNames = new(System.StringComparer.Ordinal)
-    {
+    static readonly HashSet<string> _substituteConfigurationNames =
+    [
+        with(System.StringComparer.Ordinal),
         "Returns",
         "ReturnsForAnyArgs",
         "ReturnsNull",
@@ -39,9 +41,9 @@ sealed class SharedStateWriteFinder(SharedMembers members)
         "WhenForAnyArgs",
         "ClearReceivedCalls",
         "ClearSubstitute"
-    };
+    ];
 
-    readonly HashSet<IMethodSymbol> _visitedHelpers = new(SymbolEqualityComparer.Default);
+    readonly HashSet<IMethodSymbol> _visitedHelpers = [with(SymbolEqualityComparer.Default)];
 
     /// <summary>
     /// Gets the shared member the node changes.

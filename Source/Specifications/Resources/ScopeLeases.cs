@@ -15,6 +15,7 @@ internal sealed class ScopeLeases
 {
     static readonly ConditionalWeakTable<SpecificationScope, ScopeLeases> _scopes = [];
 
+    readonly Lock _lock = new();
     readonly List<(ResourceGroup Group, IAsyncDisposable Lease)> _held = [];
 
     /// <summary>
@@ -44,7 +45,7 @@ internal sealed class ScopeLeases
     public void EnsureInOrder(ResourceGroup group)
     {
         if (!group.IsLimited) return;
-        lock (_held)
+        lock (_lock)
         {
             foreach (var (held, _) in _held)
             {
@@ -60,13 +61,13 @@ internal sealed class ScopeLeases
     /// <param name="lease">The lease.</param>
     public void Add(ResourceGroup group, IAsyncDisposable lease)
     {
-        lock (_held) _held.Add((group, lease));
+        lock (_lock) _held.Add((group, lease));
     }
 
     async ValueTask ReleaseAll(SpecificationScope scope)
     {
         (ResourceGroup Group, IAsyncDisposable Lease)[] held;
-        lock (_held) held = [.. _held];
+        lock (_lock) held = [.. _held];
 
         List<Exception>? failures = null;
         for (var index = held.Length - 1; index >= 0; index--)

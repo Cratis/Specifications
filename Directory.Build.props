@@ -1,6 +1,8 @@
 <Project>
     <PropertyGroup>
-        <TargetFrameworks>net10.0</TargetFrameworks>
+        <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+        <!-- CI overrides this list to prove both supported runtimes; local specs default to .NET 11. -->
+        <SpecificationsTestFrameworks Condition="'$(SpecificationsTestFrameworks)' == ''">net11.0</SpecificationsTestFrameworks>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);CS1591;RCS1090;CA2252;CS8632;RCS1217;SA1633;CA2007</NoWarn>

@@ -43,8 +43,9 @@ public static class SpecificationFacts
     /// </summary>
     public static readonly ImmutableArray<string> LifecycleMethodNames = ["Establish", "Given", "Because", "When", "Destroy"];
 
-    static readonly HashSet<string> _testMethodAttributeNames = new(System.StringComparer.Ordinal)
-    {
+    static readonly HashSet<string> _testMethodAttributeNames =
+    [
+        with(System.StringComparer.Ordinal),
         // xUnit
         "FactAttribute",
         "TheoryAttribute",
@@ -52,7 +53,7 @@ public static class SpecificationFacts
         // NUnit and TUnit (TUnit.Core.TestAttribute)
         "TestAttribute",
         "TestCaseAttribute"
-    };
+    ];
 
     /// <summary>
     /// Determines whether the given type derives from the specification base type.

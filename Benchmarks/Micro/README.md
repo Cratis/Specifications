@@ -4,7 +4,7 @@
 # Microbenchmarks
 
 BenchmarkDotNet coverage of the current implementation, not proposed optimizations.
-All projects target .NET 10 and use `MemoryDiagnoser`. Workload construction and
+All projects target .NET 11 and use `MemoryDiagnoser`. Workload construction and
 reflection-to-delegate binding happen outside measured methods.
 
 ## Build and smoke checks

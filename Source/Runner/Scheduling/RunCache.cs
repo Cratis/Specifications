@@ -25,7 +25,7 @@ internal sealed class RunCache
     /// <summary>
     /// Gets an empty cache.
     /// </summary>
-    public static RunCache Empty => new(new(StringComparer.Ordinal));
+    public static RunCache Empty => new([with(StringComparer.Ordinal)]);
 
     /// <summary>
     /// Gets a value indicating whether there are any entries from earlier runs.

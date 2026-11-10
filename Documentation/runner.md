@@ -39,7 +39,7 @@ For `dotnet test`, merge this setting into the application's `global.json`, keep
 
 Because the runner is a Microsoft.Testing.Platform application, it works wherever MTP is supported. This list comes
 from the Microsoft and JetBrains documentation of MTP support; it has not been verified by hand in each IDE.
-The toolchain must also support this runner's `net10.0` target. Facts and separate class-teardown failures are published
+The toolchain must also support this runner's `net10.0` or `net11.0` target. Facts and separate class-teardown failures are published
 as test nodes with stable UIDs; no Cratis-specific IDE plugin is required.
 
 | Tool | Requirement |
@@ -48,7 +48,7 @@ as test nodes with stable UIDs; no Cratis-specific IDE plugin is required.
 | Visual Studio 2026 | Supported |
 | JetBrains Rider | Enable Testing Platform discovery in the test settings |
 | Visual Studio Code | C# Dev Kit |
-| Command line and CI | `dotnet run`, `dotnet test` on a .NET 10 SDK configured for Microsoft.Testing.Platform, or the built executable |
+| Command line and CI | `dotnet run`, `dotnet test` on a .NET 10 or .NET 11 SDK configured for Microsoft.Testing.Platform, or the built executable |
 
 Test names read as sentences: `for_Author.when_registering.should_be_registered` is shown as
 `Author › when registering › should be registered`. A test is identified by its namespace, class and method name,
@@ -148,5 +148,5 @@ adopt that engine-owned behavior.
    with the options above.
 6. Replace theories/data rows and xUnit fixture injection with specification classes and lifecycle setup; the runner
    does not execute xUnit's extensions. Check the [limits](#limits) before removing the old runner.
-7. Run it with `dotnet run` or `dotnet test` on a .NET 10 SDK configured for Microsoft.Testing.Platform. A teardown
+7. Run it with `dotnet run` or `dotnet test` on a .NET 10 or .NET 11 SDK configured for Microsoft.Testing.Platform. A teardown
    failure now appears as its own class result, not as a failure of a completed fact.

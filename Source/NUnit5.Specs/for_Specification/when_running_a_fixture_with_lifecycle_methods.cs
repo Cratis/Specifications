@@ -16,7 +16,8 @@ public class when_running_a_fixture_with_lifecycle_methods : given.a_context_log
 
     [Test] public void should_run_establish_once() => Calls.Count(_ => _ == "derived.Establish").ShouldEqual(1);
     [Test] public void should_run_because_once() => Calls.Count(_ => _ == "derived.Because").ShouldEqual(1);
-    [Test] public void should_run_the_lifecycle_of_the_base_class_before_the_derived_class() =>
+    [Test]
+    public void should_run_the_lifecycle_of_the_base_class_before_the_derived_class() =>
         Calls.ToArray().ShouldEqual("base.Establish", "derived.Establish", "base.Because", "derived.Because");
     [Test] public void should_not_destroy_while_facts_are_running() => Calls.Any(_ => _.EndsWith("Destroy")).ShouldBeFalse();
 }

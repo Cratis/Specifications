@@ -55,7 +55,7 @@ MTP_SERIAL_ARGUMENTS = {"cratis-runner": ["--specs-parallel", "1", "--specs-sequ
 
 def runner(project, flavor, route, serial, result_dir):
     directory = project.parent
-    binary = directory / "bin/Release/net10.0/Benchmark"
+    binary = directory / "bin/Release/net11.0/Benchmark"
     output = binary.parent
     if flavor.startswith("xunit"):
         # Both the adapter and the standalone xUnit runner read this configuration.
@@ -63,7 +63,7 @@ def runner(project, flavor, route, serial, result_dir):
         (output / "xunit.runner.json").write_text(json.dumps({"parallelizeTestCollections": False, "maxParallelThreads": 1} if serial else {}))
     if route == "dotnet-test":
         report = result_dir / "results.trx"
-        command = ["dotnet", "test", str(project), "-c", "Release", "-f", "net10.0", "--no-build", "--no-restore", "--results-directory", str(result_dir), "--logger", "trx;LogFileName=results.trx"]
+        command = ["dotnet", "test", str(project), "-c", "Release", "-f", "net11.0", "--no-build", "--no-restore", "--results-directory", str(result_dir), "--logger", "trx;LogFileName=results.trx"]
         if serial and flavor.startswith("nunit"):
             command += ["--", "NUnit.NumberOfTestWorkers=0"]
     elif flavor == "xunit-v3":
@@ -74,7 +74,7 @@ def runner(project, flavor, route, serial, result_dir):
     else:
         report = result_dir / "results.trx"
         if route == "dotnet-run":
-            command = ["dotnet", "run", "--project", str(project), "-c", "Release", "-f", "net10.0", "--no-build", "--no-restore", "--"]
+            command = ["dotnet", "run", "--project", str(project), "-c", "Release", "-f", "net11.0", "--no-build", "--no-restore", "--"]
         else:
             command = [str(directory / "bin/aot/Benchmark" if route == "aot" else binary)]
         command += ["--report-trx", "--report-trx-filename", "results.trx", "--results-directory", str(result_dir)]

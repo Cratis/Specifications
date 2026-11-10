@@ -24,6 +24,7 @@ public class when_running_a_specification_with_multiple_facts : given.a_class_ru
 
     [Fact] void should_run_destroy_once() => shared_specification_with_three_facts.destroy_count.ShouldEqual(1);
 
-    [Fact] void should_run_the_lifecycle_in_order_with_destroy_after_the_last_fact() =>
+    [Fact]
+    void should_run_the_lifecycle_in_order_with_destroy_after_the_last_fact() =>
         string.Join(",", shared_specification_with_three_facts.lifecycle_order).ShouldEqual("establish,because,fact,fact,fact,destroy");
 }
