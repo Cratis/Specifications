@@ -32,7 +32,7 @@ public static class SpecificationEmitter
         var establish = hasError ? null : Chain(body, accessors, model, model.Establish, "Establish", ref counter);
         var because = hasError ? null : Chain(body, accessors, model, model.Because, "Because", ref counter);
         var destroy = hasError ? null : Chain(body, accessors, model, model.Destroy, "Destroy", ref counter);
-        var facts = new List<string>();
+        List<string> facts = [with(capacity: model.Facts.Count)];
         for (var index = 0; index < model.Facts.Count; index++)
         {
             facts.Add(Fact(body, accessors, model, model.Facts[index], $"Fact{index}", ref counter));
