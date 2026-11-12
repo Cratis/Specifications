@@ -1,7 +1,8 @@
 <Project>
     <!-- Consumers deliberately use ordinary SDK defaults, not the library's packaging settings. -->
     <PropertyGroup>
-        <TargetFramework>net11.0</TargetFramework>
+        <ConsumerFramework Condition="'$(ConsumerFramework)' == ''">net11.0</ConsumerFramework>
+        <TargetFramework>$(ConsumerFramework)</TargetFramework>
         <IsPackable>false</IsPackable>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>

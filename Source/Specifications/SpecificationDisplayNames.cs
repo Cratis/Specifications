@@ -36,7 +36,7 @@ static class SpecificationDisplayNames
     {
         var segments = @namespace.Length == 0 ? [] : @namespace.Split('.');
         var start = Array.FindIndex(segments, _ => _.StartsWith("for_", StringComparison.Ordinal));
-        var levels = new List<string>();
+        List<string> levels = [];
         if (start >= 0)
         {
             levels.Add(Readable(segments[start].Substring(4)));
@@ -54,8 +54,9 @@ static class SpecificationDisplayNames
     /// <returns>The readable class name.</returns>
     public static string ForType(Type type)
     {
-        var names = new List<string>();
-        for (var current = type; current is not null; current = current.DeclaringType) names.Insert(0, current.Name);
+        List<string> names = [];
+        for (var current = type; current is not null; current = current.DeclaringType) names.Add(current.Name);
+        names.Reverse();
         return ForClass(type.Namespace ?? string.Empty, names);
     }
 

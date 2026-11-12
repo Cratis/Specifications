@@ -54,8 +54,8 @@ public static class SpecificationModelBuilder
         }
 
         var chain = Chain(type);
-        var errors = new List<string>();
-        var diagnostics = new List<DiagnosticModel>();
+        List<string> errors = [];
+        List<DiagnosticModel> diagnostics = [];
         var facts = Facts(chain, compilation, errors, diagnostics);
         if (facts.Count == 0 && errors.Count == 0) return null;
 
@@ -106,14 +106,14 @@ public static class SpecificationModelBuilder
 
     static List<string> TypeNames(INamedTypeSymbol type)
     {
-        var names = new List<string>();
+        List<string> names = [];
         for (var current = type; current is not null; current = current.ContainingType) names.Insert(0, current.Name);
         return names;
     }
 
     static List<INamedTypeSymbol> Chain(INamedTypeSymbol type)
     {
-        var chain = new List<INamedTypeSymbol>();
+        List<INamedTypeSymbol> chain = [];
         for (var current = type; current is not null && current.ToDisplayString() != SpecificationType; current = current.BaseType)
         {
             chain.Insert(0, current);
@@ -146,11 +146,11 @@ public static class SpecificationModelBuilder
 
     static List<FactModel> Facts(List<INamedTypeSymbol> chain, Compilation compilation, List<string> errors, List<DiagnosticModel> diagnostics)
     {
-        var facts = new List<FactModel>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
+        List<FactModel> facts = [];
+        HashSet<string> seen = [with(StringComparer.Ordinal)];
         for (var index = chain.Count - 1; index >= 0; index--)
         {
-            var own = new List<FactModel>();
+            List<FactModel> own = [];
             foreach (var method in chain[index].GetMembers().OfType<IMethodSymbol>())
             {
                 var attribute = method.GetAttributes().FirstOrDefault(_ => _.AttributeClass?.ToDisplayString() == FactAttribute);

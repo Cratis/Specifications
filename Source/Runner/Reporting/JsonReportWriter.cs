@@ -37,7 +37,7 @@ internal static class JsonReportWriter
             writer.WriteEndObject();
         }
 
-        return Encoding.UTF8.GetString(stream.ToArray()) + "\n";
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length) + "\n";
     }
 
     static double Milliseconds(TimeSpan duration) => Math.Round(duration.TotalMilliseconds, 3);
